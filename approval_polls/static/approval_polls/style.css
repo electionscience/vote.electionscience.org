@@ -1,0 +1,42 @@
+html, body {
+	height: 100%;
+	margin: 0px;
+}
+body {
+	font-family: Arial, Sans-serif;
+	font-size: 13px;
+	line-height: 20px;
+}
+h3 {
+	margin-top: 12px;
+	margin-bottom: 12px;
+}
+ul {
+	padding-left: 15px;
+}
+a:hover, a:focus {
+    color: rgb(255, 173, 99);
+    text-decoration: none;
+}
+a {
+    color: rgb(244, 105, 45);
+    text-decoration: underline;
+}
+#wrapper {
+	min-height: 100%;
+	position: relative;
+}
+#content {
+	margin: 4px;
+	padding-bottom: 40px;
+}
+#footer {
+	position: absolute;
+	bottom: 0px;
+	margin-top-bottom: 4px;
+	width: 100%;
+}
+#footer p {
+	height: 20px;
+	margin: 0px;
+}

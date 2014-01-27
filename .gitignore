@@ -1,0 +1,5 @@
+*.swp
+*.pyc
+*.sqlite3
+
+approval_frame/secret_key.py

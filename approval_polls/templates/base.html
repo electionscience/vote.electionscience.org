@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	{% load staticfiles %}
+	<link rel="stylesheet" type="text/css" href="{% static 'approval_polls/style.css' %}" />
+	<title>{% block title %}Approval Polls from The Center for Election Science{% endblock %}</title>
+</head>
+<body>
+	<div id="wrapper">
+		<div id="header">
+			<a href="http://www.electology.org" target="_blank"><img src="{% static 'approval_polls/images/logo82-mod.png' %}" width="100%" border="0" /></a>
+		</div>
+		<div id="content">
+			{% block content %}{% endblock %}
+		</div>
+		<div id="footer">
+			{% block footer %}<p><a href="{% url 'approval_polls:index' %}">More Polls</a></p>{% endblock %}
+		</div>
+	</div>
+</body>
+</html>

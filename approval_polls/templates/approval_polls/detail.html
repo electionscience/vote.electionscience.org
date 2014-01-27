@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3>{{ poll.question }}</h3>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="{% url 'approval_polls:vote' poll.id %}" method="post">
+{% csrf_token %}
+{% for choice in poll.choice_set.all %}
+    <input type="checkbox" name="choice{{ forloop.counter }}" id="choice{{ forloop.counter }}" />
+    <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label><br />
+{% endfor %}
+<div align="center"><input type="submit" value="Vote" /></div>
+</form>
+{% endblock %}
+
+{% block footer %}
+<div align="center"><p><a href="{% url 'approval_polls:results' poll.id %}">See Results</a></p></div>
+<p><a href="{% url 'approval_polls:index' %}">More Polls</a></p>
+{% endblock %}

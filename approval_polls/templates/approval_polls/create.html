@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="{% url 'approval_polls:created' %}" method="post">
+{% csrf_token %}
+<h3>Poll Question</h3>
+<input type="text" maxlength="200" name="question" size="28" />
+<ul>
+	<li>Choice 1: <input type="text" maxlength="200" name="choice1" size="24" /></li>
+	<li>Choice 2: <input type="text" maxlength="200" name="choice2" size="24" /></li>
+	<li>Choice 3: <input type="text" maxlength="200" name="choice3" size="24" /></li>
+	<li>Choice 4: <input type="text" maxlength="200" name="choice4" size="24" /></li>
+	<li>Choice 5: <input type="text" maxlength="200" name="choice5" size="24" /></li>
+	<li>Choice 6: <input type="text" maxlength="200" name="choice6" size="24" /></li>
+	<li>Choice 7: <input type="text" maxlength="200" name="choice7" size="24" /></li>
+	<li>Choice 8: <input type="text" maxlength="200" name="choice8" size="24" /></li>
+{% comment %}TODO: A little bit of javascript to let you add more choices{% endcomment %}
+</ul>
+<div align="center"><input type="submit" value="Create" /></div>
+</form>
+{% endblock %}

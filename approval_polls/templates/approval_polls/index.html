@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if latest_poll_list %}
+    <ul>
+    {% for poll in latest_poll_list %}
+        <li><a href="{% url 'approval_polls:detail' poll.id %}">{{ poll.question }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available.</p>
+{% endif %}
+{% endblock content %}
+
+{% block footer %}
+{% if latest_poll_list %}
+    <div align="center"><p>
+        {% if latest_poll_list.has_previous %}
+        <a href="?page={{ latest_poll_list.previous_page_number}}">&laquo;Previous</a>
+        {% endif %}
+        (page {{ latest_poll_list.number }} of {{ latest_poll_list.paginator.num_pages }})
+        {% if latest_poll_list.has_next %}
+        <a href="?page={{ latest_poll_list.next_page_number}}">Next&raquo;</a>
+        {% endif %}
+    </p></div>	
+{% endif %}
+<p><a href="{% url 'approval_polls:create' %}">Create a Poll</a></p>
+{% endblock footer %}
+
