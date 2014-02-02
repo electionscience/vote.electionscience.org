@@ -49,7 +49,11 @@ class CreateView(generic.base.TemplateView):
 
 def created(request):
     #if question exists and is not blank, create a new poll p
-    q = request.POST['question']
+    try:
+        q = request.POST['question']
+    except (KeyError):
+        #TODO: Tsk, tsk; return some html!
+	return HttpResponse('You have to ask a question!')
     if (q == ''):
         #TODO: Tsk, tsk; return some html!
 	return HttpResponse('You have to ask a question!')
@@ -57,8 +61,9 @@ def created(request):
     p.save();
 
     #while choice(i) exists and is not blank, add as a choice
-    c = 1
+    c = 0
     while (True):
+        c += 1
         try:
             text = request.POST['choice'+str(c)]
         except (KeyError):
@@ -66,7 +71,6 @@ def created(request):
         if (text == ''):
             continue
 	p.choice_set.create(choice_text=text, votes=0)
-        c += 1
 
     #redirect to detail page of your new poll
     return HttpResponseRedirect(reverse('approval_polls:detail', args=(p.id,)))
