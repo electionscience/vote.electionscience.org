@@ -5,7 +5,7 @@
 
 <ul>
 {% for choice in poll.choice_set.all %}
-    <li>{{ choice.choice_text }} &raquo; {{ choice.votes }}&nbsp;vote{{ choice.votes|pluralize }} ({{ choice.percentage }}%)</li>
+    <li>{{ choice }} &raquo; {{ choice.votes }}&nbsp;vote{{ choice.votes|pluralize }} ({{ choice.percentage }}%)</li>
 {% endfor %}
 </ul>
 <p>{{ poll.total_votes }} vote{{ poll.total_votes|pluralize }} on {{ poll.ballots }} ballot{{ poll.ballots|pluralize}}</p>

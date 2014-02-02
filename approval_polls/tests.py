@@ -3,19 +3,23 @@ import datetime
 from django.utils import timezone
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.test.client import Client
 
-from approval_polls.models import Poll
+from approval_polls.models import Poll, Choice
 
-def create_poll(question, days):
+def create_poll(question, days=0, ballots=0):
     """
     Creates a poll with the given `question` published the given number of
     `days` offset to now (negative for polls published in the past,
     positive for polls that have yet to be published).
     """
     return Poll.objects.create(question=question,
-        pub_date=timezone.now() + datetime.timedelta(days=days))
+        pub_date=timezone.now() + datetime.timedelta(days=days), ballots=ballots)
 
-class PollViewTests(TestCase):
+class PollIndexTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+
     def test_index_view_with_no_polls(self):
         """
         If no polls exist, an appropriate message should be displayed.
@@ -71,7 +75,15 @@ class PollViewTests(TestCase):
              ['<Poll: Past poll 2.>', '<Poll: Past poll 1.>']
         )
 
-class PollIndexDetailTests(TestCase):
+    def test_index_view_with_empty_page(self):
+        """
+        If an empty page of polls is requested, then the last page of polls is returned.
+        """
+        create_poll(question="Empty page poll.")
+        response = self.client.get('/approval_polls/?page=2')
+        self.assertContains(response, '(page 1 of 1)', status_code=200)
+
+class PollDetailTests(TestCase):
     def test_detail_view_with_a_future_poll(self):
         """
         The detail view of a poll with a pub_date in the future should
@@ -89,4 +101,101 @@ class PollIndexDetailTests(TestCase):
         past_poll = create_poll(question='Past Poll.', days=-5)
         response = self.client.get(reverse('approval_polls:detail', args=(past_poll.id,)))
         self.assertContains(response, past_poll.question, status_code=200)
+
+    def test_detail_view_with_a_choice(self):
+        """
+        The detail view of a poll with a choice should display the
+        choice's text.
+        """
+        poll = create_poll(question='Choice poll.')
+        poll.choice_set.create(choice_text='Choice text.', votes=0)
+        response = self.client.get(reverse('approval_polls:detail', args=(poll.id,)))
+        self.assertContains(response, 'Choice text.', status_code=200)
+
+class PollResultsTests(TestCase):
+    def test_results_view_with_no_ballots(self):
+        """
+        Results page of a poll with a choice shows 0 votes (0%), 0 votes on 0 ballots.
+        """
+        poll = create_poll(question='Choice poll.')
+        poll.choice_set.create(choice_text='Choice text.', votes=0)
+        response = self.client.get(reverse('approval_polls:results', args=(poll.id,)))
+        self.assertContains(response, '0&nbsp;votes (0%)', status_code=200)
+        self.assertContains(response, '0 votes on 0 ballots', status_code=200)
+
+    def test_results_view_with_ballots(self):
+        """
+        Results page of a poll with a choice and ballots shows the correct percentage,
+        total vote count, and total ballot count.
+        """
+        poll = create_poll(question='Choice poll.', ballots=2)
+        poll.choice_set.create(choice_text='Choice text.', votes=1)
+        response = self.client.get(reverse('approval_polls:results', args=(poll.id,)))
+        self.assertContains(response, '1&nbsp;vote (50%)', status_code=200)
+        self.assertContains(response, '1 vote on 2 ballots', status_code=200)
+
+class PollVoteTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def test_vote_view_counts_increase(self):
+        """
+        Voting in a poll increases the count for selected choices, but not for unselected
+        ones, and also increases the ballot count.
+        """
+        poll = create_poll(question='Vote poll.', ballots=100)
+        poll.choice_set.create(choice_text='Choice 1.', votes=10)
+        poll.choice_set.create(choice_text='Choice 2.', votes=20)
+        response  = self.client.post('/approval_polls/'+str(poll.id)+'/vote/', data={'choice2':''}, follow=True)
+        self.assertContains(response, '10&nbsp;votes')
+        self.assertContains(response, '21&nbsp;votes')
+        self.assertContains(response, '101 ballots', status_code=200)
+
+class PollCreateTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def test_create_redirects_to_detail(self):
+        """
+        Creating a new poll leads to the new polls vote page.
+        """
+        poll_data = {
+            'question':'Create poll.',
+            'choice1' :'Choice 1.',
+            'choice2' :'Choice 2.',
+            }        
+        response = self.client.post('/approval_polls/created/', poll_data, follow=True)
+        self.assertContains(response, 'Create poll.', status_code=200)
+        self.assertContains(response, 'Choice 1.')
+        self.assertContains(response, 'Choice 2.')
+        self.assertContains(response, 'See Results')
+
+    def test_create_with_no_question(self):
+        """
+        No question should return an error message.
+        """
+        response = self.client.post('/approval_polls/created/', {'choice1':'Choice 1.'}, follow=True)
+        self.assertContains(response, 'You have to ask a question!', status_code=200)
+
+    def test_crete_with_blank_question(self):
+        """
+        Blank question should return an error message.
+        """
+        response = self.client.post('/approval_polls/created/', {'question':'', 'choice1':'Choice 1.'}, follow=True)
+        self.assertContains(response, 'You have to ask a question!', status_code=200)
+
+    def test_create_skips_blank_choices(self):
+        """
+        A blank choice doesn't appear in the poll (but later ones do)
+        """
+        poll_data = {
+            'question':'Create poll.',
+            'choice1' :'',
+            'choice2' :'Choice 2.',
+            }        
+        response = self.client.post('/approval_polls/created/', poll_data, follow=True)
+        self.assertContains(response, 'Create poll.', status_code=200)
+        self.assertNotContains(response, 'Choice 1.')
+        self.assertContains(response, 'Choice 2.')
+        self.assertContains(response, 'See Results')
 
