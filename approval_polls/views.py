@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth.decorators import login_required
 
 from approval_polls.models import Poll, Choice
 
@@ -44,23 +45,27 @@ def vote(request, poll_id):
     p.save()
     return HttpResponseRedirect(reverse('approval_polls:results', args=(p.id,)))
 
-class CreateView(generic.base.TemplateView):
-    template_name = 'approval_polls/create.html'
+@login_required
+def create(request):
+    return render(request, 'approval_polls/create.html')
+#class CreateView(generic.base.TemplateView):
+#    template_name = 'approval_polls/create.html'
 
+@login_required
 def created(request):
     #if question exists and is not blank, create a new poll p
     try:
         q = request.POST['question']
     except (KeyError):
-        #TODO: Tsk, tsk; return some html!
+        #TODO: Tsk, tsk; return some html! Return to 'create' with error message and fields filled.
 	return HttpResponse('You have to ask a question!')
     if (q == ''):
         #TODO: Tsk, tsk; return some html!
 	return HttpResponse('You have to ask a question!')
     p = Poll(question=q, pub_date=timezone.now(), ballots=0)
-    p.save();
+    p.save()
 
-    #while choice(i) exists and is not blank, add as a choice
+    #while choice(c) exists and is not blank, add as a choice
     c = 0
     while (True):
         c += 1
@@ -74,3 +79,4 @@ def created(request):
 
     #redirect to detail page of your new poll
     return HttpResponseRedirect(reverse('approval_polls:detail', args=(p.id,)))
+

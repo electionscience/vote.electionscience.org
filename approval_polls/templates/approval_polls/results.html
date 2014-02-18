@@ -9,9 +9,6 @@
 {% endfor %}
 </ul>
 <p>{{ poll.total_votes }} vote{{ poll.total_votes|pluralize }} on {{ poll.ballots }} ballot{{ poll.ballots|pluralize}}</p>
-{% endblock %}
 
-{% block footer %}
 <div align="center"><p><a href="{% url 'approval_polls:detail' poll.id %}">Vote again?</a></p></div>
-<p><a href="{% url 'approval_polls:index' %}">More Polls</a></p>
 {% endblock %}

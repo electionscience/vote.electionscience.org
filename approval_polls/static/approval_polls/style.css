@@ -15,12 +15,15 @@ ul {
 	padding-left: 15px;
 }
 a:hover, a:focus {
-    color: rgb(255, 173, 99);
-    text-decoration: none;
+	color: rgb(255, 173, 99);
+	text-decoration: none;
 }
 a {
-    color: rgb(244, 105, 45);
-    text-decoration: underline;
+	color: rgb(244, 105, 45);
+	text-decoration: underline;
+}
+.nowrap {
+	white-space: nowrap;
 }
 #wrapper {
 	min-height: 100%;
@@ -28,15 +31,21 @@ a {
 }
 #content {
 	margin: 4px;
-	padding-bottom: 40px;
+	padding-bottom: 36px;
 }
 #footer {
 	position: absolute;
 	bottom: 0px;
-	margin-top-bottom: 4px;
 	width: 100%;
 }
 #footer p {
-	height: 20px;
+	height: 40px;
 	margin: 0px;
+}
+.left {
+	float: left;
+}
+.right {
+	float: right;
+	text-align: right;
 }

@@ -7,6 +7,10 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+#Generic login forms, feel free to customize these for your site
+LOGIN_URL = '/approval_polls/login'
+LOGIN_REDIRECT_URL = '/approval_polls/index'
+
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
