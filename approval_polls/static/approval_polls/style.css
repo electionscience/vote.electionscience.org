@@ -1,6 +1,7 @@
 html, body {
 	height: 100%;
 	margin: 0px;
+	max-width: 220px;
 }
 body {
 	font-family: Arial, Sans-serif;
@@ -10,9 +11,14 @@ body {
 h3 {
 	margin-top: 12px;
 	margin-bottom: 12px;
+	overflow: hidden;
 }
 ul {
-	padding-left: 15px;
+	padding-left: 16px;
+	overflow: hidden;
+}
+form {
+	overflow: hidden;
 }
 a:hover, a:focus {
 	color: rgb(255, 173, 99);
@@ -31,7 +37,8 @@ a {
 }
 #content {
 	margin: 4px;
-	padding-bottom: 36px;
+	padding-bottom: 32px;
+	margin-bottom: 0px;
 }
 #footer {
 	position: absolute;
