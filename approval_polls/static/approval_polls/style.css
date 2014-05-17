@@ -28,8 +28,16 @@ a {
 	color: rgb(244, 105, 45);
 	text-decoration: underline;
 }
-.nowrap {
+ul {
+	padding-left: 0;
+}
+li.nowrap {
 	white-space: nowrap;
+	margin: 0px 0px 5px 0px;
+	white-space: nowrap;
+	overflow: hidden;
+  	text-overflow: ellipsis;
+	list-style-position:inside;
 }
 #wrapper {
 	min-height: 100%;
