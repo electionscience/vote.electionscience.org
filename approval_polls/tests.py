@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.test.client import Client
+from django.contrib.auth.models import User
 
 from approval_polls.models import Poll, Choice
 
@@ -154,6 +155,16 @@ class PollVoteTests(TestCase):
 class PollCreateTests(TestCase):
     def setUp(self):
         self.client = Client()
+	user = User.objects.create_user('test','test@example.com','test')
+	user.save()
+	self.client.login(username='test', password='test')
+
+    def test_create_page_exists(self):
+	"""
+	The create a poll form exists
+	"""
+	response = self.client.post('/approval_polls/create/')
+	self.assertEquals(response.status_code, 200)
 
     def test_create_redirects_to_detail(self):
         """
