@@ -15,7 +15,22 @@
 			{% block content %}{% endblock %}
 		</div>
 		<div id="footer">
-			{% block footer %}<p><a href="{% url 'approval_polls:index' %}">More Polls</a></p>{% endblock %}
+			<p class="left">
+			{% block footer %}
+			<br /><a href="{% url 'approval_polls:index' %}">More Polls</a>
+			{% endblock %}
+			</p>
+			<p class="right">
+			{% block login %}
+			{% if user.is_authenticated %}
+				{{ user.username }}<br />
+				<a href="{% url 'approval_polls:logout' %}">Logout</a>	
+			{% else %}
+				<br />
+				<a href="{% url 'approval_polls:login' %}">Login</a>
+			{% endif %}
+			{% endblock %}
+			</p>
 		</div>
 	</div>
 </body>

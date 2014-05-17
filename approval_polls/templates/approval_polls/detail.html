@@ -13,9 +13,6 @@
 {% endfor %}
 <div align="center"><input type="submit" value="Vote" /></div>
 </form>
+<div align="center"><p><a href="{% url 'approval_polls:results' poll.id %}">See Results</a></p></div>
 {% endblock %}
 
-{% block footer %}
-<div align="center"><p><a href="{% url 'approval_polls:results' poll.id %}">See Results</a></p></div>
-<p><a href="{% url 'approval_polls:index' %}">More Polls</a></p>
-{% endblock %}
