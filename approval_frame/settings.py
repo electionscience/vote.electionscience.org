@@ -103,6 +103,7 @@ except ImportError:
     generate_secret_key(os.path.join(SETTINGS_DIR, 'secret_key.py'))
     from secret_key import *
 
+LOGIN_REDIRECT_URL = '/approval_polls/'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
