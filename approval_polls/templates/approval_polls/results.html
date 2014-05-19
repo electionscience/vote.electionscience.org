@@ -1,11 +1,19 @@
-{% extends "base.html" %}
+{% extends "public_base.html" %}
 
 {% block content %}
 <h3>{{ poll.question }}</h3>
 
 <ul>
 {% for choice in poll.choice_set.all %}
-    <li>{{ choice }} &raquo; {{ choice.votes }}&nbsp;vote{{ choice.votes|pluralize }} ({{ choice.percentage }}%)</li>
+    <li>
+    	{{ choice }}<br>
+    	{{ choice.votes }} vote{{ choice.votes|pluralize }} ({{ choice.percentage }}%)
+    	<div class="results">
+	    	<div class="chart">
+	    		<div style="width:{{ choice.percentage }}%"></div>
+	    	</div>
+	    </div>
+    </li>
 {% endfor %}
 </ul>
 <p>{{ poll.total_votes }} vote{{ poll.total_votes|pluralize }} on {{ poll.ballots }} ballot{{ poll.ballots|pluralize}}</p>

@@ -47,9 +47,9 @@ li.nowrap {
 	margin-bottom: 0px;
 }
 #footer {
-	position: absolute;
+	/*position: absolute;
 	bottom: 0px;
-	width: 100%;
+	width: 100%;*/
 }
 #footer p {
 	height: 40px;

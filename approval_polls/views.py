@@ -87,5 +87,7 @@ def created(request):
         p.choice_set.create(choice_text=choice, votes=0)
 
     #redirect to detail page of your new poll
-    return HttpResponseRedirect(reverse('approval_polls:detail', args=(p.id,)))
+    #return HttpResponseRedirect(reverse('approval_polls:detail', args=(p.id,)))
+    link = request.build_absolute_uri('/approval_polls/' + str(p.id))
+    return render(request, 'approval_polls/embed_instructions.html', {'link': link})
 
