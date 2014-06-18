@@ -34,13 +34,13 @@ class ResultsView(generic.DetailView):
 def vote(request, poll_id):
     p = get_object_or_404(Poll, pk=poll_id)
     for counter,choice in enumerate(p.choice_set.all()):
-	try:
-		request.POST['choice'+str(counter+1)]
-	except (KeyError):
-		pass
-	else:
-		choice.votes += 1
-		choice.save()
+        try:
+            request.POST['choice'+str(counter+1)]
+        except (KeyError):
+            pass
+        else:
+            choice.votes += 1
+            choice.save()
     p.ballots += 1
     p.save()
     return HttpResponseRedirect(reverse('approval_polls:results', args=(p.id,)))
@@ -54,18 +54,17 @@ def create(request):
 @login_required
 def created(request):
     #if question exists and is not blank, create a new poll p
-    try:
-        q = request.POST['question']
-    except (KeyError):
-        #TODO: Tsk, tsk; return some html! Return to 'create' with error message and fields filled.
-	return HttpResponse('You have to ask a question!')
-    if (q == ''):
-        #TODO: Tsk, tsk; return some html!
-	return HttpResponse('You have to ask a question!')
-    p = Poll(question=q, pub_date=timezone.now(), ballots=0)
-    p.save()
+    error = False
+    question = False
+    choices = []
 
-    #while choice(c) exists and is not blank, add as a choice
+    # grab data from request
+    # question
+    try:
+        question = request.POST['question']
+    except (KeyError):
+        error = True
+    # while choice(c) exists and is not blank, add as a choice
     c = 0
     while (True):
         c += 1
@@ -75,8 +74,20 @@ def created(request):
             break
         if (text == ''):
             continue
-	p.choice_set.create(choice_text=text, votes=0)
+        choices.append(text)
+
+    if (not question or error or len(choices) == 0):
+        message = 'You need a question and at least one choice.'
+        return render(request, 'approval_polls/error.html', {'error_message': message})
+
+    p = Poll(question=question, pub_date=timezone.now(), ballots=0)
+    p.save()
+
+    for choice in choices:
+        p.choice_set.create(choice_text=choice, votes=0)
 
     #redirect to detail page of your new poll
-    return HttpResponseRedirect(reverse('approval_polls:detail', args=(p.id,)))
+    #return HttpResponseRedirect(reverse('approval_polls:detail', args=(p.id,)))
+    link = request.build_absolute_uri('/approval_polls/' + str(p.id))
+    return render(request, 'approval_polls/embed_instructions.html', {'link': link})
 

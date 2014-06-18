@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	{% load staticfiles %}
+	<title>{% block title %}Approval Polls from The Center for Election Science{% endblock %}</title>
+	{% block head %}{% endblock %}
+	<style>
+		html, body {
+			height: 100%;
+			margin: 0 auto;
+			max-width: 350px;
+			min-width: 200px;
+		}
+		body {
+			font-family: Arial, Sans-serif;
+			font-size: 13px;
+			line-height: 20px;
+			padding: 0 5px;
+		}
+		h3 {
+			margin-top: 0;
+			margin-bottom: 12px;
+			overflow: hidden;
+		}
+		a:hover, a:focus {
+			color: rgb(255, 173, 99);
+			text-decoration: none;
+		}
+		a {
+			color: rgb(244, 105, 45);
+			text-decoration: underline;
+		}
+		#content {
+			padding: 5px;
+		}
+		#footer {
+			/*position: absolute;
+			bottom: 0px;
+			width: 100%;*/
+			font-size: 11px;
+			background-color: white;
+			text-align: center;
+		}
+		ul {
+			padding-left: 20px;
+		}
+		input[type=checkbox] {
+			margin-left: -20px;
+		}
+		.results .chart {
+			border: 1px solid black;
+			padding: 2px;
+		}
+		.results .chart div {
+			background-color: gray;
+			height: 1em;
+		}
+	</style>
+</head>
+<body>
+	<div id="content">
+		{% block content %}{% endblock %}
+	</div>
+	<div id="footer">
+		<p>
+			This poll uses approval voting, instead of the more common plurality system.
+			<a href="http://www.electology.org/approval-voting">Learn why it's better</a> and 
+			<a href="/approval_polls/create/" target="_top">create your own poll</a>.
+		</p>
+
+		<a href="http://www.electology.org" target="_blank">
+			<img src="{% static 'approval_polls/images/logo82-small.png' %}" border="0" />
+		</a>
+	</div>
+</body>
+</html>

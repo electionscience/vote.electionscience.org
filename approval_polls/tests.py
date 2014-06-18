@@ -186,14 +186,14 @@ class PollCreateTests(TestCase):
         No question should return an error message.
         """
         response = self.client.post('/approval_polls/created/', {'choice1':'Choice 1.'}, follow=True)
-        self.assertContains(response, 'You have to ask a question!', status_code=200)
+        self.assertContains(response, 'You need a question and at least one choice.', status_code=200)
 
     def test_crete_with_blank_question(self):
         """
         Blank question should return an error message.
         """
         response = self.client.post('/approval_polls/created/', {'question':'', 'choice1':'Choice 1.'}, follow=True)
-        self.assertContains(response, 'You have to ask a question!', status_code=200)
+        self.assertContains(response, 'You need a question and at least one choice.', status_code=200)
 
     def test_create_skips_blank_choices(self):
         """
