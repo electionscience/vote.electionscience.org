@@ -8,7 +8,7 @@
 
 <p>Do you need to <a href="/accounts/register/">create a new account?</a></p>
 
-<form method="post" action="{% url 'approval_polls:login' %}">
+<form method="post" action="/accounts/login/">
 {% csrf_token %}
 {{ form.username.label_tag }}:
 {{ form.username }}

@@ -1,0 +1,8 @@
+Words words words.
+
+{{ site }}/accounts/activate/{{ activation_key }}
+
+You have {{ expiration_days }} days before this key expires.
+
+More words.
+

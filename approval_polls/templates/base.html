@@ -24,10 +24,10 @@
 			{% block login %}
 			{% if user.is_authenticated %}
 				{{ user.username }}<br />
-				<a href="{% url 'approval_polls:logout' %}">Logout</a>	
+				<a href="/accounts/logout">Logout</a>	
 			{% else %}
 				<br />
-				<a href="{% url 'approval_polls:login' %}">Login</a>
+				<a href="/accounts/login">Login</a>
 			{% endif %}
 			{% endblock %}
 			</p>
