@@ -121,7 +121,7 @@ class PollResultsTests(TestCase):
         poll = create_poll(question='Choice poll.')
         poll.choice_set.create(choice_text='Choice text.', votes=0)
         response = self.client.get(reverse('approval_polls:results', args=(poll.id,)))
-        self.assertContains(response, '0&nbsp;votes (0%)', status_code=200)
+        self.assertContains(response, '0 votes (0%)', status_code=200)
         self.assertContains(response, '0 votes on 0 ballots', status_code=200)
 
     def test_results_view_with_ballots(self):
@@ -132,7 +132,7 @@ class PollResultsTests(TestCase):
         poll = create_poll(question='Choice poll.', ballots=2)
         poll.choice_set.create(choice_text='Choice text.', votes=1)
         response = self.client.get(reverse('approval_polls:results', args=(poll.id,)))
-        self.assertContains(response, '1&nbsp;vote (50%)', status_code=200)
+        self.assertContains(response, '1 vote (50%)', status_code=200)
         self.assertContains(response, '1 vote on 2 ballots', status_code=200)
 
 class PollVoteTests(TestCase):
@@ -148,8 +148,8 @@ class PollVoteTests(TestCase):
         poll.choice_set.create(choice_text='Choice 1.', votes=10)
         poll.choice_set.create(choice_text='Choice 2.', votes=20)
         response  = self.client.post('/approval_polls/'+str(poll.id)+'/vote/', data={'choice2':''}, follow=True)
-        self.assertContains(response, '10&nbsp;votes')
-        self.assertContains(response, '21&nbsp;votes')
+        self.assertContains(response, '10 votes')
+        self.assertContains(response, '21 votes')
         self.assertContains(response, '101 ballots', status_code=200)
 
 class PollCreateTests(TestCase):
@@ -166,20 +166,18 @@ class PollCreateTests(TestCase):
 	response = self.client.post('/approval_polls/create/')
 	self.assertEquals(response.status_code, 200)
 
-    def test_create_redirects_to_detail(self):
+    def test_create_shows_iframe_code(self):
         """
-        Creating a new poll leads to the new polls vote page.
+        Creating a new poll shows a HTML snippet to embed the new poll with an iframe.
         """
         poll_data = {
             'question':'Create poll.',
             'choice1' :'Choice 1.',
-            'choice2' :'Choice 2.',
-            }        
+            }
         response = self.client.post('/approval_polls/created/', poll_data, follow=True)
-        self.assertContains(response, 'Create poll.', status_code=200)
-        self.assertContains(response, 'Choice 1.')
-        self.assertContains(response, 'Choice 2.')
-        self.assertContains(response, 'See Results')
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, 'approval_polls/embed_instructions.html')
+        self.assertTrue('/approval_polls/1' in response.context['link'])
 
     def test_create_with_no_question(self):
         """
@@ -188,7 +186,7 @@ class PollCreateTests(TestCase):
         response = self.client.post('/approval_polls/created/', {'choice1':'Choice 1.'}, follow=True)
         self.assertContains(response, 'You need a question and at least one choice.', status_code=200)
 
-    def test_crete_with_blank_question(self):
+    def test_create_with_blank_question(self):
         """
         Blank question should return an error message.
         """
@@ -203,10 +201,10 @@ class PollCreateTests(TestCase):
             'question':'Create poll.',
             'choice1' :'',
             'choice2' :'Choice 2.',
-            }        
-        response = self.client.post('/approval_polls/created/', poll_data, follow=True)
+            }
+        self.client.post('/approval_polls/created/', poll_data, follow=True)
+        response = self.client.get('/approval_polls/1/', follow=True)
         self.assertContains(response, 'Create poll.', status_code=200)
         self.assertNotContains(response, 'Choice 1.')
         self.assertContains(response, 'Choice 2.')
         self.assertContains(response, 'See Results')
-
