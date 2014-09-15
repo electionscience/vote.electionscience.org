@@ -5,7 +5,9 @@ Quick Start:
 You'll need to have python (2.7) and django (1.6) installed. You will also need the django-registrations package (1.0).
 
 python (be sure not to get version 3!): https://www.python.org/download/
+
 django: https://docs.djangoproject.com/en/1.6/intro/install/
+
 registrations: http://django-registration.readthedocs.org/en/latest/quickstart.html
 
 Before you run the Django server for the first time, you'll need to create the database tables:
