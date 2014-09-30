@@ -35,15 +35,19 @@ class ResultsView(generic.DetailView):
 
 def vote(request, poll_id):
     p = get_object_or_404(Poll, pk=poll_id)
+
+    # TODO: Doesn't handle HTTP_X_FORWARDED_FOR, etc. (Because then you could fake
+    # your IP.) We should probably add a config option for when running behind a proxy.
+    ballot = p.ballot_set.create(timestamp=timezone.now(),
+                                 ip=request.META.get('REMOTE_ADDR'))
     for counter,choice in enumerate(p.choice_set.all()):
         try:
             request.POST['choice'+str(counter+1)]
         except (KeyError):
             pass
         else:
-            choice.votes += 1
-            choice.save()
-    p.ballots += 1
+            ballot.vote_set.create(choice=choice)
+            ballot.save()
     p.save()
     return HttpResponseRedirect(reverse('approval_polls:results', args=(p.id,)))
 
@@ -80,11 +84,11 @@ def created(request):
         message = 'You need a question and at least one choice.'
         return render(request, 'approval_polls/error.html', {'error_message': message})
 
-    p = Poll(question=question, pub_date=timezone.now(), ballots=0)
+    p = Poll(question=question, pub_date=timezone.now())
     p.save()
 
     for choice in choices:
-        p.choice_set.create(choice_text=choice, votes=0)
+        p.choice_set.create(choice_text=choice)
 
     #redirect to detail page of your new poll
     #return HttpResponseRedirect(reverse('approval_polls:detail', args=(p.id,)))
