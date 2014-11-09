@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.test.client import Client
 from django.contrib.auth.models import User
 
-from approval_polls.models import Poll, Choice
+from approval_polls.models import Poll
 
 def create_poll(question, days=0, ballots=0):
     """
@@ -14,8 +14,19 @@ def create_poll(question, days=0, ballots=0):
     `days` offset to now (negative for polls published in the past,
     positive for polls that have yet to be published).
     """
-    return Poll.objects.create(question=question,
-        pub_date=timezone.now() + datetime.timedelta(days=days), ballots=ballots)
+    poll = Poll.objects.create(question=question,
+        pub_date=timezone.now() + datetime.timedelta(days=days))
+
+    for _ in range(ballots):
+        create_ballot(poll)
+
+    return poll
+
+def create_ballot(poll, timestamp=timezone.now(), ip='127.0.0.1'):
+    """
+    Creates a ballot for the given `poll`, submitted at `timestamp` by `ip`.
+    """
+    return poll.ballot_set.create(timestamp=timestamp, ip=ip)
 
 class PollIndexTests(TestCase):
     def setUp(self):
@@ -109,7 +120,7 @@ class PollDetailTests(TestCase):
         choice's text.
         """
         poll = create_poll(question='Choice poll.')
-        poll.choice_set.create(choice_text='Choice text.', votes=0)
+        poll.choice_set.create(choice_text='Choice text.')
         response = self.client.get(reverse('approval_polls:detail', args=(poll.id,)))
         self.assertContains(response, 'Choice text.', status_code=200)
 
@@ -119,7 +130,7 @@ class PollResultsTests(TestCase):
         Results page of a poll with a choice shows 0 votes (0%), 0 votes on 0 ballots.
         """
         poll = create_poll(question='Choice poll.')
-        poll.choice_set.create(choice_text='Choice text.', votes=0)
+        poll.choice_set.create(choice_text='Choice text.')
         response = self.client.get(reverse('approval_polls:results', args=(poll.id,)))
         self.assertContains(response, '0 votes (0%)', status_code=200)
         self.assertContains(response, '0 votes on 0 ballots', status_code=200)
@@ -129,8 +140,9 @@ class PollResultsTests(TestCase):
         Results page of a poll with a choice and ballots shows the correct percentage,
         total vote count, and total ballot count.
         """
-        poll = create_poll(question='Choice poll.', ballots=2)
-        poll.choice_set.create(choice_text='Choice text.', votes=1)
+        poll = create_poll(question='Choice poll.', ballots=1)
+        choice = poll.choice_set.create(choice_text='Choice text.')
+        create_ballot(poll).vote_set.create(choice=choice)
         response = self.client.get(reverse('approval_polls:results', args=(poll.id,)))
         self.assertContains(response, '1 vote (50%)', status_code=200)
         self.assertContains(response, '1 vote on 2 ballots', status_code=200)
@@ -144,10 +156,16 @@ class PollVoteTests(TestCase):
         Voting in a poll increases the count for selected choices, but not for unselected
         ones, and also increases the ballot count.
         """
-        poll = create_poll(question='Vote poll.', ballots=100)
-        poll.choice_set.create(choice_text='Choice 1.', votes=10)
-        poll.choice_set.create(choice_text='Choice 2.', votes=20)
-        response  = self.client.post('/approval_polls/'+str(poll.id)+'/vote/', data={'choice2':''}, follow=True)
+        poll = create_poll(question='Vote poll.', ballots=80)
+        choice1 = poll.choice_set.create(choice_text='Choice 1.')
+        choice2 = poll.choice_set.create(choice_text='Choice 2.')
+        for _ in range(10):
+            create_ballot(poll).vote_set.create(choice=choice1)
+        for _ in range(10):
+            create_ballot(poll).vote_set.create(choice=choice2)
+        response = self.client.post('/approval_polls/'+str(poll.id)+'/vote/',
+                                    data={'choice2':''},
+                                    follow=True)
         self.assertContains(response, '10 votes')
         self.assertContains(response, '21 votes')
         self.assertContains(response, '101 ballots', status_code=200)
