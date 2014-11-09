@@ -1,5 +1,5 @@
 from django.contrib import admin
-from approval_polls.models import Choice, Poll
+from approval_polls.models import Choice, Poll, Ballot
 
 class ChoiceInline(admin.TabularInline):
 	model = Choice
@@ -16,3 +16,4 @@ class PollAdmin(admin.ModelAdmin):
 	search_fields = ['question']
 
 admin.site.register(Poll, PollAdmin)
+admin.site.register(Ballot)
