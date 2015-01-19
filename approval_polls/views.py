@@ -4,7 +4,6 @@ from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.contrib.auth.decorators import login_required
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 
@@ -51,11 +50,9 @@ def vote(request, poll_id):
     p.save()
     return HttpResponseRedirect(reverse('approval_polls:results', args=(p.id,)))
 
-@login_required
 def create(request):
     return render(request, 'approval_polls/create.html')
 
-@login_required
 def created(request):
     #if question exists and is not blank, create a new poll p
     error = False
@@ -94,16 +91,3 @@ def created(request):
     #return HttpResponseRedirect(reverse('approval_polls:detail', args=(p.id,)))
     link = request.build_absolute_uri('/approval_polls/' + str(p.id))
     return render(request, 'approval_polls/embed_instructions.html', {'link': link})
-
-#def register(request):
-#    if request.method == 'POST':
-#        form = UserCreationForm(request.POST)
-#        if form.is_valid():
-#            new_user = form.save()
-#            return HttpResponseRedirect("/approval_polls/login")
-#    else:
-#        form = UserCreationForm()
-#    return render(request, "approval_polls/register.html", {
-#        'form': form,
-#    })
-

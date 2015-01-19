@@ -20,17 +20,6 @@
 			<br /><a href="{% url 'approval_polls:index' %}">More Polls</a>
 			{% endblock %}
 			</p>
-			<p class="right">
-			{% block login %}
-			{% if user.is_authenticated %}
-				{{ user.username }}<br />
-				<a href="/accounts/logout">Logout</a>	
-			{% else %}
-				<br />
-				<a href="/accounts/login">Login</a>
-			{% endif %}
-			{% endblock %}
-			</p>
 		</div>
 	</div>
 </body>
