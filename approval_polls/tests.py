@@ -175,7 +175,6 @@ class PollCreateTests(TestCase):
         self.client = Client()
 	user = User.objects.create_user('test','test@example.com','test')
 	user.save()
-	self.client.login(username='test', password='test')
 
     def test_create_page_exists(self):
 	"""

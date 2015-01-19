@@ -112,8 +112,6 @@ except ImportError:
     generate_secret_key(os.path.join(SETTINGS_DIR, 'secret_key.py'))
     from secret_key import *
 
-LOGIN_REDIRECT_URL = '/approval_polls/'
-
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -153,8 +151,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'approval_polls',
-    'registration',
+    'approval_polls'
 )
 
 ACCOUNT_ACTIVATION_DAYS = 7
