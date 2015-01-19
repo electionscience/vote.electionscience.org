@@ -1,27 +1,56 @@
-Lots of websites have polls, usually as a little side bar. But most of those polls are based on plurality voting, an inferior voting method. Approval_frame is a replacement for those polls, using approval voting, which is suitable for embedding in other webpages via an iframe tag. The project, taken as a whole, will serve these approval-based webpolls, or the approval_polls package contained within it can be added to other Django-based servers to be used locally.
+About
+=====
+Lots of websites have polls, usually as a little side bar.
+But most of those polls are based on plurality voting, an inferior voting method.
+Approval\_frame is a replacement for those polls, using approval voting,
+which is suitable for embedding in other webpages via an iframe tag.
+The project, taken as a whole, will serve these approval-based webpolls, or the approval\_polls package contained within it can be added to other Django-based servers to be used locally.
 
-Quick Start:
+Dependencies
+------------
+**Option 1** : Manually install the following
 
-You'll need to have python (2.7) and django (written in 1.5, 1.6 probably works?) installed. You will also need the django-registrations package (1.0).
+1. [Python (2.7)](https://www.python.org/download/) 
+2. [Django (1.5)](https://docs.djangoproject.com/en/1.5/intro/install/)
+3. [django-registrations package (1.0)](http://django-registration.readthedocs.org/en/latest/quickstart.html).
 
-python (be sure not to get version 3!): https://www.python.org/download/
+**Option 2** (Recommend) : Use virtualenv and pip
 
-django: https://docs.djangoproject.com/en/1.5/intro/install/
+To learn more about why virtualenv and pip should be used, refer - [A non-magical introduction to Pip and Virtualenv for Python beginners](http://www.dabapps.com/blog/introduction-to-pip-and-virtualenv-python/)
 
-registrations: http://django-registration.readthedocs.org/en/latest/quickstart.html
+1. Install Python 2.7 from the link in step 1 above.
+2. Install [pip](https://pip.pypa.io/en/latest/installing.html) globally `sudo apt-get install python-pip`.
+3. Install [virtualenv](https://virtualenv.pypa.io/en/latest/) globally `sudo pip install virtualenv`.
+4. Enter the directory that contains this readme file.
+5. Create a new virtual environment `virtualenv env`.
+6. Activate the virtual environment `source env/bin/activate`
+7. Install the dependencies `pip install -r requirements.txt`
 
-Before you run the Django server for the first time, you'll need to create the database tables:
+When you're done working on the project, you can quit the virtualenv by running `deactivate`.
 
-* python manage.py syncdb
+Steps
+-----
 
-This will ask you to create a superuser account, which is necessary if you want to use the Django admin interface. But also, you'll need a user account in order to create polls in the system, and it's easiest to do that here. (If you don't create an account here, you'll have to mess around copying urls from from the server output to fake confirming an email address in order to create a user account later... so just do it now.)
+1. Before you run the Django server for the first time, you'll need to create the database tables:
 
-Then start the Django server:
+   `python manage.py syncdb`
 
-* python manage.py runserver
+   This will ask you to create a superuser account, which is necessary if you want to use the Django admin interface.
+   But also, you'll need a user account in order to create polls in the system, and it's easiest to do that here.
+   (If you don't create an account here, you'll have to mess around copying urls from from the server output to fake confirming an email address in order to create a user account later... so just do it now.)
 
-Finally, see how it looks. In your favorte browser, open the file:
+2. Then start the Django server:
 
-* approval_polls/embedExample.html
+  `python manage.py runserver`
 
-You should see a sample webpage, with the approval_frame main frame embedded to one side. There won't be any polls yet, but you can login with the superuser account you created. Then you should be able to create polls, vote in them, and see the results.
+3. Finally, see how it looks. In your favorte browser, go to the link:
+
+  `<your domain name>:<port>/approval_polls`
+
+  If you're running the server locally then this would be 
+
+  `http://localhost:8000/approval_polls`
+
+  You should see a sample webpage, with the approval\_frame main frame embedded to one side.
+  There won't be any polls yet, but you can login with the superuser account you created.
+  Then you should be able to create polls, vote in them, and see the results.
