@@ -9,3 +9,5 @@ approval_frame/secret_key.py
 *.swn
 
 *.swo
+
+env
