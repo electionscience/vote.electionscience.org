@@ -20,7 +20,7 @@ def index(request):
         polls = paginator.page(1)
     except EmptyPage:
         polls = paginator.page(paginator.num_pages)
-    return render(request, 'approval_polls/index.html', {"latest_poll_list":polls})
+    return render(request, 'approval_polls/index.html', {"latest_poll_list" : polls})
 
 class DetailView(generic.DetailView):
     model = Poll
@@ -34,22 +34,20 @@ class ResultsView(generic.DetailView):
     template_name = 'approval_polls/results.html'
 
 def vote(request, poll_id):
-    p = get_object_or_404(Poll, pk=poll_id)
+    poll = get_object_or_404(Poll, pk=poll_id)
 
     # TODO: Doesn't handle HTTP_X_FORWARDED_FOR, etc. (Because then you could fake
     # your IP.) We should probably add a config option for when running behind a proxy.
-    ballot = p.ballot_set.create(timestamp=timezone.now(),
-                                 ip=request.META.get('REMOTE_ADDR'))
-    for counter,choice in enumerate(p.choice_set.all()):
-        try:
-            request.POST['choice'+str(counter+1)]
-        except (KeyError):
-            pass
-        else:
-            ballot.vote_set.create(choice=choice)
-            ballot.save()
-    p.save()
-    return HttpResponseRedirect(reverse('approval_polls:results', args=(p.id,)))
+    ballot = poll.ballot_set.create(timestamp=timezone.now(),
+                                    ip=request.META.get('REMOTE_ADDR'))
+    for counter, choice in enumerate(poll.choice_set.all()):
+      if 'choice' + str(counter + 1) in request.POST:
+        ballot.vote_set.create(choice = choice)
+        ballot.save()
+
+    poll.save()
+
+    return HttpResponseRedirect(reverse('approval_polls:results', args=(poll.id,)))
 
 @login_required
 def create(request):
@@ -90,20 +88,5 @@ def created(request):
     for choice in choices:
         p.choice_set.create(choice_text=choice)
 
-    #redirect to detail page of your new poll
-    #return HttpResponseRedirect(reverse('approval_polls:detail', args=(p.id,)))
     link = request.build_absolute_uri('/approval_polls/' + str(p.id))
     return render(request, 'approval_polls/embed_instructions.html', {'link': link})
-
-#def register(request):
-#    if request.method == 'POST':
-#        form = UserCreationForm(request.POST)
-#        if form.is_valid():
-#            new_user = form.save()
-#            return HttpResponseRedirect("/approval_polls/login")
-#    else:
-#        form = UserCreationForm()
-#    return render(request, "approval_polls/register.html", {
-#        'form': form,
-#    })
-
