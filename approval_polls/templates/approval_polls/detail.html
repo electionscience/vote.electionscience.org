@@ -1,22 +1,25 @@
 {% extends "public_base.html" %}
 
 {% block content %}
-<h3>{{ poll.question }}</h3>
+  <h3>{{ poll.question }}</h3>
 
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+  {% if error_message %}
+    <p><strong>{{ error_message }}</strong></p>
+  {% endif %}
 
-<form action="{% url 'approval_polls:vote' poll.id %}" method="post">
-{% csrf_token %}
-<ul>
-{% for choice in poll.choice_set.all %}
-	<li>
-    <input type="checkbox" name="choice{{ forloop.counter }}" id="choice{{ forloop.counter }}" />
-    <label for="choice{{ forloop.counter }}">{{ choice }}</label>
-	</li>
-{% endfor %}
-</ul>
-<div align="center"><input type="submit" value="Vote" /></div>
-</form>
-<p style="text-align:center"><a href="{% url 'approval_polls:results' poll.id %}">See Results</a></p>
+  <form action="{% url 'approval_polls:vote' poll.id %}" method="post">
+    {% csrf_token %}
+    <ul>
+    {% for choice in poll.choice_set.all %}
+      <li>
+        <input type="checkbox" name="choice{{ forloop.counter }}" id="choice{{ forloop.counter }}">
+        <label for="choice{{ forloop.counter }}">{{ choice }}</label>
+      </li>
+    {% endfor %}
+    </ul>
+    <div align="center"><input type="submit" value="Vote" /></div>
+  </form>
+
+  <p style="text-align:center"><a href="{% url 'approval_polls:results' poll.id %}">See Results</a></p>
 {% endblock %}
 
