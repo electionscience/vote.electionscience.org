@@ -31,7 +31,16 @@ When you're done working on the project, you can quit the virtualenv by running 
 Steps
 -----
 
-1. Before you run the Django server for the first time, you'll need to create the database tables:
+1. For the registration procedure to work correctly, fill-in the following email configuration in settings.py
+  ```
+  EMAIL_USE_TLS = True
+  EMAIL_HOST = hostname of the smtp server
+  EMAIL_PORT = 587
+  EMAIL_HOST_USER = the username on the smtp server
+  EMAIL_HOST_PASSWORD = the password for the username
+  ```
+
+2. Before you run the Django server for the first time, you'll need to create the database tables:
 
    `python manage.py syncdb`
 
@@ -39,11 +48,13 @@ Steps
    But also, you'll need a user account in order to create polls in the system, and it's easiest to do that here.
    (If you don't create an account here, you'll have to mess around copying urls from from the server output to fake confirming an email address in order to create a user account later... so just do it now.)
 
-2. Then start the Django server:
+3. Start the Django server:
 
   `python manage.py runserver`
 
-3. Finally, see how it looks. In your favorte browser, go to the link:
+4. Change the domain name of the site `example.com` to `yourdomainname` in the admin panel so that the activation emails have the correct url. 
+
+5. Finally, see how it looks. In your favorte browser, go to the link:
 
   `<your domain name>:<port>/approval_polls`
 
