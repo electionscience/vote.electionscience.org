@@ -12,6 +12,13 @@ DATABASES = {
     }
 }
 
+# The following settings are required for the activation emails in the registration module to work
+EMAIL_USE_TLS = True
+EMAIL_HOST = '' # Example - smtp.gmail.com
+EMAIL_PORT = 587 # 587 for smtp
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = []

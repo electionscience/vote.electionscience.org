@@ -1,8 +1,5 @@
-Words words words.
+Thank you for signing up with the approval voting application.
 
-{{ site }}/accounts/activate/{{ activation_key }}
+Please visit the following url to activate your account - {{ site }}/accounts/activate/{{ activation_key }}
 
-You have {{ expiration_days }} days before this key expires.
-
-More words.
-
+This link expires in {{ expiration_days }} days.
