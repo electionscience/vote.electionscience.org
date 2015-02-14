@@ -70,3 +70,19 @@ Steps (assumes a linux system)
 
   There won't be any polls yet, but you can login with the superuser account you created.
   Then you should be able to create polls, vote in them, and see the results.
+
+Contributing
+------------
+1. If you're new to Python, [Google's Python tutorial](https://developers.google.com/edu/python/) gives a basic introduction to the language.
+   There are several other tutorials available on the web.
+2. If you're new to Django, the [tutorial](https://docs.djangoproject.com/en/1.7/intro/tutorial01/) on Django's documentation page is very comprehensive.
+   In fact, through a happy coincidence, it uses a poll application as an example.
+   This project is heavily based on that tutorial.
+3. If you're new to git, as mentioned above, the [Pro Git](http://git-scm.com/book/en/v2) book is very useful. 
+4. In order to contribute, please follow the fork-and-pull-request model as documented [here](https://help.github.com/articles/fork-a-repo/).
+
+All contributions are welcome.  
+
+Discuss
+-------
+Have a question? Want to discuss something? Head over to the forum at https://groups.google.com/forum/#!forum/ces-software.
