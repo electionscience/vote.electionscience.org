@@ -28,10 +28,16 @@ To learn more about why virtualenv and pip should be used, refer - [A non-magica
 
 When you're done working on the project, you can quit the virtualenv by running `deactivate`.
 
-Steps
------
+Steps (assumes a linux system)
+------------------------------
 
-1. For the registration procedure to work correctly, fill-in the following email configuration in settings.py
+1. [Install git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git). If you're new to git then the [Pro Git](http://git-scm.com/book/en/v2) book is useful.
+
+2. Clone this repository. `git clone https://github.com/electology/approval_frame.git`.
+
+3. Go into the approval\_frame directory. `cd approval_frame`.
+
+4. For the registration procedure to work correctly, fill-in the following email configuration in approval\_frame/settings.py
   ```
   EMAIL_USE_TLS = True
   EMAIL_HOST = hostname of the smtp server
@@ -40,7 +46,7 @@ Steps
   EMAIL_HOST_PASSWORD = the password for the username
   ```
 
-2. Before you run the Django server for the first time, you'll need to create the database tables:
+5. Before you run the Django server for the first time, you'll need to create the database tables:
 
    `python manage.py syncdb`
 
@@ -48,13 +54,13 @@ Steps
    But also, you'll need a user account in order to create polls in the system, and it's easiest to do that here.
    (If you don't create an account here, you'll have to mess around copying urls from from the server output to fake confirming an email address in order to create a user account later... so just do it now.)
 
-3. Start the Django server:
+6. Start the Django server:
 
   `python manage.py runserver`
 
-4. Change the domain name of the site `example.com` to `yourdomainname` in the admin panel so that the activation emails have the correct url. 
+7. Change the domain name of the site `example.com` to `yourdomainname` in the admin panel so that the activation emails have the correct url. 
 
-5. Finally, see how it looks. In your favorte browser, go to the link:
+8. Finally, see how it looks. In your favorte browser, go to the link:
 
   `<your domain name>:<port>/approval_polls`
 
@@ -62,6 +68,5 @@ Steps
 
   `http://localhost:8000/approval_polls`
 
-  You should see a sample webpage, with the approval\_frame main frame embedded to one side.
   There won't be any polls yet, but you can login with the superuser account you created.
   Then you should be able to create polls, vote in them, and see the results.
