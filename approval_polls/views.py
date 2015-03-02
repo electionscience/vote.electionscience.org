@@ -1,4 +1,5 @@
 from django.http import HttpResponseRedirect, HttpResponse
+from django.views.decorators.http import require_http_methods
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.views import generic
@@ -33,6 +34,8 @@ class ResultsView(generic.DetailView):
     model = Poll
     template_name = 'approval_polls/results.html'
 
+
+@require_http_methods(["POST"])
 def vote(request, poll_id):
     poll = get_object_or_404(Poll, pk=poll_id)
 
