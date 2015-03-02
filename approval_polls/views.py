@@ -26,9 +26,6 @@ def index(request):
 class DetailView(generic.DetailView):
     model = Poll
     template_name = 'approval_polls/detail.html'
-    def get_queryset(self):
-        """Exclude any polls that aren't published yet."""
-        return Poll.objects.filter(pub_date__lte=timezone.now())
 
 class ResultsView(generic.DetailView):
     model = Poll
