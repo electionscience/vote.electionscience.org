@@ -1,13 +1,7 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-
-
-Put this code in your site:
-
-<textarea style="width:250px;height:50px">
-<iframe src="{{link}}" width="250"></iframe>
-</textarea>
-
+  Put this code in your site:
+  <textarea rows=3 cols=100><iframe src='{{ link }}' width='250'></iframe></textarea>
 {% endblock %}
 

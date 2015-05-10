@@ -1,37 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-	{% load staticfiles %}
-	<link rel="stylesheet" type="text/css" href="{% static 'approval_polls/style.css' %}" />
-	<title>{% block title %}Approval Polls from The Center for Election Science{% endblock %}</title>
-	{% block head %}{% endblock %}
-</head>
-<body>
-	<div id="wrapper">
-		<div id="header">
-			<a href="http://www.electology.org" target="_blank"><img src="{% static 'approval_polls/images/logo82-mod.png' %}" width="100%" border="0" /></a>
-		</div>
-		<div id="content">
-			{% block content %}{% endblock %}
-		</div>
-		<div id="footer">
-			<p class="left">
-			{% block footer %}
-			<br /><a href="{% url 'approval_polls:index' %}">More Polls</a>
-			{% endblock %}
-			</p>
-			<p class="right">
-			{% block login %}
-			{% if user.is_authenticated %}
-				{{ user.username }}<br />
-				<a href="/accounts/logout">Logout</a>	
-			{% else %}
-				<br />
-				<a href="/accounts/login">Login</a>
-			{% endif %}
-			{% endblock %}
-			</p>
-		</div>
-	</div>
-</body>
+<html lang='en'>
+  <head>
+    {% load staticfiles %}
+    <link rel='stylesheet' type='text/css' href='{% static 'approval_polls/style.css' %}'>
+    <title>Approval Polls from The Center for Election Science</title>
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    <div id='wrapper'>
+
+      <div id='header'>
+        <a href='http://www.electology.org' target='_blank'>
+          <img src='{% static 'approval_polls/images/logo-mod.png' %}' width='100%' border='0'>
+        </a>
+      </div>
+
+      <div id='content'> {% block content %}{% endblock %} </div>
+
+      <div id='footer'>
+
+        <p class='left'>
+          {% block footer %}
+            <a href='{% url 'approval_polls:index' %}'>More Polls</a>
+          {% endblock %}
+        </p>
+
+        <p class='right'>
+          {% block login %}
+            {% if user.is_authenticated %}
+              {{ user.username }} <a href='/accounts/logout'>Logout</a>	
+            {% else %}
+              <a href='/accounts/login'>Login</a>
+            {% endif %}
+          {% endblock %}
+        </p>
+      </div>
+    </div>
+  </body>
 </html>

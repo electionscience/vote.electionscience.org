@@ -1,19 +1,30 @@
-var ap = ap || {};
+(function () {
+  var numChoiceFields, addChoiceField, init;
 
-ap.num_choice_fields = 8;
+  numChoiceFields = 8;
 
-/* Add an extra textfield for a poll choice on the poll creation page. */
-ap.addChoiceField = function () {
-    ap.num_choice_fields += 1;
+  /* Add an extra textfield for a poll choice on the poll creation page. */
+  addChoiceField = function () {
+    var choice_list, new_choice;
 
-    var choice_list = document.getElementById("choice-list"),
-        new_choice = document.createElement("li");
+    choice_list = document.getElementById('choice-list');
+    new_choice = document.createElement('li');
 
-    new_choice.innerHTML = 'Choice ' +
-        ap.num_choice_fields +
-        ': <input type="text" maxlength="200" name="choice' +
-        ap.num_choice_fields +
-        '" size="24" />';
+    numChoiceFields++;
+
+    new_choice.innerHTML = 'Choice ' + numChoiceFields +
+                           ': <input type=text maxlength=200 name=choice' +
+                           numChoiceFields + ' size=24>';
 
     choice_list.appendChild(new_choice);
-};
+  };
+
+  init = function () {
+    var elt;
+
+    elt = document.getElementById('add-choice-button');
+    elt.addEventListener('click', addChoiceField);
+  };
+
+  addEventListener('load', init);
+}());
