@@ -1,2 +1,2 @@
-django==1.5
-django-registration==1.0
+django==1.8.1
+django-registration-redux==1.1
