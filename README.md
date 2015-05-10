@@ -11,8 +11,8 @@ Dependencies
 **Option 1** : Manually install the following
 
 1. [Python (2.7)](https://www.python.org/download/) 
-2. [Django (1.5)](https://docs.djangoproject.com/en/1.5/intro/install/)
-3. [django-registrations package (1.0)](http://django-registration.readthedocs.org/en/latest/quickstart.html).
+2. [Django (1.8.1)](https://docs.djangoproject.com/en/1.8/topics/install/)
+3. [django-registrations-redux package (1.1)](https://django-registration-redux.readthedocs.org/en/latest/quickstart.html).
 
 **Option 2** (Recommend) : Use virtualenv and pip
 
