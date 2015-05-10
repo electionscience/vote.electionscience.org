@@ -1,22 +1,24 @@
-{% extends "public_base.html" %}
+{% extends 'public_base.html' %}
 
 {% block content %}
-<h3>{{ poll.question }}</h3>
+  <h3>{{ poll.question }}</h3>
 
-<ul>
-{% for choice in poll.choice_set.all %}
+  <ul>
+  {% for choice in poll.choice_set.all %}
     <li>
-    	{{ choice }}<br>
-    	{{ choice.votes }} vote{{ choice.votes|pluralize }} ({{ choice.percentage }}%)
-    	<div class="results">
-	    	<div class="chart">
-	    		<div style="width:{{ choice.percentage }}%"></div>
-	    	</div>
-	    </div>
+      <p>{{ choice }}</p>
+      <p>{{ choice.votes }} vote{{ choice.votes|pluralize }} ({{ choice.percentage }}%)</p>
+      <div class='results'>
+        <div class='chart'>
+          <div style='width:{{ choice.percentage }}%'></div>
+        </div>
+      </div>
     </li>
-{% endfor %}
-</ul>
-<p>{{ poll.total_votes }} vote{{ poll.total_votes|pluralize }} on {{ poll.total_ballots }} ballot{{ poll.total_ballots|pluralize}}</p>
+  {% endfor %}
+  </ul>
+  <p>{{ poll.total_votes }} vote{{ poll.total_votes|pluralize }} on {{ poll.total_ballots }} ballot{{ poll.total_ballots|pluralize}}</p>
 
-<div align="center"><p><a href="{% url 'approval_polls:detail' poll.id %}">Vote again?</a></p></div>
+  <div align='center'>
+    <a href='{% url 'approval_polls:detail' poll.id %}'>Vote again?</a>
+  </div>
 {% endblock %}

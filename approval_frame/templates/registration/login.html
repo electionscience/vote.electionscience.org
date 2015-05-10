@@ -1,23 +1,25 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
 
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
+  {% if form.errors %}
+    <p>Your username and password didn't match. Please try again.</p>
+  {% endif %}
 
-<p>Do you need to <a href="/accounts/register/">create a new account?</a></p>
+  <p>Do you need to <a href='/accounts/register/'>create a new account?</a></p>
 
-<form method="post" action="/accounts/login/">
-{% csrf_token %}
-{{ form.username.label_tag }}:
-{{ form.username }}
-<br />
-{{ form.password.label_tag }}:
-{{ form.password }}
-<div align="center"><input type="submit" value="login" /></div>
-<input type="hidden" name="next" value="{{ next }}" />
-</form>
+  <form method='post' action='/accounts/login/'>
+    {% csrf_token %}
+    <p>
+    {{ form.username.label_tag }}:
+    {{ form.username }}
+    </p>
+    <p>
+    {{ form.password.label_tag }}:
+    {{ form.password }}
+    </p>
+    <p> <input type='submit' value='login'> </p>
+  </form>
 
 {% endblock %}
 

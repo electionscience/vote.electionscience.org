@@ -34,7 +34,6 @@ class Choice(models.Model):
 class Ballot(models.Model):
 	poll = models.ForeignKey(Poll, null=True, blank=True)
 	timestamp = models.DateTimeField('time voted')
-	ip = models.GenericIPAddressField()
 
 	def __unicode__(self):
 		return self.ip + " at " + str(self.timestamp)

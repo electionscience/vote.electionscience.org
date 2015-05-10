@@ -1,9 +1,6 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-
-<p>Logged out.</p>
-
-<p>Return to <a href="{% url 'approval_polls:index' %}">home</a></p>
-
+  <p>Logged out.</p>
+  <p>Return to <a href='{% url 'approval_polls:index' %}'>home</a></p>
 {% endblock %}

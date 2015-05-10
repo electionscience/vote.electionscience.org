@@ -17,8 +17,7 @@ def create_poll(question, days=0, ballots=0):
     poll = Poll.objects.create(question=question,
         pub_date=timezone.now() + datetime.timedelta(days=days))
 
-    for _ in range(ballots):
-        create_ballot(poll)
+    for _ in range(ballots): create_ballot(poll)
 
     return poll
 
@@ -26,7 +25,7 @@ def create_ballot(poll, timestamp=timezone.now(), ip='127.0.0.1'):
     """
     Creates a ballot for the given `poll`, submitted at `timestamp` by `ip`.
     """
-    return poll.ballot_set.create(timestamp=timestamp, ip=ip)
+    return poll.ballot_set.create(timestamp=timestamp)
 
 class PollIndexTests(TestCase):
     def setUp(self):
@@ -51,16 +50,6 @@ class PollIndexTests(TestCase):
             response.context['latest_poll_list'],
             ['<Poll: Past poll.>']
         )
-
-    def test_index_view_with_a_future_poll(self):
-        """
-        Polls with a pub_date in the future should not be displayed on the
-        index page.
-        """
-        create_poll(question="Future poll.", days=30)
-        response = self.client.get(reverse('approval_polls:index'))
-        self.assertContains(response, "No polls are available.", status_code=200)
-        self.assertQuerysetEqual(response.context['latest_poll_list'], [])
 
     def test_index_view_with_future_poll_and_past_poll(self):
         """
@@ -192,7 +181,7 @@ class PollCreateTests(TestCase):
             'question':'Create poll.',
             'choice1' :'Choice 1.',
             }
-        response = self.client.post('/approval_polls/created/', poll_data, follow=True)
+        response = self.client.post('/approval_polls/add/', poll_data, follow=True)
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, 'approval_polls/embed_instructions.html')
         self.assertTrue('/approval_polls/1' in response.context['link'])
@@ -201,15 +190,15 @@ class PollCreateTests(TestCase):
         """
         No question should return an error message.
         """
-        response = self.client.post('/approval_polls/created/', {'choice1':'Choice 1.'}, follow=True)
-        self.assertContains(response, 'You need a question and at least one choice.', status_code=200)
+        response = self.client.post('/approval_polls/add/', {'choice1':'Choice 1.'}, follow=True)
+        self.assertContains(response, 'The question is missing', status_code=200)
 
     def test_create_with_blank_question(self):
         """
         Blank question should return an error message.
         """
-        response = self.client.post('/approval_polls/created/', {'question':'', 'choice1':'Choice 1.'}, follow=True)
-        self.assertContains(response, 'You need a question and at least one choice.', status_code=200)
+        response = self.client.post('/approval_polls/add/', {'question':'', 'choice1':'Choice 1.'}, follow=True)
+        self.assertContains(response, 'The question is missing', status_code=200)
 
     def test_create_skips_blank_choices(self):
         """
@@ -220,7 +209,7 @@ class PollCreateTests(TestCase):
             'choice1' :'',
             'choice2' :'Choice 2.',
             }
-        self.client.post('/approval_polls/created/', poll_data, follow=True)
+        self.client.post('/approval_polls/add/', poll_data, follow=True)
         response = self.client.get('/approval_polls/1/', follow=True)
         self.assertContains(response, 'Create poll.', status_code=200)
         self.assertNotContains(response, 'Choice 1.')

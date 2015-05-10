@@ -1,28 +1,27 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% load filters %}
 
 {% block head %}
-{% load staticfiles %}
-<script src="{% static 'approval_polls/create.js' %}"></script>
+  {% load staticfiles %}
+  <script src='{% static 'approval_polls/create.js' %}'></script>
 {% endblock %}
 
 {% block content %}
-<form action="{% url 'approval_polls:created' %}" method="post">
-{% csrf_token %}
-<h3>Poll Question</h3>
-<input type="text" maxlength="200" name="question" size="28" />
-<ul id="choice-list">
-	<li>Choice 1: <input type="text" maxlength="200" name="choice1" size="24" /></li>
-	<li>Choice 2: <input type="text" maxlength="200" name="choice2" size="24" /></li>
-	<li>Choice 3: <input type="text" maxlength="200" name="choice3" size="24" /></li>
-	<li>Choice 4: <input type="text" maxlength="200" name="choice4" size="24" /></li>
-	<li>Choice 5: <input type="text" maxlength="200" name="choice5" size="24" /></li>
-	<li>Choice 6: <input type="text" maxlength="200" name="choice6" size="24" /></li>
-	<li>Choice 7: <input type="text" maxlength="200" name="choice7" size="24" /></li>
-	<li>Choice 8: <input type="text" maxlength="200" name="choice8" size="24" /></li>
-</ul>
+  <form action='{% url 'approval_polls:add' %}' method='post'>
+    {% csrf_token %}
+    <h3>Poll Question</h3>
 
-<button type="button" id="add-choice-button" onclick="ap.addChoiceField()">+</button>
+    <input type='text' maxlength='200' name='question' size='28'>
 
-<div align="center"><input type="submit" value="Create" /></div>
-</form>
+    <ul id='choice-list'>
+      {% for i in 9|get_range %}
+        <li>Choice {{ i }}: <input type='text' maxlength='200' name='choice{{ i }}' size='24'></li>
+      {% endfor %}
+    </ul>
+
+    <button type='button' id='add-choice-button'>+</button>
+
+    <div align='center'> <input type='submit' value='Create'> </div>
+  </form>
 {% endblock %}
