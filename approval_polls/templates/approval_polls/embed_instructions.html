@@ -1,7 +1,43 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  Put this code in your site:
-  <textarea rows=3 cols=100><iframe src='{{ link }}' width='250'></iframe></textarea>
+
+<script type='text/javascript'>
+
+// thanks to http://www.dyn-web.com
+function getDocHeight(doc) {
+    doc = doc || document;
+    var body = doc.body, html = doc.documentElement;
+    var height = Math.max( body.scrollHeight, body.offsetHeight, 
+        html.clientHeight, html.scrollHeight, html.offsetHeight );
+    return height;
+}
+
+// thanks to http://www.dyn-web.com
+function setIframeHeightAndCode(id) {
+    var ifrm = document.getElementById(id);
+    var doc = ifrm.contentDocument? ifrm.contentDocument: ifrm.contentWindow.document;
+    ifrm.style.visibility = 'hidden';
+    ifrm.style.height = "10px"; 
+    ifrm.style.height = getDocHeight( doc ) + "px";
+    ifrm.style.visibility = 'visible';
+    // Write out the required HTML iframe code containing this dynamic height into the textarea.
+    setIframeDrawCode('textAreaCode', ifrm.style.height);
+}
+
+function setIframeDrawCode(id, dynHeight) {
+    var textArea = document.getElementById(id);
+    
+    // Since the width of the embedded document's body is restricted to 350px, and displaying
+    // the footer would always require the max-width, setting the iframe's width to 350px.
+    textArea.value = "<iframe src='{{ link }}' width='350px' height='"+dynHeight+"'></iframe>";
+}
+
+</script>
+Put this code in your site:
+<textarea rows=3 cols=100 id='textAreaCode' spellcheck='false' readonly></textarea>
+Preview:
+<iframe id="iframePreview" name="iframePreview" src='{{ link }}' onload="setIframeHeightAndCode(this.id)" width='350px'>Sorry, your browser doesn't support iframes.</iframe>
+
 {% endblock %}
 
