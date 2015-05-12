@@ -34,9 +34,9 @@ function setIframeDrawCode(id, dynHeight) {
 }
 
 </script>
-Put this code in your site:
+<p>Put this code in your site:<p>
 <textarea rows=3 cols=100 id='textAreaCode' spellcheck='false' readonly></textarea>
-Preview:
+<p>Preview:<p>
 <iframe id="iframePreview" name="iframePreview" src='{{ link }}' onload="setIframeHeightAndCode(this.id)" width='350px'>Sorry, your browser doesn't support iframes.</iframe>
 
 {% endblock %}
