@@ -3,6 +3,7 @@ from django.db import models
 class Poll(models.Model):
 	question = models.CharField(max_length=200)
 	pub_date = models.DateTimeField('date published')
+	username = models.CharField(max_length=30)
 
 	def total_ballots(self):
 		return self.ballot_set.count()
