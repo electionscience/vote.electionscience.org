@@ -6,7 +6,7 @@
     {% for poll in latest_poll_list %}
       <li class='nowrap'>
         <a href='{% url 'approval_polls:detail' poll.id %}'>{{ poll.question }}</a>
-        &nbsp;&nbsp;&nbsp;&nbsp;{{ poll.username }}
+        &nbsp;&nbsp;&nbsp;&nbsp;{{ poll.user.username }}
       </li>
     {% endfor %}
     </ul>
@@ -20,7 +20,7 @@
         <a href='?page={{ latest_poll_list.next_page_number}}'>Next&raquo;</a>
       {% endif %}
       </p>
-    </div>	
+    </div>
   {% else %}
     <p>No polls are available.</p>
   {% endif %}

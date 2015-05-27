@@ -79,7 +79,7 @@ def add(request):
     if not len(choices):
       return render(request, 'approval_polls/error.html', {'error_message': 'At least one choice is required'})
 
-    p = Poll(question=question, pub_date=timezone.now(), username=request.POST['username'].strip())
+    p = Poll(question=question, pub_date=timezone.now(), user=request.user)
     p.save()
 
     for choice in choices: p.choice_set.create(choice_text=choice)
