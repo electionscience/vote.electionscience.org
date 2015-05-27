@@ -12,7 +12,7 @@ def create_poll(question, username, days=0, ballots=0):
     """
     Creates a poll with the given `question` published the given number of
     `days` offset to now (negative for polls published in the past,
-    positive for polls that have yet to be published), and username as the
+    positive for polls that have yet to be published), and user as the
     foreign key pointing to the user model.
     """
     poll = Poll.objects.create(question=question,
