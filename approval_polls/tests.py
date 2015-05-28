@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 
 from approval_polls.models import Poll
 
-def create_poll(question, username, days=0, ballots=0):
+def create_poll(question, username="user1", days=0, ballots=0):
     """
     Creates a poll with the given `question` published the given number of
     `days` offset to now (negative for polls published in the past,
@@ -46,7 +46,7 @@ class PollIndexTests(TestCase):
         """
         Polls with a pub_date in the past should be displayed on the index page.
         """
-        create_poll(question="Past poll.", username="user1", days=-30)
+        create_poll(question="Past poll.", days=-30)
         response = self.client.get(reverse('approval_polls:index'))
         self.assertQuerysetEqual(
             response.context['latest_poll_list'],
@@ -58,7 +58,7 @@ class PollIndexTests(TestCase):
         Even if both past and future polls exist, only past polls should be
         displayed.
         """
-        create_poll(question="Past poll.", username="user1", days=-30)
+        create_poll(question="Past poll.", days=-30)
         create_poll(question="Future poll.", username="user2", days=30)
         response = self.client.get(reverse('approval_polls:index'))
         self.assertQuerysetEqual(
@@ -70,7 +70,7 @@ class PollIndexTests(TestCase):
         """
         The polls index page may display multiple polls.
         """
-        create_poll(question="Past poll 1.", username="user1", days=-30)
+        create_poll(question="Past poll 1.", days=-30)
         create_poll(question="Past poll 2.", username="user2", days=-5)
         response = self.client.get(reverse('approval_polls:index'))
         self.assertQuerysetEqual(
@@ -82,7 +82,7 @@ class PollIndexTests(TestCase):
         """
         If an empty page of polls is requested, then the last page of polls is returned.
         """
-        create_poll(question="Empty page poll.", username="user1")
+        create_poll(question="Empty page poll.")
         response = self.client.get('/approval_polls/?page=2')
         self.assertContains(response, '(page 1 of 1)', status_code=200)
 
@@ -92,7 +92,7 @@ class PollDetailTests(TestCase):
         The detail view of a poll with a pub_date in the future should
         return a 404 not found.
         """
-        future_poll = create_poll(question='Future poll.', username="user1", days=5)
+        future_poll = create_poll(question='Future poll.', days=5)
         response = self.client.get(reverse('approval_polls:detail', args=(future_poll.id,)))
         self.assertEqual(response.status_code, 404)
 
@@ -101,7 +101,7 @@ class PollDetailTests(TestCase):
         The detail view of a poll with a pub_date in the past should display
         the poll's question.
         """
-        past_poll = create_poll(question='Past Poll.', username="user1", days=-5)
+        past_poll = create_poll(question='Past Poll.', days=-5)
         response = self.client.get(reverse('approval_polls:detail', args=(past_poll.id,)))
         self.assertContains(response, past_poll.question, status_code=200)
 
@@ -110,7 +110,7 @@ class PollDetailTests(TestCase):
         The detail view of a poll with a choice should display the
         choice's text.
         """
-        poll = create_poll(question='Choice poll.', username="user1")
+        poll = create_poll(question='Choice poll.')
         poll.choice_set.create(choice_text='Choice text.')
         response = self.client.get(reverse('approval_polls:detail', args=(poll.id,)))
         self.assertContains(response, 'Choice text.', status_code=200)
@@ -120,7 +120,7 @@ class PollResultsTests(TestCase):
         """
         Results page of a poll with a choice shows 0 votes (0%), 0 votes on 0 ballots.
         """
-        poll = create_poll(question='Choice poll.', username="user1")
+        poll = create_poll(question='Choice poll.')
         poll.choice_set.create(choice_text='Choice text.')
         response = self.client.get(reverse('approval_polls:results', args=(poll.id,)))
         self.assertContains(response, '0 votes (0%)', status_code=200)
@@ -131,7 +131,7 @@ class PollResultsTests(TestCase):
         Results page of a poll with a choice and ballots shows the correct percentage,
         total vote count, and total ballot count.
         """
-        poll = create_poll(question='Choice poll.', username="user1", ballots=1)
+        poll = create_poll(question='Choice poll.', ballots=1)
         choice = poll.choice_set.create(choice_text='Choice text.')
         create_ballot(poll).vote_set.create(choice=choice)
         response = self.client.get(reverse('approval_polls:results', args=(poll.id,)))
@@ -147,7 +147,7 @@ class PollVoteTests(TestCase):
         Voting in a poll increases the count for selected choices, but not for unselected
         ones, and also increases the ballot count.
         """
-        poll = create_poll(question='Vote poll.', username="user1", ballots=80)
+        poll = create_poll(question='Vote poll.', ballots=80)
         choice1 = poll.choice_set.create(choice_text='Choice 1.')
         choice2 = poll.choice_set.create(choice_text='Choice 2.')
         for _ in range(10):

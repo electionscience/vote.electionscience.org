@@ -1,7 +1,7 @@
 {% extends 'public_base.html' %}
 
 {% block content %}
-  <h3>{{ poll.question }}&nbsp;&nbsp;&nbsp;&nbsp;{{ poll.user.username }}</h3>
+  <h3>{{ poll.question }}</h3>
 
   {% if error_message %}
     <p><strong>{{ error_message }}</strong></p>
@@ -20,6 +20,7 @@
     <div align='center'><input type='submit' value='Vote'></div>
   </form>
 
+  <p style='text-align:center'>Creator: {{poll.user.username}}</p>
   <p style='text-align:center'>
     <a href='{% url 'approval_polls:results' poll.id %}'>See Results</a>
   </p>
