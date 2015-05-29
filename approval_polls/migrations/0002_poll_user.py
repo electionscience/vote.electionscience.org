@@ -16,6 +16,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='poll',
             name='user',
-            field=models.ForeignKey(default=b'', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(default=0, to=settings.AUTH_USER_MODEL),
+            preserve_default=False,
         ),
     ]
