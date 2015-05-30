@@ -1,7 +1,13 @@
 {% extends 'base.html' %}
 
-{% block content %}
-  Put this code in your site:
-  <textarea rows=3 cols=100><iframe src='{{ link }}' width='250'></iframe></textarea>
+{% block head %}
+  {% load staticfiles %}
+  <script src="{% static 'approval_polls/embed_instructions.js' %}"></script>
 {% endblock %}
 
+{% block content %}
+  <p>Put this code in your site:</p>
+  <textarea rows=3 cols=100 id='textAreaCode' spellcheck='false' readonly></textarea>
+  <p>Preview:</p>
+  <iframe id="iframePreview" src='{{ link }}' width='350px'>Sorry, your browser doesn't support iframes.</iframe>
+{% endblock %}
