@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError, MultipleObjectsReturned
 class EmailOrUsernameBackend(ModelBackend):
     """ 
     Class to authenticate the user based on the given username or Email ID.
+
     """
     def authenticate(self, username=None, password=None):
         try:

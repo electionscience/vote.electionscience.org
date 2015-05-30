@@ -160,7 +160,6 @@ INSTALLED_APPS = (
 
 ACCOUNT_ACTIVATION_DAYS = 7
 
-# Added to allow login with either a username or EmailID.
 AUTHENTICATION_BACKENDS = (
     'approval_frame.backends.EmailOrUsernameBackend',
 );
