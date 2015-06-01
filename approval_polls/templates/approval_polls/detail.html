@@ -20,6 +20,7 @@
     <div align='center'><input type='submit' value='Vote'></div>
   </form>
 
+  <p style='text-align:center'>Creator: {{poll.user.username}}</p>
   <p style='text-align:center'>
     <a href='{% url 'approval_polls:results' poll.id %}'>See Results</a>
   </p>

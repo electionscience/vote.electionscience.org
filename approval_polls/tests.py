@@ -8,14 +8,16 @@ from django.contrib.auth.models import User
 
 from approval_polls.models import Poll
 
-def create_poll(question, days=0, ballots=0):
+def create_poll(question, username="user1", days=0, ballots=0):
     """
     Creates a poll with the given `question` published the given number of
     `days` offset to now (negative for polls published in the past,
-    positive for polls that have yet to be published).
+    positive for polls that have yet to be published), and user as the
+    foreign key pointing to the user model.
     """
     poll = Poll.objects.create(question=question,
-        pub_date=timezone.now() + datetime.timedelta(days=days))
+                               pub_date=timezone.now() + datetime.timedelta(days=days),
+                               user=User.objects.create_user(username,'test@example.com','test'))
 
     for _ in range(ballots): create_ballot(poll)
 
@@ -57,7 +59,7 @@ class PollIndexTests(TestCase):
         displayed.
         """
         create_poll(question="Past poll.", days=-30)
-        create_poll(question="Future poll.", days=30)
+        create_poll(question="Future poll.", username="user2", days=30)
         response = self.client.get(reverse('approval_polls:index'))
         self.assertQuerysetEqual(
             response.context['latest_poll_list'],
@@ -69,7 +71,7 @@ class PollIndexTests(TestCase):
         The polls index page may display multiple polls.
         """
         create_poll(question="Past poll 1.", days=-30)
-        create_poll(question="Past poll 2.", days=-5)
+        create_poll(question="Past poll 2.", username="user2", days=-5)
         response = self.client.get(reverse('approval_polls:index'))
         self.assertQuerysetEqual(
             response.context['latest_poll_list'],
@@ -163,7 +165,6 @@ class PollCreateTests(TestCase):
     def setUp(self):
         self.client = Client()
 	user = User.objects.create_user('test','test@example.com','test')
-	user.save()
 	self.client.login(username='test', password='test')
 
     def test_create_page_exists(self):
