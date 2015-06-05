@@ -5,7 +5,10 @@ from registration import forms
 from approval_frame.forms import RegistrationFormCustom
 
 class UserLoginTests(TestCase):
+    """
+    Class which tests for user login validations.
 
+    """
     errorString = 'Your username and password didn\'t match. Please try again.'
     def setUp(self):
         self.client = Client()
@@ -82,7 +85,7 @@ class UserLoginTests(TestCase):
 
 class RegistrationFormCustomTests(TestCase):
     """
-    Test the custom Registration form class.
+    Class which tests the custom registration form functionality.
 
     """
     def test_registration_form_custom(self):
@@ -102,7 +105,7 @@ class RegistrationFormCustomTests(TestCase):
 
         for invalid_dict in invalid_data_dicts:
             form = RegistrationFormCustom(data=invalid_dict['data'])
-            self.failIf(form.is_valid())
+            self.assertFalse(form.is_valid())
             self.assertEqual(form.errors[invalid_dict['error'][0]],
                              invalid_dict['error'][1])
 
