@@ -6,7 +6,7 @@ from registration.forms import RegistrationFormUniqueEmail
 
 class RegistrationFormCustom(RegistrationFormUniqueEmail):
     """
-    Class which includes registration form related, application-
+    This class includes registration form related, application-
     specific customizations.
 
     """

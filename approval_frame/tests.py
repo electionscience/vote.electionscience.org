@@ -6,7 +6,7 @@ from approval_frame.forms import RegistrationFormCustom
 
 class UserLoginTests(TestCase):
     """
-    Class which tests for user login validations.
+    This class tests for user login validations.
 
     """
     errorString = 'Your username and password didn\'t match. Please try again.'
@@ -85,7 +85,7 @@ class UserLoginTests(TestCase):
 
 class RegistrationFormCustomTests(TestCase):
     """
-    Class which tests the custom registration form functionality.
+    This class tests the custom registration form functionality.
 
     """
     def test_registration_form_custom(self):
