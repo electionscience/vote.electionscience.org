@@ -9,7 +9,10 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SECRET_KEY = 'jndet@)ed9ge4+!k605hc+$0tjb8u5oe)pdjab)-b3lsot_xnf'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Set the DEBUG_* variables to True in a local_settings.py file, which we
+# .gitignore. This file should be added in the same directory that contains
+# this settings.py file.
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 DATABASES = {
@@ -19,7 +22,8 @@ DATABASES = {
     }
 }
 
-# The following settings are required for the activation emails in the registration module to work
+# The following settings are required for the activation emails in the registration module to work.
+# Set these EMAIL_* variables accordingly in the local_settings.py file.
 EMAIL_USE_TLS = True
 EMAIL_HOST = '' # Example - smtp.gmail.com
 EMAIL_PORT = 587 # 587 for smtp
@@ -188,3 +192,10 @@ LOGGING = {
         },
     }
 }
+
+# Any other variables local to the development environment should be
+# declared in the local_settings.py file and are imported here.
+try:
+    from local_settings import *
+except ImportError:
+    pass
