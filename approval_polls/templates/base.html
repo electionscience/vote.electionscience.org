@@ -29,7 +29,8 @@
         <p class='right'>
           {% block login %}
             {% if user.is_authenticated %}
-              {{ user.username }} <a href='/accounts/logout'>Logout</a>	
+              {{ user.username }} <a href='/accounts/logout'>Logout</a>	<br>
+              <a href='{% url 'approval_polls:myPolls' %}'>Manage your polls</a>
             {% else %}
               <a href='/accounts/login'>Login</a>
             {% endif %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div id='header'>
+    Polls created by {{ user.username }}:
+  </div>
+  {% if latest_poll_list %}
+    <ul>
+    {% for poll in latest_poll_list %}
+      <li class='nowrap'>
+        <a href='{% url 'approval_polls:detail' poll.id %}'>{{ poll.question }}</a><br>
+        &nbsp;&nbsp;&nbsp;<a> remove </a> 
+        &nbsp;&nbsp;&nbsp;<a> suspend </a> 
+        &nbsp;&nbsp;&nbsp;<a> edit </a> 
+      </li>
+    {% endfor %}
+    </ul>
+    <div align='center'>
+      <p>
+      {% if latest_poll_list.has_previous %}
+        <a href='?page={{ latest_poll_list.previous_page_number}}'>&laquo;Previous</a>
+      {% endif %}
+      (page {{ latest_poll_list.number }} of {{ latest_poll_list.paginator.num_pages }})
+      {% if latest_poll_list.has_next %}
+        <a href='?page={{ latest_poll_list.next_page_number}}'>Next&raquo;</a>
+      {% endif %}
+      </p>
+    </div>
+  {% else %}
+    <p>No polls are available.</p>
+  {% endif %}
+{% endblock content %}

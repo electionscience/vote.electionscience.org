@@ -21,6 +21,18 @@ def index(request):
       polls = paginator.page(paginator.num_pages)
   return render(request, 'approval_polls/index.html', {'latest_poll_list' : polls})
 
+def PollsView(request):
+  poll_list = Poll.objects.filter(pub_date__lte=timezone.now(), user_id=request.user).order_by('-pub_date')
+  paginator = Paginator(poll_list, 10)
+  page = request.GET.get('page')
+  try:
+      polls = paginator.page(page)
+  except PageNotAnInteger:
+      polls = paginator.page(1)
+  except EmptyPage:
+      polls = paginator.page(paginator.num_pages)
+  return render(request, 'approval_polls/myPolls.html', {'latest_poll_list' : polls})
+
 class DetailView(generic.DetailView):
   model = Poll
   template_name = 'approval_polls/detail.html'
@@ -32,6 +44,8 @@ class ResultsView(generic.DetailView):
   template_name = 'approval_polls/results.html'
   def get_queryset(self):
       return Poll.objects.filter(pub_date__lte=timezone.now())
+
+
 
 @require_http_methods(['POST'])
 def vote(request, poll_id):
