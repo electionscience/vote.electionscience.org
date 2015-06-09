@@ -37,7 +37,7 @@ Steps (assumes a linux system)
 
 3. Go into the approval\_frame directory. `cd approval_frame`.
 
-4. For the registration procedure to work correctly, fill-in the following email configuration in approval\_frame/settings.py
+4. For the registration procedure to work correctly, create a new file approval\_frame/local\_settings.py and add in the following email configuration.
   ```
   EMAIL_USE_TLS = True
   EMAIL_HOST = hostname of the smtp server
@@ -45,8 +45,15 @@ Steps (assumes a linux system)
   EMAIL_HOST_USER = the username on the smtp server
   EMAIL_HOST_PASSWORD = the password for the username
   ```
+  approval\_frame/local\_settings.py already exists in .gitignore and so will not be committed to the respository.
 
-5. Before you run the Django server for the first time, you'll need to create the database tables:
+5. Also, set the following debug variables in approval\_frame/local\_settings.py
+  ```
+  DEBUG = True
+  TEMPLATE_DEBUG = DEBUG
+  ```
+
+6. Before you run the Django server for the first time, you'll need to create the database tables:
 
    `python manage.py syncdb`
 
@@ -54,13 +61,13 @@ Steps (assumes a linux system)
    But also, you'll need a user account in order to create polls in the system, and it's easiest to do that here.
    (If you don't create an account here, you'll have to mess around copying urls from from the server output to fake confirming an email address in order to create a user account later... so just do it now.)
 
-6. Start the Django server:
+7. Start the Django server:
 
   `python manage.py runserver`
 
-7. Change the domain name of the site `example.com` to `yourdomainname` in the admin panel so that the activation emails have the correct url. 
+8. Change the domain name of the site `example.com` to `yourdomainname` in the admin panel so that the activation emails have the correct url. 
 
-8. Finally, see how it looks. In your favorte browser, go to the link:
+9. Finally, see how it looks. In your favorte browser, go to the link:
 
   `<your domain name>:<port>/approval_polls`
 
