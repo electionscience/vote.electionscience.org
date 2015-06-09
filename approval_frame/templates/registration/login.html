@@ -11,14 +11,14 @@
   <form method='post' action='/accounts/login/'>
     {% csrf_token %}
     <p>
-    {{ form.username.label_tag }}:
+    Username or Email:
     {{ form.username }}
     </p>
     <p>
-    {{ form.password.label_tag }}:
+    {{ form.password.label_tag }}
     {{ form.password }}
     </p>
-    <p> <input type='submit' value='login'> </p>
+    <p> <input type='submit' value='Login'> </p>
   </form>
 
 {% endblock %}

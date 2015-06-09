@@ -160,6 +160,10 @@ INSTALLED_APPS = (
 
 ACCOUNT_ACTIVATION_DAYS = 7
 
+AUTHENTICATION_BACKENDS = (
+    'approval_frame.backends.EmailOrUsernameBackend',
+);
+
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
