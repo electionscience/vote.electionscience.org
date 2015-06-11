@@ -2,21 +2,21 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Poll(models.Model):
-	question = models.CharField(max_length=200)
-	pub_date = models.DateTimeField('date published')
-	user = models.ForeignKey(User)
+  question = models.CharField(max_length=200)
+  pub_date = models.DateTimeField('date published')
+  user = models.ForeignKey(User)
 
-	def total_ballots(self):
-		return self.ballot_set.count()
+  def total_ballots(self):
+    return self.ballot_set.count()
 
-	def total_votes(self):
-		v = 0
-		for c in self.choice_set.all():
-			v += c.votes()
-		return v
+  def total_votes(self):
+    v = 0
+    for c in self.choice_set.all():
+      v += c.votes()
+    return v
 
-	def __unicode__(self):
-		return self.question
+  def __unicode__(self):
+    return self.question
 
 class Choice(models.Model):
 	poll = models.ForeignKey(Poll)

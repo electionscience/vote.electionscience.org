@@ -1,68 +1,7 @@
-html, body {
-	height: 100%;
-	margin: 0px;
-	max-width: 300px;
-}
-body {
-	font-family: Arial, Sans-serif;
-	font-size: 13px;
-	line-height: 20px;
-}
-h3 {
-	margin-top: 12px;
-	margin-bottom: 12px;
-	overflow: hidden;
-}
-ul {
-	padding-left: 16px;
-	overflow: hidden;
-}
-form {
-	overflow: hidden;
-}
-a:hover, a:focus {
-	color: rgb(255, 173, 99);
-	text-decoration: none;
-}
-a {
-	color: rgb(244, 105, 45);
-	text-decoration: underline;
-}
-ul {
-	padding-left: 0;
-}
-li.nowrap {
-	white-space: nowrap;
-	overflow: hidden;
-  	text-overflow: ellipsis;
-	list-style-position:inside;
-}
-#wrapper {
-	min-height: 100%;
-	position: relative;
-}
-#content {
-	margin: 4px;
-	padding-bottom: 32px;
-	margin-bottom: 0px;
-}
-#footer {
-	/*position: absolute;
-	bottom: 0px;
-	width: 100%;*/
-}
-#footer p {
-	height: 40px;
-	margin: 0px;
-}
-.left {
-	float: left;
-}
-.right {
-	float: right;
-	text-align: right;
+.top-buffer > div {
+  margin-top: 10px;
 }
 
-#add-choice-button {
-	margin-left: 15px;
+.chart div {
+  height: 1.4em;
 }

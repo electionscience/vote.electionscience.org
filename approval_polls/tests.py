@@ -182,7 +182,7 @@ class PollCreateTests(TestCase):
             'question':'Create poll.',
             'choice1' :'Choice 1.',
             }
-        response = self.client.post('/approval_polls/add/', poll_data, follow=True)
+        response = self.client.post('/approval_polls/create/', poll_data, follow=True)
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, 'approval_polls/embed_instructions.html')
         self.assertTrue('/approval_polls/1' in response.context['link'])
@@ -191,14 +191,14 @@ class PollCreateTests(TestCase):
         """
         No question should return an error message.
         """
-        response = self.client.post('/approval_polls/add/', {'choice1':'Choice 1.'}, follow=True)
+        response = self.client.post('/approval_polls/create/', {'choice1':'Choice 1.'}, follow=True)
         self.assertContains(response, 'The question is missing', status_code=200)
 
     def test_create_with_blank_question(self):
         """
         Blank question should return an error message.
         """
-        response = self.client.post('/approval_polls/add/', {'question':'', 'choice1':'Choice 1.'}, follow=True)
+        response = self.client.post('/approval_polls/create/', {'question':'', 'choice1':'Choice 1.'}, follow=True)
         self.assertContains(response, 'The question is missing', status_code=200)
 
     def test_create_skips_blank_choices(self):
@@ -210,7 +210,7 @@ class PollCreateTests(TestCase):
             'choice1' :'',
             'choice2' :'Choice 2.',
             }
-        self.client.post('/approval_polls/add/', poll_data, follow=True)
+        self.client.post('/approval_polls/create/', poll_data, follow=True)
         response = self.client.get('/approval_polls/1/', follow=True)
         self.assertContains(response, 'Create poll.', status_code=200)
         self.assertNotContains(response, 'Choice 1.')

@@ -1,24 +1,48 @@
-{% extends 'public_base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
-  <h3>{{ poll.question }}</h3>
-
-  <ul>
-  {% for choice in poll.choice_set.all %}
-    <li>
-      <p>{{ choice }}</p>
-      <p>{{ choice.votes }} vote{{ choice.votes|pluralize }} ({{ choice.percentage }}%)</p>
-      <div class='results'>
-        <div class='chart'>
-          <div style='width:{{ choice.percentage }}%'></div>
-        </div>
-      </div>
-    </li>
-  {% endfor %}
-  </ul>
-  <p>{{ poll.total_votes }} vote{{ poll.total_votes|pluralize }} on {{ poll.total_ballots }} ballot{{ poll.total_ballots|pluralize}}</p>
-
-  <div align='center'>
-    <a href='{% url 'approval_polls:detail' poll.id %}'>Vote again?</a>
+<div class='row-fluid top-buffer'>
+  <div class='col-md-12'>
+    <h3>{{ poll.question }}</h3>
   </div>
+</div>
+
+<div class='row-fluid top-buffer'>
+  <div class='col-md-12'>
+    <h4>
+      {{ poll.total_votes }} vote{{ poll.total_votes|pluralize }} on {{ poll.total_ballots }} ballot{{ poll.total_ballots|pluralize}}
+    </h4>
+  </div>
+</div>
+
+<div class='row-fluid top-buffer'>
+  <div class='col-md-12'>
+    {% for choice in poll.choice_set.all %}
+      <h4>{{ choice }}
+      <p class='small'>{{ choice.votes }} vote{{ choice.votes|pluralize }} ({{ choice.percentage }}%)</p>
+      </h4>
+      <div class='chart bg-info'>
+        <div class='bg-primary' style='width:{{ choice.percentage }}%'></div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class='row-fluid top-buffer'>
+  <div class='col-md-12'>
+    <div align='center'>
+      <a href='{% url 'approval_polls:detail' poll.id %}'>Vote again?</a>
+    </div>
+  </div>
+</div>
+
+<div class='row-fluid top-buffer'>
+  <div class='col-md-12'>
+    <p class='text-center'>
+      This poll uses approval voting, instead of the more common plurality system.
+      <a href='http://www.electology.org/approval-voting'>Learn why it's better</a> and 
+      <a href='{% url 'approval_polls:create' %}' target='_top'>create your own poll</a>.
+    </p>
+  </div>
+</div>
 {% endblock %}
