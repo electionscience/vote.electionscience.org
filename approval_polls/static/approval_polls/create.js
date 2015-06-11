@@ -1,30 +1,21 @@
-(function () {
-  var numChoiceFields, addChoiceField, init;
-
-  numChoiceFields = 8;
+$(function () {
+  this.numChoiceFields = 4;
 
   /* Add an extra textfield for a poll choice on the poll creation page. */
-  addChoiceField = function () {
-    var choice_list, new_choice;
+  this.addChoiceField = function () {
+    var formGroup, input, choiceName;
 
-    choice_list = document.getElementById('choice-list');
-    new_choice = document.createElement('li');
+    this.numChoiceFields++;
+    formGroup = $("<div class='form-group'></div>");
+    input = $("<input class='form-control' type='text' maxlength=200 name='choice" +
+            this.numChoiceFields + "' placeholder='Choice " +
+            this.numChoiceFields + "'>");
 
-    numChoiceFields++;
+    formGroup.append(input);
 
-    new_choice.innerHTML = 'Choice ' + numChoiceFields +
-                           ': <input type=text maxlength=200 name=choice' +
-                           numChoiceFields + ' size=24>';
-
-    choice_list.appendChild(new_choice);
+    $('.form-group').last().after(formGroup);
   };
 
-  init = function () {
-    var elt;
-
-    elt = document.getElementById('add-choice-button');
-    elt.addEventListener('click', addChoiceField);
-  };
-
-  addEventListener('load', init);
-}());
+  $('[data-toggle=tooltip]').tooltip();
+  $('button#add-choice').click($.proxy(this.addChoiceField, this));
+});

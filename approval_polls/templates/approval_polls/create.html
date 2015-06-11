@@ -8,20 +8,40 @@
 {% endblock %}
 
 {% block content %}
-  <form action='{% url 'approval_polls:add' %}' method='post'>
-    {% csrf_token %}
-    <h3>Poll Question</h3>
 
-    <input type='text' maxlength='200' name='question' size='28'>
+<div class='row-fluid'>
+  <div class='col-md-12'>
+    <form action='{% url 'approval_polls:create' %}' method='post'>
+      <legend> Create a Poll </legend>
+      {% csrf_token %}
+      <div class='form-group {% if question_error %} has-error {% endif %}'>
+        {% if question_error %}
+          <label class='control-label' for='question'>
+              {{ question_error }}
+          </label>
+        {% endif %}
+        <input type='text' class='form-control' maxlength='200' value='{{ question }}'
+               name='question' size='28' placeholder='Poll Question'>
+      </div>
 
-    <ul id='choice-list'>
-      {% for i in 9|get_range %}
-        <li>Choice {{ i }}: <input type='text' maxlength='200' name='choice{{ i }}' size='24'></li>
+      {% for i in 5|get_range %}
+      <div class='form-group {% if i == 1 and choice_error %} has-error {% endif %}'>
+        {% if i == 1 and choice_error %}
+          <label class='control-label' for='choice1'>
+              {{ choice_error }}
+          </label>
+        {% endif %}
+        <input class='form-control' type='text' maxlength='200' name='choice{{ i }}' placeholder='Choice {{i}}'>
+      </div>
       {% endfor %}
-    </ul>
 
-    <button type='button' id='add-choice-button'>+</button>
+      <button type='button' class='btn btn-primary btn-sm' id='add-choice'
+              title='Add choice' data-toggle='tooltip' data-placement='bottom'>
+        <i class='glyphicon glyphicon-plus'></i>
+      </button>
 
-    <div align='center'> <input type='submit' value='Create'> </div>
-  </form>
+      <button type='submit' class='btn btn-success pull-right'>Create</button>
+    </form>
+  </div>
+</div>
 {% endblock %}
