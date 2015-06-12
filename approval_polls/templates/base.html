@@ -2,39 +2,50 @@
 <html lang='en'>
   <head>
     {% load staticfiles %}
+    <link rel='stylesheet' type='text/css' href='{% static 'vendor/bootstrap-3.3.4-dist/css/bootstrap.min.css' %}'>
     <link rel='stylesheet' type='text/css' href='{% static 'approval_polls/style.css' %}'>
     <script src='{% static 'vendor/jquery-1.11.3.min.js' %}'></script>
+    <script src='{% static 'vendor/bootstrap-3.3.4-dist/js/bootstrap.min.js' %}'></script>
     <title>Approval Polls from The Center for Election Science</title>
     {% block head %}{% endblock %}
   </head>
   <body>
-    <div id='wrapper'>
+    <div class='container-fluid'>
+      <div class='row-fluid'>
+        <div class='col-md-5 col-md-offset-3'>
 
-      <div id='header'>
-        <a href='http://www.electology.org' target='_blank'>
-          <img src='{% static 'approval_polls/images/logo-mod.png' %}' width='100%' border='0'>
-        </a>
-      </div>
+          <div class='row-fluid'>
+            <div class='col-md-9 col-md-offset-1'>
+              <a href='http://www.electology.org' target='_blank'>
+                <img src='{% static 'approval_polls/images/logo-mod.png' %}' width='100%' border='0'>
+              </a>
+            </div>
+          </div>
 
-      <div id='content'> {% block content %}{% endblock %} </div>
+          {% block content %}{% endblock %}
 
-      <div id='footer'>
+          <div class='row-fluid top-buffer'>
+            <div class='col-md-12'>
+              <p class='pull-left'>
+                {% block footer %}
+                  <a href='{% url 'approval_polls:index' %}'>Home</a>
+                {% endblock %}
+              </p>
 
-        <p class='left'>
-          {% block footer %}
-            <a href='{% url 'approval_polls:index' %}'>More Polls</a>
-          {% endblock %}
-        </p>
+              <p class='pull-right'>
+                {% block login %}
+                  {% if user.is_authenticated %}
+                    {{ user.username }} |
+                    <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a>	
+                  {% else %}
+                    <a href='/accounts/login'>Login</a>
+                  {% endif %}
+                {% endblock %}
+              </p>
+            </div>
+          </div>
 
-        <p class='right'>
-          {% block login %}
-            {% if user.is_authenticated %}
-              {{ user.username }} <a href='/accounts/logout'>Logout</a>	
-            {% else %}
-              <a href='/accounts/login'>Login</a>
-            {% endif %}
-          {% endblock %}
-        </p>
+        </div>
       </div>
     </div>
   </body>

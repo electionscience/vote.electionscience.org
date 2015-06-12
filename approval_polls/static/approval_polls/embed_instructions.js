@@ -10,7 +10,7 @@
     $(iframeId).height(iframeHeight);
     pollLink = $(iframeId).attr('src');
 
-    $(textareaId).val("<iframe src='" + pollLink + "' width='350px' height='" +
+    $(textareaId).text("<iframe src='" + pollLink + "' width='350px' height='" +
       iframeHeight + "px'></iframe>");
   }
 

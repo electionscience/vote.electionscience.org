@@ -9,7 +9,7 @@ class UserLoginTests(TestCase):
     This class tests for user login validations.
 
     """
-    errorString = 'Your username and password didn\'t match. Please try again.'
+    errorString = 'Invalid credentials. Please try again.'
     def setUp(self):
         self.client = Client()
         user = User.objects.create_user('user1', 'user1@example.com', 'user1Password')
