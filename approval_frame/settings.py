@@ -5,15 +5,11 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'jndet@)ed9ge4+!k605hc+$0tjb8u5oe)pdjab)-b3lsot_xnf'
-
 # SECURITY WARNING: don't run with debug turned on in production!
-# For development purposes, set the DEBUG_* variables to True in a 
-# local_settings.py file, which we .gitignore. This file should be added
-# in the same directory that contains this settings.py file.
+# For development purposes, set DEBUG to True in a local_settings.py file, 
+# which we .gitignore. This file should be added in the same directory
+# that contains this settings.py file.
 DEBUG = False
-TEMPLATE_DEBUG = DEBUG
 
 DATABASES = {
     'default': {
@@ -33,7 +29,7 @@ EMAIL_HOST_PASSWORD = ''
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [ 'localhost' ]
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
