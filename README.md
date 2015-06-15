@@ -47,7 +47,7 @@ Steps (assumes a linux system)
   ```
   approval\_frame/local\_settings.py already exists in .gitignore.
 
-5. Also, in development, set the DEBUG variable in approval\_frame/local\_settings.py
+5. Also, in development, set the DEBUG variable to True in the approval\_frame/local\_settings.py
   ```
   DEBUG = True
   ```
