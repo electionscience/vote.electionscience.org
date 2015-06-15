@@ -3,23 +3,43 @@
 {% block content %}
 
   {% if form.errors %}
-    <p>Your username and password didn't match. Please try again.</p>
+    <div class='row-fluid top-buffer'>
+      <div class='col-md-12 text-danger'>
+        Invalid credentials. Please try again.  
+      </div>
+    </div>
   {% endif %}
 
-  <p>Do you need to <a href='/accounts/register/'>create a new account?</a></p>
+  <div class='row-fluid top-buffer'>
+    <div class='col-md-6 col-md-offset-3'>
+      <form method='post' action='/accounts/login/'>
+        {% csrf_token %}
+        <legend>Login</legend>
+        <div class='form-group'>
+          <input type='text' class='form-control' id='{{ form.username.id_for_label }}'
+                 name='{{ form.username.name }}' placeholder='Username or Email ID'
+                 maxlength={{ form.username.field.max_length }}>
+        </div>
+        <div class='form-group'>
+          <input type='password' class='form-control' id='{{ form.password.id_for_label }}'
+          name='{{ form.password.name }}' placeholder='{{ form.password.label }}'>
+        </div>
+        <button type='submit' class='btn btn-success'>Login</button>
+      </form>
+    </div>
+  </div>
 
-  <form method='post' action='/accounts/login/'>
-    {% csrf_token %}
-    <p>
-    {{ form.username.label_tag }}:
-    {{ form.username }}
-    </p>
-    <p>
-    {{ form.password.label_tag }}:
-    {{ form.password }}
-    </p>
-    <p> <input type='submit' value='login'> </p>
-  </form>
-
+  <div class='row-fluid top-buffer'>
+    <div class='col-md-6 col-md-offset-3'>
+      <p class='pull-left'>
+        <a href='{% url 'approval_polls:index' %}'>Home</a>
+      </p>
+      <p class='pull-right'>
+        <a href="{% url 'registration_register' %}"> Register </a>
+      </p>
+    </div>
+  </div>
 {% endblock %}
 
+{% block login %}{% endblock %}
+{% block footer %}{% endblock %}

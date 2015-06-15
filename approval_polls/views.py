@@ -4,6 +4,7 @@ from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 
@@ -11,7 +12,7 @@ from approval_polls.models import Poll
 
 def index(request):
   poll_list = Poll.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')
-  paginator = Paginator(poll_list, 10)
+  paginator = Paginator(poll_list, 5)
   page = request.GET.get('page')
   try:
       polls = paginator.page(page)
@@ -65,37 +66,42 @@ def embed_instructions(request, poll_id):
   link = request.build_absolute_uri('/approval_polls/{}'.format(poll_id))
   return render(request, 'approval_polls/embed_instructions.html', {'link': link})
 
-@login_required
-def create(request):
-  return render(request, 'approval_polls/create.html')
+class CreateView(generic.View):
 
-@login_required
-def add(request):
-  choices = []
+  @method_decorator(login_required)
+  def get(self, request, *args, **kwargs):
+    return render(request, 'approval_polls/create.html')
 
-  if not 'question' in request.POST:
-    return render(request, 'approval_polls/error.html', { 'error_message': 'The question is missing' })
-  else:
-    question = request.POST['question'].strip()
+  @method_decorator(login_required)
+  def post(self, request, *args, **kwargs):
+    choices = []
 
-    if not question:
-      return render(request, 'approval_polls/error.html', { 'error_message': 'The question is missing' })
+    if not 'question' in request.POST:
+      return render(request, 'approval_polls/create.html', { 'question_error': 'The question is missing' })
+    else:
+      question = request.POST['question'].strip()
 
-    c = 1
-    name = 'choice1'
+      if not question:
+        return render(request, 'approval_polls/create.html', { 'question_error': 'The question is missing' })
 
-    while (name in request.POST):
-      text = request.POST[name].strip()
-      if (text): choices.append(text)
-      c += 1
-      name = 'choice{}'.format(c)
+      c = 1
+      name = 'choice1'
 
-    if not len(choices):
-      return render(request, 'approval_polls/error.html', {'error_message': 'At least one choice is required'})
+      while (name in request.POST):
+        text = request.POST[name].strip()
+        if (text): choices.append(text)
+        c += 1
+        name = 'choice{}'.format(c)
 
-    p = Poll(question=question, pub_date=timezone.now(), user=request.user)
-    p.save()
+      if not len(choices):
+        return render(request, 'approval_polls/create.html', {
+          'choice_error': 'At least one choice is required',
+          'question': question
+          })
 
-    for choice in choices: p.choice_set.create(choice_text=choice)
+      p = Poll(question=question, pub_date=timezone.now(), user=request.user)
+      p.save()
 
-    return HttpResponseRedirect(reverse('approval_polls:embed_instructions', args=(p.id,)))
+      for choice in choices: p.choice_set.create(choice_text=choice)
+
+      return HttpResponseRedirect(reverse('approval_polls:embed_instructions', args=(p.id,)))
