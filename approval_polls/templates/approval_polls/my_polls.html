@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div  class='row-fluid top-buffer'>
+      <div class='col-md-12'>
+          <div class='well well-sm'>
+            Polls created by {{ user.username }}:
+        </div>
+    </div>
+  </div>
+  {% if latest_poll_list %}
+    <div class='row-fluid top-buffer'>
+      <div class='col-md-12'>
+        {% for poll in latest_poll_list %}
+          <div class='well well-sm'>
+            <a href="{% url 'approval_polls:detail' poll.id %}">{{ poll.question }}</a>
+            &nbsp;&nbsp;&nbsp;<a> remove </a> 
+            &nbsp;&nbsp;&nbsp;<a> suspend </a> 
+            &nbsp;&nbsp;&nbsp;<a> edit </a> 
+            <p>
+              Published on {{ poll.pub_date }} by {{poll.user.username}}
+            </p>
+
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class='row-fluid top-buffer'>
+      <div class='col-md-12'>
+          <div class='text-center'>
+            {% if latest_poll_list.has_previous %}
+              <a href='?page={{ latest_poll_list.previous_page_number}}'>&laquo;Previous</a>
+            {% endif %}
+            (page {{ latest_poll_list.number }} of {{ latest_poll_list.paginator.num_pages }})
+            {% if latest_poll_list.has_next %}
+              <a href='?page={{ latest_poll_list.next_page_number}}'>Next&raquo;</a>
+            {% endif %}
+          </div>
+      </div>
+    </div>
+
+  {% else %}
+
+    <div class='row-fluid top-buffer'>
+      <div class='col-md-12'>
+          <p>No polls are available.</p>
+      </div>
+    </div>
+
+  {% endif %}
+{% endblock content %}
