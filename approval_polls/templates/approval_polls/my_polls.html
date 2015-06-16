@@ -2,10 +2,8 @@
 
 {% block content %}
   <div  class='row-fluid top-buffer'>
-      <div class='col-md-12'>
-          <div class='well well-sm'>
-            Polls created by {{ user.username }}:
-        </div>
+    <div class='col-md-12'>
+      <h3> My Polls </h3>
     </div>
   </div>
   {% if latest_poll_list %}
@@ -14,11 +12,11 @@
         {% for poll in latest_poll_list %}
           <div class='well well-sm'>
             <a href="{% url 'approval_polls:detail' poll.id %}">{{ poll.question }}</a>
-            &nbsp;&nbsp;&nbsp;<a> remove </a> 
-            &nbsp;&nbsp;&nbsp;<a> suspend </a> 
-            &nbsp;&nbsp;&nbsp;<a> edit </a> 
+            <a class='pull-right btn btn-danger btn-xs right-buffer'> remove </a>
+            <a class='pull-right btn btn-warning btn-xs right-buffer'> suspend </a>
+            <a class='pull-right btn btn-primary btn-xs right-buffer'> edit </a> 
             <p>
-              Published on {{ poll.pub_date }} by {{poll.user.username}}
+              Published on {{ poll.pub_date }}
             </p>
 
           </div>
@@ -50,3 +48,8 @@
 
   {% endif %}
 {% endblock content %}
+
+{% block login %}
+  {{ user.username }} |
+  <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a>
+{% endblock %}

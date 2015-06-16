@@ -5,3 +5,7 @@
 .chart div {
   height: 1.4em;
 }
+
+.right-buffer {
+  margin-right: 5px;
+}

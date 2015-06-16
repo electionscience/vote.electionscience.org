@@ -12,13 +12,14 @@ from approval_polls.models import Poll
 
 def index(request):
   poll_list = Poll.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')
-  return GetPolls(request, poll_list, 'approval_polls/index.html')
+  return getPolls(request, poll_list, 'approval_polls/index.html')
 
-def PollsView(request):
+@login_required
+def myPolls(request):
   poll_list = Poll.objects.filter(pub_date__lte=timezone.now(), user_id=request.user).order_by('-pub_date')
-  return GetPolls(request, poll_list, 'approval_polls/my_polls.html')
+  return getPolls(request, poll_list, 'approval_polls/my_polls.html')
 
-def GetPolls(request, poll_list, render_page):
+def getPolls(request, poll_list, render_page):
   paginator = Paginator(poll_list, 5)
   page = request.GET.get('page')
   try:
