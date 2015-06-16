@@ -77,7 +77,7 @@ Steps (assumes a linux system)
   There won't be any polls yet, but you can login with the superuser account you created.
   Then you should be able to create polls, vote in them, and see the results.
 
-  NOTE: If you want Django to run on a public IP, make sure you update the [ALLOWED_HOSTS](https://docs.djangoproject.com/en/1.8/ref/settings/#allowed-hosts) variable to include the required IP address in your local_settings.py. In production, 'localhost' should not be included in this variable.
+  NOTE: If you want Django to run on a public IP, make sure you update the [ALLOWED_HOSTS](https://docs.djangoproject.com/en/1.8/ref/settings/#allowed-hosts) variable to include the required IP address in your local_settings.py. Be careful to ensure that in production, 'localhost' is not included in this variable.
 
 Contributing
 ------------
