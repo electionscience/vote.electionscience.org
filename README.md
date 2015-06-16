@@ -74,15 +74,16 @@ Steps (assumes a linux system)
 
   `http://localhost:8000/approval_polls`
 
-  (However, if you want Django to run on a public IP, make sure you update the ALLOWED_HOSTS variable to include the required IP address in your local_settings.py.)
   There won't be any polls yet, but you can login with the superuser account you created.
   Then you should be able to create polls, vote in them, and see the results.
+
+  NOTE: If you want Django to run on a public IP, make sure you update the [ALLOWED_HOSTS](https://docs.djangoproject.com/en/1.8/ref/settings/#allowed-hosts) variable to include the required IP address in your local_settings.py. In production, 'localhost' should not be included in this variable.
 
 Contributing
 ------------
 1. If you're new to Python, [Google's Python tutorial](https://developers.google.com/edu/python/) gives a basic introduction to the language.
    There are several other tutorials available on the web.
-2. If you're new to Django, the [tutorial](https://docs.djangoproject.com/en/1.7/intro/tutorial01/) on Django's documentation page is very comprehensive.
+2. If you're new to Django, the [tutorial](https://docs.djangoproject.com/en/1.8/intro/tutorial01/) on Django's documentation page is very comprehensive.
    In fact, through a happy coincidence, it uses a poll application as an example.
    This project is heavily based on that tutorial.
 3. If you're new to git, as mentioned above, the [Pro Git](http://git-scm.com/book/en/v2) book is very useful. 
