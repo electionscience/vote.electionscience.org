@@ -74,6 +74,7 @@ Steps (assumes a linux system)
 
   `http://localhost:8000/approval_polls`
 
+  (However, if you want Django to run on a public IP, make sure you update the ALLOWED_HOSTS variable to include the required IP address in your local_settings.py.)
   There won't be any polls yet, but you can login with the superuser account you created.
   Then you should be able to create polls, vote in them, and see the results.
 
