@@ -161,29 +161,24 @@ class PollVoteTests(TestCase):
         self.assertContains(response, '21 votes')
         self.assertContains(response, '101 ballots', status_code=200)
 
-class MyPollTestsWithoutLoggedIn(TestCase):
-    def setUp(self):
-        self.client = Client()
-        user = User.objects.create_user('test','test@example.com','test')
-
-    def test_my_polls_without_logged_in(self):
-        """
-        If user is not loggin in, it return a 302 found.
-        """
-        response = self.client.get(reverse('approval_polls:my_polls'))
-        self.assertEqual(response.status_code, 302)
-
 class MyPollTests(TestCase):
     def setUp(self):
         self.client = Client()
         create_poll(question="question1", days=-5)
         create_poll(question="question2", username="user2", days=-5)
-        self.client.login(username='user1', password='test')
 
-    def test_my_polls(self):
+    def test_redirect_when_not_logged_in(self):
         """
-        Creating two polls by two users, only polls created by the logged in user will be displayed.
+        If the user is not logged in then redirect to the login page
         """
+        response = self.client.get(reverse('login'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_display_only_user_polls(self):
+        """
+        Only polls created by the logged in user should be displayed.
+        """
+        self.client.login(username='user1', password='test')
         response = self.client.get(reverse('approval_polls:my_polls'))
         self.assertEqual(response.status_code, 200)
         self.assertQuerysetEqual(
