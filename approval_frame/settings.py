@@ -5,12 +5,11 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'jndet@)ed9ge4+!k605hc+$0tjb8u5oe)pdjab)-b3lsot_xnf'
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+# For development purposes, set DEBUG to True in a local_settings.py file, 
+# which we .gitignore. This file should be added in the same directory
+# that contains this settings.py file.
+DEBUG = False
 
 DATABASES = {
     'default': {
@@ -19,7 +18,9 @@ DATABASES = {
     }
 }
 
-# The following settings are required for the activation emails in the registration module to work
+# The following settings are required for the activation emails in the
+# registration module to work. For development purposes, set these
+# EMAIL_* variables accordingly in the local_settings.py file.
 EMAIL_USE_TLS = True
 EMAIL_HOST = '' # Example - smtp.gmail.com
 EMAIL_PORT = 587 # 587 for smtp
@@ -28,7 +29,7 @@ EMAIL_HOST_PASSWORD = ''
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [ 'localhost' ]
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -192,3 +193,10 @@ LOGGING = {
         },
     }
 }
+
+# Any other variables local to the development environment should be
+# declared in the local_settings.py file and are imported here.
+try:
+    from local_settings import *
+except ImportError:
+    pass
