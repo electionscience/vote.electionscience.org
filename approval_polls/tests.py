@@ -171,8 +171,8 @@ class MyPollTests(TestCase):
         """
         If the user is not logged in then redirect to the login page
         """
-        response = self.client.get(reverse('login'))
-        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse('approval_polls:my_polls'))
+        self.assertRedirects(response, '/accounts/login/?next=/approval_polls/my-polls/', status_code=302, target_status_code=200)
 
     def test_display_only_user_polls(self):
         """
