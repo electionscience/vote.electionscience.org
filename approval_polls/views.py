@@ -12,6 +12,14 @@ from approval_polls.models import Poll
 
 def index(request):
   poll_list = Poll.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')
+  return getPolls(request, poll_list, 'approval_polls/index.html')
+
+@login_required
+def myPolls(request):
+  poll_list = Poll.objects.filter(pub_date__lte=timezone.now(), user_id=request.user).order_by('-pub_date')
+  return getPolls(request, poll_list, 'approval_polls/my_polls.html')
+
+def getPolls(request, poll_list, render_page):
   paginator = Paginator(poll_list, 5)
   page = request.GET.get('page')
   try:
@@ -20,7 +28,7 @@ def index(request):
       polls = paginator.page(1)
   except EmptyPage:
       polls = paginator.page(paginator.num_pages)
-  return render(request, 'approval_polls/index.html', {'latest_poll_list' : polls})
+  return render(request, render_page, {'latest_poll_list' : polls})
 
 class DetailView(generic.DetailView):
   model = Poll

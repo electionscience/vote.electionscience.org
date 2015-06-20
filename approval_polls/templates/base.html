@@ -39,7 +39,8 @@
                 {% block login %}
                   {% if user.is_authenticated %}
                     {{ user.username }} |
-                    <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a>	
+                    <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a> | 
+                    <a href='{% url 'approval_polls:my_polls' %}'>Manage your polls</a>
                   {% else %}
                     <a href='/accounts/login'>Login</a>
                   {% endif %}
@@ -47,7 +48,7 @@
               </p>
             </div>
           </div>
-
+          
         </div>
       </div>
     </div>

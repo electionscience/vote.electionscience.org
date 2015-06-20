@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div  class='row-fluid top-buffer'>
+    <div class='col-md-12'>
+      <h3> My Polls </h3>
+    </div>
+  </div>
+  {% if latest_poll_list %}
+    <div class='row-fluid top-buffer'>
+      <div class='col-md-12'>
+        {% for poll in latest_poll_list %}
+          <div class='well well-sm'>
+            <a href="{% url 'approval_polls:detail' poll.id %}">{{ poll.question }}</a>
+            <a class='pull-right btn btn-danger btn-xs'> remove </a>
+            <a class='pull-right btn btn-warning btn-xs right-buffer'> suspend </a>
+            <a class='pull-right btn btn-primary btn-xs right-buffer'> edit </a> 
+            <p>
+              Published on {{ poll.pub_date }}
+            </p>
+
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class='row-fluid top-buffer'>
+      <div class='col-md-12'>
+          <div class='text-center'>
+            {% if latest_poll_list.has_previous %}
+              <a href='?page={{ latest_poll_list.previous_page_number}}'>&laquo;Previous</a>
+            {% endif %}
+            (page {{ latest_poll_list.number }} of {{ latest_poll_list.paginator.num_pages }})
+            {% if latest_poll_list.has_next %}
+              <a href='?page={{ latest_poll_list.next_page_number}}'>Next&raquo;</a>
+            {% endif %}
+          </div>
+      </div>
+    </div>
+
+  {% else %}
+
+    <div class='row-fluid top-buffer'>
+      <div class='col-md-12'>
+          <p>No polls are available.</p>
+      </div>
+    </div>
+
+  {% endif %}
+{% endblock content %}
+
+{% block login %}
+  {{ user.username }} |
+  <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a>
+{% endblock %}
