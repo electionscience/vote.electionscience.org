@@ -3,6 +3,7 @@ from django.test.client import Client
 from django.contrib.auth.models import User
 from registration import forms
 from approval_frame.forms import RegistrationFormCustom
+from approval_frame.forms import PasswordResetFormCustom
 
 class UserLoginTests(TestCase):
     """
@@ -109,3 +110,45 @@ class RegistrationFormCustomTests(TestCase):
             self.assertEqual(form.errors[invalid_dict['error'][0]],
                              invalid_dict['error'][1])
 
+
+class PasswordResetFormCustomTests(TestCase):
+    """
+    This class tests the custom password reset form functionality.
+
+    """
+    def setUp(self):
+        self.client = Client()
+        user = User.objects.create_user('user1', 'user1@example.com',
+            'user1Password')
+        user.save()
+
+    def test_custom_email_validations(self):
+        """
+        Test that `PasswordResetFormCustom` enforces that the 
+        custom validations on invalid input.
+
+        """ 
+        invalid_data_dicts = [
+            # Do not allow the application to send an email to an
+            # unregistered or inactive user.
+            {'data': {'email': 'unregistereduser@somedomain.com',},
+             'error': ('email', ["This email address is not registered with " +
+                "us or belongs to an account that hasn't been activated."])},]
+
+        for invalid_dict in invalid_data_dicts:
+            form = PasswordResetFormCustom(data=invalid_dict['data'])
+            self.assertFalse(form.is_valid())
+            self.assertEqual(form.errors[invalid_dict['error'][0]],
+                             invalid_dict['error'][1])
+
+    def test_valid_email(self):
+        """
+        Test that `PasswordResetFormCustom` allows sending a reset email to a
+        registered.
+
+        """
+        response = self.client.post('/accounts/password/reset/',
+            data={'email': 'user1@example.com'},
+            follow=True)
+        self.assertContains(response, "We have emailed a link for " +
+            "resetting your password", status_code=200)
