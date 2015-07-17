@@ -17,4 +17,3 @@ class RegistrationFormCustom(RegistrationFormUniqueEmail):
         error_messages={'invalid': _("This value may contain only letters, "
             + "numbers and ./+/-/_ characters.")}
     )
-

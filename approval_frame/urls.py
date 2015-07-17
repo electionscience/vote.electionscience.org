@@ -10,7 +10,5 @@ urlpatterns = patterns('',
     url(r'^approval_polls/', include('approval_polls.urls', namespace="approval_polls")),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^accounts/register/$', RegistrationView.as_view(form_class=RegistrationFormCustom), name='registration_register'),
-    url(r'^accounts/', include('registration.auth_urls')),
     url(r'^accounts/', include('registration.backends.default.urls'))
 )
-
