@@ -10,16 +10,50 @@
     <div class='row-fluid top-buffer'>
       <div class='col-md-12'>
         {% for poll in latest_poll_list %}
-          <div class='well well-sm'>
+          <div class='well well-sm' id='poll{{ poll.id }}'>
             <a href="{% url 'approval_polls:detail' poll.id %}">{{ poll.question }}</a>
-            <a class='pull-right btn btn-danger btn-xs'> remove </a>
+            <a class='pull-right btn btn-danger btn-xs' onClick="showAlert({{ poll.id }})"> remove </a>
             <a class='pull-right btn btn-warning btn-xs right-buffer'> suspend </a>
             <a class='pull-right btn btn-primary btn-xs right-buffer'> edit </a> 
             <p>
               Published on {{ poll.pub_date }}
             </p>
+            <div class="alert alert-warning alert-dismissible " role="alert" id='alert{{ poll.id }}' style="display:none">
+              You are going to delete this poll. Are you sure?
+              <button class='pull-right ' type="button" onClick="hideAlert({{ poll.id }})">No</button>
+              <button class='pull-right right-buffer' type="button" id="delete_poll{{ poll.id }}" onClick="delete_poll({{ poll.id }})" >Yes</button>
+            </div>
 
           </div>
+          <script>
+            $( '#delete_poll'+{{ poll.id }} ).click(function() {
+              $('#poll'+{{ poll.id }}).remove();
+            });
+
+            function delete_poll(id){
+              $.ajax({
+                type: "POST",
+                url: '{% url 'approval_polls:delete_poll' %}',
+                data: { pk : id,
+                        csrfmiddlewaretoken:'{{csrf_token}}'
+                },
+                success: function() {
+                  alert("Delete poll success!")
+                },
+                error:  function() {
+                  alert("Delete poll fail!")
+                }
+              });
+            }
+
+            function hideAlert(id) {
+              document.getElementById('alert'+id).style.display = 'none';
+            }
+
+            function showAlert(id) {
+              document.getElementById('alert'+id).style.display = 'block';
+            }
+          </script>
         {% endfor %}
       </div>
     </div>

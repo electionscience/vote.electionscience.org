@@ -1,4 +1,5 @@
 from django.http import HttpResponseRedirect
+from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
@@ -35,6 +36,12 @@ class DetailView(generic.DetailView):
   template_name = 'approval_polls/detail.html'
   def get_queryset(self):
       return Poll.objects.filter(pub_date__lte=timezone.now())
+
+@login_required
+def delete_poll(request):
+  if request.POST.get('pk'):
+    Poll.objects.get(pk=request.POST.get('pk')).delete()
+  return HttpResponse()
 
 class ResultsView(generic.DetailView):
   model = Poll
