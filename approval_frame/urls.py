@@ -1,6 +1,5 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from registration.forms import RegistrationFormUniqueEmail
 from registration.backends.default.views import RegistrationView
 from forms import RegistrationFormCustom
 
