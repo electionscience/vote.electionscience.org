@@ -11,6 +11,8 @@ from django.contrib.auth.decorators import login_required
 
 from approval_polls.models import Poll
 
+import logging
+
 def index(request):
   poll_list = Poll.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')
   return getPolls(request, poll_list, 'approval_polls/index.html')
@@ -31,17 +33,18 @@ def getPolls(request, poll_list, render_page):
       polls = paginator.page(paginator.num_pages)
   return render(request, render_page, {'latest_poll_list' : polls})
 
-class DetailView(generic.DetailView):
+class DetailView(generic.DeleteView):
   model = Poll
   template_name = 'approval_polls/detail.html'
   def get_queryset(self):
       return Poll.objects.filter(pub_date__lte=timezone.now())
 
-@login_required
-def delete_poll(request):
-  if request.POST.get('pk'):
-    Poll.objects.get(pk=request.POST.get('pk')).delete()
-  return HttpResponse()
+  @staticmethod
+  @login_required
+  def delete(request):
+    if request.POST.get('pk'):
+      Poll.objects.get(pk=request.POST.get('pk')).delete()
+    return HttpResponse()
 
 class ResultsView(generic.DetailView):
   model = Poll
