@@ -185,6 +185,16 @@ class MyPollTests(TestCase):
             response.context['latest_poll_list'],
             ['<Poll: question1>']
         )
+    def test_delete_user_polls(self):
+        """
+        Return status 200 when a poll has been deleted successfully.
+        """
+        test_poll = create_poll(question="question3", username="user3", days=-5)
+        self.client.login(username='user3', password='test')
+        Poll.objects.get(pk=test_poll.id).delete()
+        self.assertEqual(self.client.get(reverse('approval_polls:delete_poll')).status_code, 200)
+        response = self.client.get(reverse('approval_polls:my_polls'))
+        self.assertQuerysetEqual(response.context['latest_poll_list'],[])
 
 class PollCreateTests(TestCase):
     def setUp(self):

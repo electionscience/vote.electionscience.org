@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 
+{% block head %}
+  {% load staticfiles %}
+  <script src='{% static 'approval_polls/poll_management.js' %}'></script>
+{% endblock %}
+
 {% block content %}
   <div  class='row-fluid top-buffer'>
     <div class='col-md-12'>
@@ -10,15 +15,19 @@
     <div class='row-fluid top-buffer'>
       <div class='col-md-12'>
         {% for poll in latest_poll_list %}
-          <div class='well well-sm'>
+          <div class='well well-sm' id='poll{{ poll.id }}'>
             <a href="{% url 'approval_polls:detail' poll.id %}">{{ poll.question }}</a>
-            <a class='pull-right btn btn-danger btn-xs'> remove </a>
+            <a class='pull-right btn btn-danger btn-xs show-alert' id='{{ poll.id }}'"> remove </a>
             <a class='pull-right btn btn-warning btn-xs right-buffer'> suspend </a>
             <a class='pull-right btn btn-primary btn-xs right-buffer'> edit </a> 
             <p>
               Published on {{ poll.pub_date }}
             </p>
-
+            <div class="alert alert-warning alert-dismissible " role="alert" id='alert{{ poll.id }}' style="display:none">
+              You are going to delete this poll. Are you sure?
+              <button class='pull-right hide-alert' type="button" id='{{ poll.id }}'>No</button>
+              <button class='pull-right right-buffer delete-poll' type="button" id="{{ poll.id }}" csrf='{{csrf_token}}' onClick="{% url 'approval_polls:delete_poll' %}" >Yes</button>
+            </div>
           </div>
         {% endfor %}
       </div>
