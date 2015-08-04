@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -13,8 +14,8 @@ class Poll(models.Model):
     question = models.CharField(max_length=200)
     pub_date = models.DateTimeField('date published')
     user = models.ForeignKey(User)
-    open_date = models.DateTimeField()
-    close_date = models.DateTimeField()
+    open_date = models.DateField()
+    close_date = models.DateField()
 
     def is_closed(self):
         '''Determine if the poll is open or closed

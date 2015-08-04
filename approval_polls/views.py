@@ -8,6 +8,7 @@ from django.utils.decorators import method_decorator
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import UpdateView
+from approval_polls.forms.poll_form import PollUpdateForm
 
 from approval_polls.models import Poll
 
@@ -76,10 +77,10 @@ class PollUpdate(UpdateView):
     We are not doing anything fancy at this point so we don't
     really need a custom class'''
 
-
     model = Poll
-    fields = ['question', 'open_date', 'close_date']
     template_name_suffix = '_update_form'
+    form_class = PollUpdateForm
+    success_url = '/approval_polls/my-polls'
 
 
 class CreateView(generic.View):

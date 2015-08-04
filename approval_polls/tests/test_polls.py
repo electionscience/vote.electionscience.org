@@ -52,14 +52,27 @@ class TestEditPoll(TestCase):
         self.client = Client()
         user = User.objects.create_user('test', 'test@example.com', 'test')
         self.client.login(username='test', password='test')
-        open_date = timezone.now()
-        close_date = timezone.now() + timezone.timedelta(days=30)
-        self.poll = mommy.make(Poll, user=user, open_date=open_date,
-                               close_date=close_date, pub_date=open_date)
+        self.open_date = timezone.now()
+        close_date = self.open_date + timezone.timedelta(days=1)
+        self.poll = mommy.make(Poll, user=user, open_date=self.open_date,
+                               close_date=close_date, pub_date=self.open_date)
 
     def tearDown(self):
         pass
 
     def test_edit_poll(self):
         '''Can we edit the poll's close date?'''
-        pass
+
+        expected = self.open_date + timezone.timedelta(days=2)
+        update_data = {'close_date': expected.strftime('%Y-%m-%d'),
+                       'question': self.poll.question,
+                       'open_date': self.open_date.strftime('%Y-%m-%d')}
+        path = '/approval_polls/update/{0}/'.format(self.poll.id)
+
+        response = self.client.post(path, data=update_data)
+        self.assertRedirects(response, '/approval_polls/my-polls', target_status_code=301)
+        # check that the close_date is updated
+        result = Poll.objects.get(id=self.poll.id)
+        self.assertEqual(result.close_date.day, expected.day)
+        self.assertEqual(result.close_date.month, expected.month)
+        self.assertEqual(result.close_date.year, expected.year)

@@ -10,6 +10,6 @@ urlpatterns = patterns('',
     url(r'^(?P<poll_id>\d+)/embed_instructions/$', views.embed_instructions, name='embed_instructions'),
     url(r'^(?P<poll_id>\d+)/vote/$', views.vote, name='vote'),
     url(r'^create/$', views.CreateView.as_view(), name='create'),
-    url(r'^update/(?P<pk>[0-9]+)/$', views.PollUpdate.as_view(), name='poll_update')
+    url(r'^update/(?P<pk>[0-9]+)/$', views.PollUpdate.as_view(), name='update')
 
 )
