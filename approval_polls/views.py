@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
+from django.views.generic.edit import UpdateView
 
 from approval_polls.models import Poll
 
@@ -70,6 +71,17 @@ def embed_instructions(request, poll_id):
     return render(request, 'approval_polls/embed_instructions.html', {'link': link})
 
 
+class PollUpdate(UpdateView):
+    '''A generic update view for our poll.
+    We are not doing anything fancy at this point so we don't
+    really need a custom class'''
+
+
+    model = Poll
+    fields = ['question', 'open_date', 'close_date']
+    template_name_suffix = '_update_form'
+
+
 class CreateView(generic.View):
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
@@ -102,7 +114,8 @@ class CreateView(generic.View):
                     'question': question
                 })
 
-            p = Poll(question=question, pub_date=timezone.now(), user=request.user)
+            p = Poll(question=question, pub_date=timezone.now(), user=request.user,
+                     open_date=timezone.now(), close_date=timezone.now())
             p.save()
 
             for choice in choices: p.choice_set.create(choice_text=choice)

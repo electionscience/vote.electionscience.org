@@ -1,14 +1,14 @@
+from django.contrib.auth.models import User
 
 __author__ = 'sparky'
 import datetime
 
 from django.utils import timezone
 from django.test import TestCase
+# For those of you who are curious
 from model_mommy import mommy
 from django.core.urlresolvers import reverse
 from django.test.client import Client
-from django.contrib.auth.models import User
-
 from approval_polls.models import Poll
 
 
@@ -44,3 +44,22 @@ class TestPoll(TestCase):
         poll = mommy.make(Poll, close_date=close_date, open_date=open_date)
         result = poll.is_closed()
         self.assertFalse(result)
+
+
+class TestEditPoll(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        user = User.objects.create_user('test', 'test@example.com', 'test')
+        self.client.login(username='test', password='test')
+        open_date = timezone.now()
+        close_date = timezone.now() + timezone.timedelta(days=30)
+        self.poll = mommy.make(Poll, user=user, open_date=open_date,
+                               close_date=close_date, pub_date=open_date)
+
+    def tearDown(self):
+        pass
+
+    def test_edit_poll(self):
+        '''Can we edit the poll's close date?'''
+        pass

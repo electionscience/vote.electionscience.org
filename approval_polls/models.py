@@ -13,8 +13,8 @@ class Poll(models.Model):
     question = models.CharField(max_length=200)
     pub_date = models.DateTimeField('date published')
     user = models.ForeignKey(User)
-    open_date = models.DateTimeField(null=True)
-    close_date = models.DateTimeField(null=True)
+    open_date = models.DateTimeField()
+    close_date = models.DateTimeField()
 
     def is_closed(self):
         '''Determine if the poll is open or closed

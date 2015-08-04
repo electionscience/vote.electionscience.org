@@ -9,15 +9,31 @@ from django.contrib.auth.models import User
 from approval_polls.models import Poll
 
 
-def create_poll(question, username="user1", days=0, ballots=0):
+def create_poll(question, username="user1", days=0, ballots=0, open=None, close=20):
     """
     Creates a poll with the given `question` published the given number of
     `days` offset to now (negative for polls published in the past,
     positive for polls that have yet to be published), and user as the
     foreign key pointing to the user model.
+
+    Arguments:
+        question (str): A string representing a question
+        username (str): A user name for the user this function will create. The password will be test
+        days (int): Offset of number of days in the future to set the pub_date. Defaults to 0
+        ballots (int): Number of ballots if any the poll should be created with. Defaults to 0
+        open (DateTime): An optional date object for setting the open_date. Defaults to timezone.now()
+        close (int): An optional number of days in the future to set the poll's closing date. Defaults to 20
     """
+    if open is None:
+        open = timezone.now()
+
+
+    close = timezone.now() + timezone.timedelta(days=close)
+
     poll = Poll.objects.create(question=question,
                                pub_date=timezone.now() + datetime.timedelta(days=days),
+                               close_date=close,
+                               open_date=open,
                                user=User.objects.create_user(username, 'test@example.com', 'test'))
 
     for _ in range(ballots): create_ballot(poll)
