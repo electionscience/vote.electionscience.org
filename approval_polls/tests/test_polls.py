@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from approval_polls.forms.choice_form import ChoiceForm
 
 __author__ = 'sparky'
 import datetime
@@ -9,7 +10,7 @@ from django.test import TestCase
 from model_mommy import mommy
 from django.core.urlresolvers import reverse
 from django.test.client import Client
-from approval_polls.models import Poll
+from approval_polls.models import Poll, Choice
 
 
 class TestPoll(TestCase):
@@ -56,6 +57,7 @@ class TestEditPoll(TestCase):
         close_date = self.open_date + timezone.timedelta(days=1)
         self.poll = mommy.make(Poll, user=user, open_date=self.open_date,
                                close_date=close_date, pub_date=self.open_date)
+        mommy.make(Choice, poll=self.poll, _quantity=4)
 
     def tearDown(self):
         pass
@@ -68,7 +70,6 @@ class TestEditPoll(TestCase):
                        'question': self.poll.question,
                        'open_date': self.open_date.strftime('%Y-%m-%d')}
         path = '/approval_polls/update/{0}/'.format(self.poll.id)
-
         response = self.client.post(path, data=update_data)
         self.assertRedirects(response, '/approval_polls/my-polls', target_status_code=301)
         # check that the close_date is updated
