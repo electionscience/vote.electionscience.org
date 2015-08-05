@@ -148,7 +148,6 @@ class PollUpdate(generic.View):
         try:
             choice_forms = []  # this is ugly but I will do it for now.
             for choice in choices:
-                print choice
                 choice_form = ChoiceForm(data={'choice_text': choice['choice_text']},
                                          instance=Choice.objects.get(pk=choice['id']))
                 choice_forms.append({'form': choice_form, 'id': choice['id']})
