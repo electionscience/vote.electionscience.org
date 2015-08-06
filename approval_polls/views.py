@@ -8,7 +8,6 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
-from django.views.generic.edit import UpdateView
 from approval_polls.forms.choice_form import ChoiceForm
 from approval_polls.forms.poll_form import PollUpdateForm
 
@@ -123,7 +122,7 @@ class PollUpdate(generic.View):
         '''
 
         # First get the data from the post and sort it out.
-        for k in ['question', 'open_date', 'close_date']:
+        for k in ['question', 'open_date', 'close_date', 'suspended']:
             try:
                 poll_data[k] = request.POST.get(k)
             except NameError:

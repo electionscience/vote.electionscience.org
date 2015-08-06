@@ -16,6 +16,7 @@ class Poll(models.Model):
     user = models.ForeignKey(User)
     open_date = models.DateField()
     close_date = models.DateField()
+    suspended = models.BooleanField(default=False)
 
     def is_closed(self):
         '''Determine if the poll is open or closed

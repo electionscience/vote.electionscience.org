@@ -68,12 +68,43 @@ class TestEditPoll(TestCase):
         expected = self.open_date + timezone.timedelta(days=2)
         update_data = {'close_date': expected.strftime('%Y-%m-%d'),
                        'question': self.poll.question,
-                       'open_date': self.open_date.strftime('%Y-%m-%d')}
+                       'open_date': self.open_date.strftime('%Y-%m-%d'),
+                       'suspended': False}
         path = '/approval_polls/update/{0}/'.format(self.poll.id)
         response = self.client.post(path, data=update_data)
+        print response.status_code
         self.assertRedirects(response, '/approval_polls/my-polls', target_status_code=301)
         # check that the close_date is updated
         result = Poll.objects.get(id=self.poll.id)
         self.assertEqual(result.close_date.day, expected.day)
         self.assertEqual(result.close_date.month, expected.month)
         self.assertEqual(result.close_date.year, expected.year)
+
+
+    def test_edit_suspended(self):
+        '''When we unsuspend a poll after the close date does it remind us?'''
+
+        # set our poll to have closed in the past
+        new_open_date = self.open_date - timezone.timedelta(days=30)
+        new_close_date = new_open_date + timezone.timedelta(days=2)
+
+        expected = self.open_date + timezone.timedelta(days=2)
+        update_data = {'close_date': new_close_date.strftime('%Y-%m-%d'),
+                       'question': self.poll.question,
+                       'open_date': new_open_date.strftime('%Y-%m-%d'),
+                       'suspended': True}
+        path = '/approval_polls/update/{0}/'.format(self.poll.id)
+        response = self.client.post(path, data=update_data)
+
+        # our test is set up now if we unsuspend the poll it should reload the form and ask us
+        # to reset the close date to some time in the future.
+
+        update_data = {'close_date': new_close_date.strftime('%Y-%m-%d'),
+                       'question': self.poll.question,
+                       'open_date': new_open_date.strftime('%Y-%m-%d'),
+                       'suspended': False}
+
+        response = self.client.post(path, data=update_data)
+        self.assertEqual(response.status_code, 200)
+        needle = '<li>Your close date is in the past. Please update the close date.</li>'
+        self.assertInHTML(needle, response.content)

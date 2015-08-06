@@ -11,6 +11,15 @@
             <form action="" method="post"> {% csrf_token %}
                 {{ form.non_field_errors }}
                 <div class="fieldWrapper">
+                    <label>Poll Active/Inactive:</label>
+                    {{ form.suspended }}
+                    {% if form.suspended.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ form.suspended.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="fieldWrapper">
                     <label for="{{ form.question.id_for_label }}">Question: </label>{{ form.question }}
                     {% if form.question.errors %}
                         <div class="alert alert-danger" role="alert">
