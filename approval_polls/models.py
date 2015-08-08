@@ -25,14 +25,14 @@ class Poll(models.Model):
             None
 
         Returns:
-            boolean: True if the close_date < datetime.datetime.now()
+            boolean: True if the close_date < timezone.now()
                      otherwise False
         '''
 
-        now = timezone.now()
+
         # If now is greater than the close date the close date is in the past and will return True
         # If self.close_date is greater than now then close date is in the future and this returns False
-        return now > self.close_date
+        return timezone.now() > self.close_date
 
     def total_ballots(self):
         '''Get the ballot count for this poll
