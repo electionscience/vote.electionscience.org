@@ -10,7 +10,7 @@
         <div class="col-md-12">
             <form action="" method="post"> {% csrf_token %}
                 {{ form.non_field_errors }}
-                <div class="fieldWrapper">
+                <div class="form-group">
                     <label>Poll Active/Inactive:</label>
                     {{ form.suspended }}
                     {% if form.suspended.errors %}
@@ -19,7 +19,7 @@
                         </div>
                     {% endif %}
                 </div>
-                <div class="fieldWrapper">
+                <div class="form-group">
                     <label for="{{ form.question.id_for_label }}">Question: </label>{{ form.question }}
                     {% if form.question.errors %}
                         <div class="alert alert-danger" role="alert">
@@ -27,7 +27,7 @@
                         </div>
                     {% endif %}
                 </div>
-                <div class="fieldWrapper">
+                <div class="form-group">
 
                     <label for="{{ form.open_date.id_for_label }}">Poll Opening Date: </label>{{ form.open_date }}
                     {% if form.open_date.errors %}
@@ -36,7 +36,7 @@
                         </div>
                     {% endif %}
                 </div>
-                <div class="fieldWrapper">
+                <div class="form-group">
                     <label for="{{ form.close_date.id_for_label }}">Poll Closing Date: </label>{{ form.close_date }}
                     {% if form.close_date.errors %}
                         <div class="alert alert-danger" role="alert">
@@ -47,14 +47,17 @@
                 </div>
 
                 {% for choice in choices %}
-                    <label for="{{ choice.form.choice_text.id_for_label }}.{{ choice.id }}">Choice {{ forloop.counter }}: </label>
-                    <input class="form-control" id="id_choice_text.{{ choice.id }}" name="choice_text.{{ choice.id }}"
-                           type="text" value="{{ choice.form.choice_text.value }}"/>
-                    {% if choice.choice_text.errors %}
-                        <div class="alert alert-danger" role="alert">
-                            {{ choice.choice_text.errors }}
-                        </div>
-                    {% endif %}
+                    <div class="form-group">
+                        <label for="{{ choice.form.choice_text.id_for_label }}.{{ choice.id }}">Choice {{ forloop.counter }}: </label>
+                        <input class="form-control" id="id_choice_text.{{ choice.id }}"
+                               name="choice_text.{{ choice.id }}"
+                               type="text" value="{{ choice.form.choice_text.value }}"/>
+                        {% if choice.choice_text.errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ choice.choice_text.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
                 {% endfor %}
                 <input type="submit" class="btn btn-default" value="Update"/>
 
