@@ -100,10 +100,8 @@ class PollUpdate(generic.View):
 
         choices = [{'form': ChoiceForm(instance=choice), 'id': choice.id} for choice in Choice.objects.filter(poll__pk=pk)]
         my_context = {'form': form, 'choices': choices}
-        request_context = RequestContext(request)
 
-        return render_to_response('approval_polls/poll_update_form.html',
-                                  my_context, context_instance=request_context)
+        return render(request, 'approval_polls/poll_update_form.html', my_context)
 
     @method_decorator(login_required)
     def post(self, request, pk):
