@@ -1,13 +1,13 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-    <div class='row-fluid top-buffer'>
-        <div class='col-md-12'>
+    <div class="row-fluid top-buffer">
+        <div class="col-md-12">
             <h3> Edit Poll </h3>
         </div>
     </div>
-    <div class='row-fluid top-buffer'>
-        <div class='col-md-12'>
+    <div class="row-fluid top-buffer">
+        <div class="col-md-12">
             <form action="" method="post"> {% csrf_token %}
                 {{ form.non_field_errors }}
                 <div class="fieldWrapper">
@@ -65,5 +65,5 @@
 {% endblock %}
 {% block login %}
     {{ user.username }} |
-    <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a>
+    <a href="{% url "auth_logout" %}?next={% url "approval_polls:index" %}">Logout</a>
 {% endblock %}
