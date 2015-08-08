@@ -29,7 +29,7 @@
                 </div>
                 <div class="fieldWrapper">
 
-                    <label for="{{ form.open_date.id_for_label }}">Open Poll: </label>{{ form.open_date }}
+                    <label for="{{ form.open_date.id_for_label }}">Poll Opening Date: </label>{{ form.open_date }}
                     {% if form.open_date.errors %}
                         <div class="alert alert-danger" role="alert">
                             {{ form.open_date.errors }}
@@ -37,7 +37,7 @@
                     {% endif %}
                 </div>
                 <div class="fieldWrapper">
-                    <label for="{{ form.close_date.id_for_label }}">Close Poll: </label>{{ form.close_date }}
+                    <label for="{{ form.close_date.id_for_label }}">Poll Closing Date: </label>{{ form.close_date }}
                     {% if form.close_date.errors %}
                         <div class="alert alert-danger" role="alert">
                             {{ form.close_date.errors }}
