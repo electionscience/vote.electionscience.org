@@ -1,62 +1,68 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-    <div class='row-fluid top-buffer'>
-        <div class='col-md-12'>
+    <div class="row-fluid top-buffer">
+        <div class="col-md-12">
             <h3> Edit Poll </h3>
         </div>
     </div>
-    <div class='row-fluid top-buffer'>
-        <div class='col-md-12'>
+    <div class="row-fluid top-buffer">
+        <div class="col-md-12">
             <form action="" method="post"> {% csrf_token %}
                 {{ form.non_field_errors }}
-                <div class="fieldWrapper">
+                <div class="form-group {% if form.suspended.errors %} has-error {% endif %}" >
                     <label>Poll Active/Inactive:</label>
-                    {{ form.suspended }}
                     {% if form.suspended.errors %}
-                        <div class="alert alert-danger" role="alert">
+                        <label class="control-label" for="{{ form.suspended.id_for_label }}">
                             {{ form.suspended.errors }}
-                        </div>
+                        </label>
                     {% endif %}
+                    {{ form.suspended }}
+
                 </div>
-                <div class="fieldWrapper">
-                    <label for="{{ form.question.id_for_label }}">Question: </label>{{ form.question }}
+                <div class="form-group {% if form.question.errors %} has-error {% endif %}">
                     {% if form.question.errors %}
-                        <div class="alert alert-danger" role="alert">
+                        <label class="control-label" for="{{ form.question.id_for_label }}">
                             {{ form.questions.errors }}
-                        </div>
+                        </label>
                     {% endif %}
-                </div>
-                <div class="fieldWrapper">
+                    <label for="{{ form.question.id_for_label }}">Question: </label>{{ form.question }}
 
-                    <label for="{{ form.open_date.id_for_label }}">Open Poll: </label>{{ form.open_date }}
+                </div>
+                <div class="form-group {% if form.open_date.errors %} has-error {% endif %}">
+
                     {% if form.open_date.errors %}
-                        <div class="alert alert-danger" role="alert">
+                        <label class="control-label" for="{{ form.open_date.id_for_label }}">
                             {{ form.open_date.errors }}
-                        </div>
+                        </label>
                     {% endif %}
+                    <label for="{{ form.open_date.id_for_label }}">Poll Opening Date: </label>{{ form.open_date }}
                 </div>
-                <div class="fieldWrapper">
-                    <label for="{{ form.close_date.id_for_label }}">Close Poll: </label>{{ form.close_date }}
+                <div class="form-group {% if form.open_date.errors %} has-error {% endif %}">
                     {% if form.close_date.errors %}
-                        <div class="alert alert-danger" role="alert">
+                        <label class="control-label" for="{{ form.close_date.id_for_label }}">
                             {{ form.close_date.errors }}
-                        </div>
+                        </label>
                     {% endif %}
-
+                    <label for="{{ form.close_date.id_for_label }}">Poll Closing Date: </label>{{ form.close_date }}
                 </div>
 
                 {% for choice in choices %}
-                    <label for="{{ choice.form.choice_text.id_for_label }}.{{ choice.id }}">Choice {{ forloop.counter }}: </label>
-                    <input class="form-control" id="id_choice_text.{{ choice.id }}" name="choice_text.{{ choice.id }}"
-                           type="text" value="{{ choice.form.choice_text.value }}"/>
-                    {% if choice.choice_text.errors %}
-                        <div class="alert alert-danger" role="alert">
-                            {{ choice.choice_text.errors }}
-                        </div>
-                    {% endif %}
+                    <div class="form-group {% if choice.choice_text.errors %} has-error {% endif %}">
+
+                        {% if choice.choice_text.errors %}
+                            <class class="control-label" for="{{ choice.form.choice_text.id_for_label }}.{{ choice.id }}">
+                                {{ choice.choice_text.errors }}
+                            </class>
+                        {% endif %}
+                        <label for="{{ choice.form.choice_text.id_for_label }}.{{ choice.id }}">Choice {{ forloop.counter }}: </label>
+                        <input class="form-control" id="id_choice_text.{{ choice.id }}"
+                               name="choice_text.{{ choice.id }}"
+                               type="text" value="{{ choice.form.choice_text.value }}"/>
+                    </div>
+                    <input type="checkbox" name="delete_choice" value="{{ choice.id }}" />
                 {% endfor %}
-                <input type="submit" class="btn btn-default" value="Update"/>
+                <button type="submit" class="btn btn-default" value="Update"/>
 
             </form>
         </div>
@@ -65,5 +71,5 @@
 {% endblock %}
 {% block login %}
     {{ user.username }} |
-    <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a>
+    <a href="{% url "auth_logout" %}?next={% url "approval_polls:index" %}">Logout</a>
 {% endblock %}
