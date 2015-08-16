@@ -60,6 +60,7 @@
                                name="choice_text.{{ choice.id }}"
                                type="text" value="{{ choice.form.choice_text.value }}"/>
                     </div>
+                    <input type="checkbox" name="delete_choice" value="{{ choice.id }}" />
                 {% endfor %}
                 <button type="submit" class="btn btn-default" value="Update"/>
 
