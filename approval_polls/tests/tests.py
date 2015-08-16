@@ -8,26 +8,45 @@ from django.contrib.auth.models import User
 
 from approval_polls.models import Poll
 
-def create_poll(question, username="user1", days=0, ballots=0):
+
+def create_poll(question, username="user1", days=0, ballots=0, open=None, close=20):
     """
     Creates a poll with the given `question` published the given number of
     `days` offset to now (negative for polls published in the past,
     positive for polls that have yet to be published), and user as the
     foreign key pointing to the user model.
+
+    Arguments:
+        question (str): A string representing a question
+        username (str): A user name for the user this function will create. The password will be test
+        days (int): Offset of number of days in the future to set the pub_date. Defaults to 0
+        ballots (int): Number of ballots if any the poll should be created with. Defaults to 0
+        open (DateTime): An optional date object for setting the open_date. Defaults to timezone.now()
+        close (int): An optional number of days in the future to set the poll's closing date. Defaults to 20
     """
+    if open is None:
+        open = timezone.now()
+
+
+    close = timezone.now() + timezone.timedelta(days=close)
+
     poll = Poll.objects.create(question=question,
                                pub_date=timezone.now() + datetime.timedelta(days=days),
-                               user=User.objects.create_user(username,'test@example.com','test'))
+                               close_date=close,
+                               open_date=open,
+                               user=User.objects.create_user(username, 'test@example.com', 'test'))
 
     for _ in range(ballots): create_ballot(poll)
 
     return poll
+
 
 def create_ballot(poll, timestamp=timezone.now(), ip='127.0.0.1'):
     """
     Creates a ballot for the given `poll`, submitted at `timestamp` by `ip`.
     """
     return poll.ballot_set.create(timestamp=timestamp)
+
 
 class PollIndexTests(TestCase):
     def setUp(self):
@@ -75,7 +94,7 @@ class PollIndexTests(TestCase):
         response = self.client.get(reverse('approval_polls:index'))
         self.assertQuerysetEqual(
             response.context['latest_poll_list'],
-             ['<Poll: Past poll 2.>', '<Poll: Past poll 1.>']
+            ['<Poll: Past poll 2.>', '<Poll: Past poll 1.>']
         )
 
     def test_index_view_with_empty_page(self):
@@ -85,6 +104,7 @@ class PollIndexTests(TestCase):
         create_poll(question="Empty page poll.")
         response = self.client.get('/approval_polls/?page=2')
         self.assertContains(response, '(page 1 of 1)', status_code=200)
+
 
 class PollDetailTests(TestCase):
     def test_detail_view_with_a_future_poll(self):
@@ -115,6 +135,7 @@ class PollDetailTests(TestCase):
         response = self.client.get(reverse('approval_polls:detail', args=(poll.id,)))
         self.assertContains(response, 'Choice text.', status_code=200)
 
+
 class PollResultsTests(TestCase):
     def test_results_view_with_no_ballots(self):
         """
@@ -138,6 +159,7 @@ class PollResultsTests(TestCase):
         self.assertContains(response, '1 vote (50%)', status_code=200)
         self.assertContains(response, '1 vote on 2 ballots', status_code=200)
 
+
 class PollVoteTests(TestCase):
     def setUp(self):
         self.client = Client()
@@ -154,12 +176,13 @@ class PollVoteTests(TestCase):
             create_ballot(poll).vote_set.create(choice=choice1)
         for _ in range(10):
             create_ballot(poll).vote_set.create(choice=choice2)
-        response = self.client.post('/approval_polls/'+str(poll.id)+'/vote/',
-                                    data={'choice2':''},
+        response = self.client.post('/approval_polls/' + str(poll.id) + '/vote/',
+                                    data={'choice2': ''},
                                     follow=True)
         self.assertContains(response, '10 votes')
         self.assertContains(response, '21 votes')
         self.assertContains(response, '101 ballots', status_code=200)
+
 
 class MyPollTests(TestCase):
     def setUp(self):
@@ -172,7 +195,8 @@ class MyPollTests(TestCase):
         If the user is not logged in then redirect to the login page
         """
         response = self.client.get(reverse('approval_polls:my_polls'))
-        self.assertRedirects(response, '/accounts/login/?next=/approval_polls/my-polls/', status_code=302, target_status_code=200)
+        self.assertRedirects(response, '/accounts/login/?next=/approval_polls/my-polls/', status_code=302,
+                             target_status_code=200)
 
     def test_display_only_user_polls(self):
         """
@@ -186,27 +210,28 @@ class MyPollTests(TestCase):
             ['<Poll: question1>']
         )
 
+
 class PollCreateTests(TestCase):
     def setUp(self):
         self.client = Client()
-	user = User.objects.create_user('test','test@example.com','test')
-	self.client.login(username='test', password='test')
+        user = User.objects.create_user('test', 'test@example.com', 'test')
+        self.client.login(username='test', password='test')
 
     def test_create_page_exists(self):
-	"""
-	The create a poll form exists
-	"""
-	response = self.client.post('/approval_polls/create/')
-	self.assertEquals(response.status_code, 200)
+        """
+        The create a poll form exists
+        """
+        response = self.client.post('/approval_polls/create/')
+        self.assertEquals(response.status_code, 200)
 
     def test_create_shows_iframe_code(self):
         """
         Creating a new poll shows a HTML snippet to embed the new poll with an iframe.
         """
         poll_data = {
-            'question':'Create poll.',
-            'choice1' :'Choice 1.',
-            }
+            'question': 'Create poll.',
+            'choice1': 'Choice 1.',
+        }
         response = self.client.post('/approval_polls/create/', poll_data, follow=True)
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, 'approval_polls/embed_instructions.html')
@@ -216,14 +241,14 @@ class PollCreateTests(TestCase):
         """
         No question should return an error message.
         """
-        response = self.client.post('/approval_polls/create/', {'choice1':'Choice 1.'}, follow=True)
+        response = self.client.post('/approval_polls/create/', {'choice1': 'Choice 1.'}, follow=True)
         self.assertContains(response, 'The question is missing', status_code=200)
 
     def test_create_with_blank_question(self):
         """
         Blank question should return an error message.
         """
-        response = self.client.post('/approval_polls/create/', {'question':'', 'choice1':'Choice 1.'}, follow=True)
+        response = self.client.post('/approval_polls/create/', {'question': '', 'choice1': 'Choice 1.'}, follow=True)
         self.assertContains(response, 'The question is missing', status_code=200)
 
     def test_create_skips_blank_choices(self):
@@ -231,10 +256,10 @@ class PollCreateTests(TestCase):
         A blank choice doesn't appear in the poll (but later ones do)
         """
         poll_data = {
-            'question':'Create poll.',
-            'choice1' :'',
-            'choice2' :'Choice 2.',
-            }
+            'question': 'Create poll.',
+            'choice1': '',
+            'choice2': 'Choice 2.',
+        }
         self.client.post('/approval_polls/create/', poll_data, follow=True)
         response = self.client.get('/approval_polls/1/', follow=True)
         self.assertContains(response, 'Create poll.', status_code=200)

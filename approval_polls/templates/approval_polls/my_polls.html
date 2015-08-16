@@ -14,7 +14,7 @@
             <a href="{% url 'approval_polls:detail' poll.id %}">{{ poll.question }}</a>
             <a class='pull-right btn btn-danger btn-xs'> remove </a>
             <a class='pull-right btn btn-warning btn-xs right-buffer'> suspend </a>
-            <a class='pull-right btn btn-primary btn-xs right-buffer'> edit </a> 
+            <a href="{% url 'approval_polls:update' poll.id %}" class='pull-right btn btn-primary btn-xs right-buffer'> edit </a>
             <p>
               Published on {{ poll.pub_date }}
             </p>
