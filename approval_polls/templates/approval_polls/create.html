@@ -34,12 +34,37 @@
         <input class='form-control' type='text' maxlength='200' name='choice{{ i }}' placeholder='Choice {{i}}'>
       </div>
       {% endfor %}
-
+      <p>
       <button type='button' class='btn btn-primary btn-sm' id='add-choice'
               title='Add choice' data-toggle='tooltip' data-placement='bottom'>
         <i class='glyphicon glyphicon-plus'></i>
       </button>
+</p>
+      <!-- Add the collapsible poll settings panel here -->
+      <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        <div class="panel panel-default">
+          <div class="panel-heading" role="tab" id="headingOne">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseVoteType" aria-expanded="false" aria-controls="collapseVoteType">
+                Who should be allowed to vote in this poll ?
+              </a>
+            </h4>
+          </div>
+          <div id="collapseVoteType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+            <div class="panel-body">
+              
 
+          <div class="radio">
+            <label><input type="radio" name="optradio" checked="true">Only users with registered accounts (restricted to one ballot per user, requires login).</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio">Anyone (No restriction on the number of ballots per user).</label>
+          </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
       <button type='submit' class='btn btn-success pull-right'>Create</button>
     </form>
   </div>

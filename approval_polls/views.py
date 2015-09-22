@@ -8,7 +8,7 @@ from django.utils.decorators import method_decorator
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 
-from approval_polls.models import Poll
+from approval_polls.models import Poll, Ballot
 
 def index(request):
   poll_list = Poll.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')
@@ -42,17 +42,22 @@ class ResultsView(generic.DetailView):
   def get_queryset(self):
       return Poll.objects.filter(pub_date__lte=timezone.now())
 
+@login_required
 @require_http_methods(['POST'])
 def vote(request, poll_id):
   poll = get_object_or_404(Poll, pk=poll_id)
-  ballot = poll.ballot_set.create(timestamp=timezone.now())
+  # First check if the ballot exists under the users name.
+  existing_ballots = Ballot.objects.filter(poll_id=poll_id, user_id=request.user)
+  if not existing_ballots:
+    # Adding the user as the Foriegn Key
+    ballot = poll.ballot_set.create(timestamp=timezone.now(), user=request.user)
 
-  for counter, choice in enumerate(poll.choice_set.all()):
-    if 'choice' + str(counter + 1) in request.POST:
-      ballot.vote_set.create(choice = choice)
-      ballot.save()
+    for counter, choice in enumerate(poll.choice_set.all()):
+      if 'choice' + str(counter + 1) in request.POST:
+        ballot.vote_set.create(choice = choice)
+        ballot.save()
 
-  poll.save()
+    poll.save()
 
   return HttpResponseRedirect(reverse('approval_polls:results', args=(poll.id,)))
 

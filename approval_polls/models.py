@@ -35,6 +35,7 @@ class Choice(models.Model):
 
 class Ballot(models.Model):
 	poll = models.ForeignKey(Poll, null=True, blank=True)
+ 	user = models.ForeignKey(User, null=True, blank=True)
 	timestamp = models.DateTimeField('time voted')
 
 	def __unicode__(self):
