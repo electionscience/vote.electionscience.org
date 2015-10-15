@@ -45,22 +45,20 @@
         <div class="panel panel-default">
           <div class="panel-heading" role="tab" id="headingOne">
             <h4 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseVoteType" aria-expanded="false" aria-controls="collapseVoteType">
-                Who should be allowed to vote in this poll ?
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapsePollSettings" aria-expanded="false" aria-controls="collapsePollSettings">
+               Poll Settings
               </a>
             </h4>
           </div>
-          <div id="collapseVoteType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+          <div id="collapsePollSettings" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
             <div class="panel-body">
-              
-
+             Who should be allowed to vote in this poll ?
           <div class="radio">
-            <label><input type="radio" name="optradio" checked="true">Only users with registered accounts (restricted to one ballot per user, requires login).</label>
+            <label><input type="radio" name="radio-poll-type" value="1">Anyone (No restriction on the number of ballots per user).</label>
           </div>
           <div class="radio">
-            <label><input type="radio" name="optradio">Anyone (No restriction on the number of ballots per user).</label>
+            <label><input type="radio" name="radio-poll-type" checked="true" value="2">Only users with registered accounts (restricted to one ballot per user, requires login).</label>
           </div>
-
             </div>
           </div>
         </div>
