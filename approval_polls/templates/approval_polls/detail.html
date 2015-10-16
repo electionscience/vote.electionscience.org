@@ -1,11 +1,20 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
 <div class='row-fluid'>
   <div class='col-md-12'>
     <h3>{{ poll.question }}</h3>
   </div>
 </div>
+
+{% if error_message %}
+    <div class='row-fluid top-buffer'>
+      <div class='col-md-12 text-danger'>
+        {{ error_message }}
+      </div>
+    </div>
+{% endif %}
 
 <div class='row-fluid top-buffer'>
   <div class='col-md-12'>
@@ -20,7 +29,11 @@
         </div>
       {% endfor %}
       <div class='text-center'>
-        <button class='btn btn-success' type='submit'>Vote</button>
+        {% if poll.vtype == 2  and not user.is_authenticated %}
+          <button class='btn btn-success' type='submit'>Login to Vote</button>
+        {% else %}
+          <button class='btn btn-success' type='submit'>Vote</button>
+        {% endif %}
       </div>
     </form>
 

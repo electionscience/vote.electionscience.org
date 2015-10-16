@@ -42,7 +42,11 @@
                     <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a> | 
                     <a href='{% url 'approval_polls:my_polls' %}'>Manage your polls</a>
                   {% else %}
-                    <a href='/accounts/login'>Login</a>
+                    {% if request.path != '/approval_polls/' %}
+                      <a href="{% url 'auth_login' %}?next={{request.path}}">Login</a>
+                    {% else %}
+                      <a href="{% url 'auth_login' %}">Login</a> 
+                    {% endif %}
                   {% endif %}
                 {% endblock %}
               </p>
