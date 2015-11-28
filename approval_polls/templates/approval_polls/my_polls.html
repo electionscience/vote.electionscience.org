@@ -50,6 +50,6 @@
 {% endblock content %}
 
 {% block login %}
-  {{ user.username }} |
+  <a href='{% url 'approval_polls:my_info' %}'>{{user.username}}</a> |
   <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a>
 {% endblock %}

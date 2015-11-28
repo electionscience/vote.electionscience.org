@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div  class='row-fluid top-buffer'>
+      <div class='col-md-12'>
+        <h3> My User Profile ({{current_user.username}})</h3>
+      </div>
+    </div>  
+    <div class='row-fluid top-buffer'>
+      <div class='col-md-12'>
+        <div class='well well-sm'>
+          <p> Member since: {{current_user.date_joined|date:"F j, Y"}}</p>
+          <p> Last Login: {{current_user.last_login|date:"F j, Y"}}</p>
+          <p><a href='{% url 'approval_polls:my_polls' %}'> Polls I created</a>:
+            {{current_user.poll_set.all.count}}</p>
+          <p><a href='{% url 'approval_polls:username_change' %}'>Change Username</a></p>
+          <p><a href= '/accounts/password/change'>Change Password</a></p>
+                 
+        </div>          
+      </div>
+    </div>
+{% endblock content %}
+
+{% block login %}
+  <a href='{% url 'approval_polls:my_info' %}'>{{current_user.username}}</a> |
+  <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a>
+{% endblock %}

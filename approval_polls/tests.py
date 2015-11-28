@@ -295,3 +295,177 @@ class PollCreateTests(TestCase):
         self.assertNotContains(response, 'Choice 1.')
         self.assertContains(response, 'Choice 2.')
         self.assertContains(response, 'See Results')
+
+
+class UserProfileTests(TestCase):
+
+    def setUp(self):
+
+        self.client = Client()
+        User.objects.create_user('aaron', 'aaronces@gmail.com', 'password123')
+        self.client.login(username='aaron', password='password123')
+
+    def test_user_profile_show_username(self):
+        """
+        The User Profile page should show the following text:
+
+        My User Profile (aaron)
+        """
+        response = self.client.get(reverse('approval_polls:my_info'))
+        self.assertContains(response,"My User Profile (aaron)")
+
+    def test_user_profile_member_since(self):
+
+        response = self.client.get(reverse('approval_polls:my_info'))
+        test_user_date_joined = User.objects.get(username="aaron").date_joined.strftime('%B %d, %Y')
+        self.assertContains(response,"Member since: "+str(test_user_date_joined))
+
+    def test_user_profile_last_login(self):
+
+        response = self.client.get(reverse('approval_polls:my_info'))
+        test_user_last_login = User.objects.get(username="aaron").last_login.strftime('%B %d, %Y')
+        self.assertContains(response,"Last Login: "+str(test_user_last_login))
+
+    def test_show_polls_created_no_polls(self):
+
+        response = self.client.get(reverse('approval_polls:my_info'))
+        html_string = '<p><a href="/approval_polls/my-polls/">Polls I created</a>: 0</p>'
+        self.assertContains(response,html_string,html=True)
+
+    def test_show_polls_created_one_poll(self):
+
+        poll = Poll.objects.create(
+        question='Which is your favorite color?',
+        pub_date=timezone.now() + datetime.timedelta(days=0),
+        user=User.objects.get(username="aaron"),
+        vtype=2)
+
+        for _ in range(0):
+            create_ballot(poll)
+
+
+        response = self.client.get(reverse('approval_polls:my_info'))
+        html_string = '<p><a href="/approval_polls/my-polls/">Polls I created</a>: 1</p>'
+        self.assertContains(response,html_string,html=True)
+
+
+class ChangeUsernameTests(TestCase):
+
+    def setUp(self):
+
+        self.client = Client()
+        User.objects.create_user('matt', 'mattces@gmail.com', 'password123')
+        self.client.login(username='matt', password='password123')
+
+    def test_username_change_error_empty(self):
+        '''
+        New Username Field is Empty
+        '''
+        username_data = {'new_username':''}
+        response = self.client.post('/approval_polls/accounts/username/change/', username_data, follow=True)
+        html_string='This field is required.'
+        self.assertContains(response,html_string)
+
+    def test_username_change_illegal_chars_error(self):
+        '''
+        New Username contains '@'
+        '''
+        username_data = {'new_username':'matt@1987'}
+        response = self.client.post('/approval_polls/accounts/username/change/', username_data, follow=True)
+        html_string='This value may contain only letters, numbers and ./+/-/_ characters.'
+        self.assertContains(response,html_string)
+    
+    def test_username_change_maxlen_error(self):
+        '''
+        New Username is longer than 30 characters
+        '''
+        username_data = {'new_username':'kuhhahheriqwemniackolaxcivjkleqwerty'}
+        response = self.client.post('/approval_polls/accounts/username/change/', username_data, follow=True)
+        html_string='Ensure this value has at most 30 characters (it has 36).'
+        self.assertContains(response,html_string)
+
+    def test_username_change_success(self):
+        '''
+        Username was successfully changed
+        '''
+        username_data = {'new_username':'matt1987'}
+        response = self.client.post('/approval_polls/accounts/username/change/', username_data, follow=True)
+        html_string = 'Your Username was changed to matt1987.'
+        self.assertContains(response,html_string)
+        
+
+class ChangePasswordTests(TestCase):
+
+    def setUp(self):
+
+        self.client = Client()
+        User.objects.create_user('rupal', 'rupalces@gmail.com', 'password123')
+        self.client.login(username='rupal', password='password123')
+
+    def test_password_change_error_empty(self):
+        '''
+        Password Fields are Empty
+        '''
+        password_data = {'old_password':'','new_password1':'','new_password2':''}
+        response = self.client.post('/accounts/password/change/', password_data, follow=True)
+        html_string='This field is required.'
+        self.assertContains(response,html_string)
+
+    def test_password_change_old_pass_error(self):
+        '''
+        Old Password did not match the records
+        '''
+        password_data = {'old_password':'password1','new_password1':'password123','new_password2':'password123'}
+        response = self.client.post('/accounts/password/change/', password_data, follow=True)
+        html_string='Your old password was entered incorrectly.'
+        self.assertContains(response,html_string)
+    
+    def test_password_change_no_match_error(self):
+        '''
+        New Passwords did not match
+        '''
+        password_data = {'old_password':'password123','new_password1':'password123','new_password2':'password124'}
+        response = self.client.post('/accounts/password/change/', password_data, follow=True)
+        html_string='<label class="control-label" for="id_new_password2">The two password fields didn&39;t match.</label>'
+        self.assertContains(response,html_string,html=True)
+
+    def test_password_change_success(self):
+        '''
+        Password was successfully changed
+        '''
+        password_data = {'old_password':'password123','new_password1':'password1234','new_password2':'password1234'}
+        response = self.client.post('/accounts/password/change/', password_data, follow=True)
+        html_string='Your Password was changed.'
+        self.assertContains(response,html_string)
+    
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+

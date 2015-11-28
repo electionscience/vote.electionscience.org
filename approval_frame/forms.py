@@ -17,3 +17,12 @@ class RegistrationFormCustom(RegistrationFormUniqueEmail):
         error_messages={'invalid': _("This value may contain only letters, "
             + "numbers and ./+/-/_ characters.")}
     )
+
+
+class NewUsernameForm(forms.Form):
+
+    new_username = forms.RegexField(regex=r'^[\w.+-]+$',
+        max_length=30,
+        error_messages={'invalid': _("This value may contain only letters, "
+            + "numbers and ./+/-/_ characters.")}
+    )
