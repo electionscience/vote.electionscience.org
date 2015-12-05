@@ -8,7 +8,6 @@ from django.utils.decorators import method_decorator
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from approval_polls.models import Poll, Ballot
-from approval_frame.forms import NewUsernameForm
 
 def index(request):
     poll_list = Poll.objects.filter(
@@ -25,30 +24,15 @@ def myPolls(request):
     ).order_by('-pub_date')
     return getPolls(request, poll_list, 'approval_polls/my_polls.html')
 
+
 @login_required
 def myInfo(request):
-    return render(request, 'approval_polls/my_info.html', {'current_user': request.user})
+    return render(
+        request, 
+        'approval_polls/my_info.html', 
+        {'current_user': request.user}
+        )
 
-@login_required
-def changeUsername(request):
-    if request.method == 'POST':
-
-        form = NewUsernameForm(request.POST);
-
-        if form.is_valid():
-            newusername = form.cleaned_data['new_username'];
-            owner = request.user
-            owner.username = newusername
-            owner.save()
-            return HttpResponseRedirect(reverse('approval_polls:username_change_done'));
-    else:
-        form = NewUsernameForm()
-
-    return render(request, 'approval_polls/username_change_form.html', {'form': form})
-
-@login_required
-def changeUsernameDone(request):
-    return render(request, 'approval_polls/username_change_done.html', {'new_username': request.user})
 
 def getPolls(request, poll_list, render_page):
     paginator = Paginator(poll_list, 5)
