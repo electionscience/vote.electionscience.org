@@ -164,6 +164,24 @@ class ChangeUsernameTests(TestCase):
         html_string='Ensure this value has at most 30 characters (it has 36).'
         self.assertContains(response, html_string)
 
+    def test_username_change_already_exists(self):
+        '''
+        New Username is already registered
+        '''
+        User.objects.create_user(
+            'usertest', 
+            'usertestces@gmail.com', 
+            'password123'
+            )
+        username_data = {'new_username':'usertest'}
+        response = self.client.post(
+            '/accounts/username/change/', 
+            username_data, 
+            follow=True
+            )
+        html_string='A user with that username already exists.'
+        self.assertContains(response, html_string)
+
     def test_username_change_success(self):
         '''
         Username was successfully changed
