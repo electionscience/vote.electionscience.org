@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<meta http-equiv="refresh" content="3;url='{% url 'approval_polls:my_info' %}'" />
+<div  class='row-fluid top-buffer'>
+  <div class='col-md-12'>
+    <p align='center'><b>Your Username was changed to {{new_username.username}}.</b><p>
+    <p align='center'><i>Redirecting in 3 seconds...</i></p>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block login %}
+  <a href='{% url 'approval_polls:my_info' %}'>{{new_username.username}}</a> |
+  <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a>
+{% endblock %}

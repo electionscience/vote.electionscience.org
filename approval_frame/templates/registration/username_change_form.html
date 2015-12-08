@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  <form method="post">{% csrf_token %}
+
+  <div class='row-fluid top-buffer'>
+    <div class='col-md-6 col-md-offset-3'>
+      <legend>Change Username</legend>
+      <div class='form-group {% if form.errors.new_username %} has-error {% endif %}'>
+        {% for error in form.errors.new_username %}
+          <label class='control-label' for='{{ form.new_username.id_for_label }}'>
+              {{ error }}
+          </label>
+        {% endfor %}
+        <input type='text' class='form-control' name='{{ form.new_username.name }}' id='{{ form.new_username.id_for_label }}' value = '' placeholder='New Username' />
+      </div>
+      <button type='submit' class='btn btn-success'>Change my Username</button> 
+    </div>
+  </div>
+
+  </form>
+
+{% endblock %}
+
+{% block login %}
+  <a href='{% url 'approval_polls:my_info' %}'>{{user.username}}</a> |
+  <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a>
+{% endblock %}

@@ -295,3 +295,78 @@ class PollCreateTests(TestCase):
         self.assertNotContains(response, 'Choice 1.')
         self.assertContains(response, 'Choice 2.')
         self.assertContains(response, 'See Results')
+
+
+class UserProfileTests(TestCase):
+
+    def setUp(self):
+
+        self.client = Client()
+        User.objects.create_user(
+            'user1', 
+            'user1ces@gmail.com', 
+            'password123'
+            )
+        self.client.login(username='user1', password='password123')
+
+    def test_user_profile_show_username(self):
+        """
+        The User Profile page should show the following text:
+
+        My User Profile (user1)
+        """
+        response = self.client.get(reverse('approval_polls:my_info'))
+        self.assertContains(response, "My User Profile (user1)")
+
+    def test_user_profile_member_since(self):
+
+        response = self.client.get(reverse('approval_polls:my_info'))
+        stored_date = User.objects.get(username="user1").date_joined
+        desired_date = timezone.localtime(stored_date)
+        test_user_date_joined = desired_date.strftime('%B %d, %Y').replace(' 0', ' ')
+        self.assertContains(
+            response, 
+            "Member since: "+str(test_user_date_joined)
+            )
+
+    def test_user_profile_last_login(self):
+
+        response = self.client.get(reverse('approval_polls:my_info'))
+        stored_date = User.objects.get(username="user1").last_login
+        desired_date = timezone.localtime(stored_date)
+        test_user_last_login = desired_date.strftime('%B %d, %Y').replace(' 0', ' ')
+        self.assertContains(
+            response, 
+            "Last Login: "+str(test_user_last_login)
+            )
+
+    def test_show_polls_created_no_polls(self):
+
+        response = self.client.get(reverse('approval_polls:my_info'))
+        html_string = '<p><a href="/approval_polls/my-polls/">Polls I created</a>: 0</p>'
+        self.assertContains(
+            response, 
+            html_string, 
+            html=True
+            )
+
+    def test_show_polls_created_one_poll(self):
+
+        poll = Poll.objects.create(
+        question='Which is your favorite color?',
+        pub_date=timezone.now() + datetime.timedelta(days=0),
+        user=User.objects.get(username="user1"),
+        vtype=2)
+
+        for _ in range(0):
+            create_ballot(poll)
+
+
+        response = self.client.get(reverse('approval_polls:my_info'))
+        html_string = '<p><a href="/approval_polls/my-polls/">Polls I created</a>: 1</p>'
+        self.assertContains(
+            response, 
+            html_string, 
+            html=True
+            )
+        

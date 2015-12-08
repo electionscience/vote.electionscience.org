@@ -8,3 +8,4 @@ approval_frame/local_settings.py
 *.swn
 *.swo
 env
+Thumbs.db

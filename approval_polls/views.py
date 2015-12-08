@@ -9,7 +9,6 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from approval_polls.models import Poll, Ballot
 
-
 def index(request):
     poll_list = Poll.objects.filter(
         pub_date__lte=timezone.now()
@@ -24,6 +23,15 @@ def myPolls(request):
         user_id=request.user
     ).order_by('-pub_date')
     return getPolls(request, poll_list, 'approval_polls/my_polls.html')
+
+
+@login_required
+def myInfo(request):
+    return render(
+        request, 
+        'approval_polls/my_info.html', 
+        {'current_user': request.user}
+        )
 
 
 def getPolls(request, poll_list, render_page):
