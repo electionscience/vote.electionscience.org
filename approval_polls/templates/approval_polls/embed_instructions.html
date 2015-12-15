@@ -9,7 +9,9 @@
 <div class='row-fluid top-buffer'>
   <div class='col-md-12'>
     <h4>Put this code in your site</h4>
-    <textarea id='textAreaCode' class = 'well well-sm' readonly></textarea>
+    <div class = 'form-group'>
+      <textarea id='textAreaCode' class = 'form-control' readonly></textarea>
+    </div>
     <button id= "copyText" class="btn btn-primary btn-xs">Copy to Clipboard</button>
     <h4>Preview</h4>
     <iframe id="iframePreview" src='{{ link }}' width='400px'>Sorry, your browser doesn't support iframes.</iframe>

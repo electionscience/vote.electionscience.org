@@ -32,7 +32,7 @@ $(document).ready(function() {
       var successful = document.execCommand('copy');
       if ($("#alert-success").length == 0)
       {
-        $("<div id = 'alert-success' class='alert alert-success'>"
+        $("<div id = 'alert-success' class='alert alert-success' style='margin-top:10px'>"
           +"<strong>Success!</strong> Text copied to clipboard!.</div>")
         .insertAfter($("#copyText"));
       }      
@@ -40,7 +40,7 @@ $(document).ready(function() {
     catch (err) {
       if ($("#alert-danger").length == 0)
       {
-        $("<div id = 'alert-danger' class='alert alert-danger'>"
+        $("<div id = 'alert-danger' class='alert alert-danger' style='margin-top:10px'>"
           +"<strong>Oops, unable to copy!</strong>"
           +" To copy the text to clipboard: Ctrl+C!.</div>")
         .insertAfter($("#copyText"));
