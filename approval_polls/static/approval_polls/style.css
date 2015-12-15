@@ -9,3 +9,9 @@
 .right-buffer {
   margin-right: 5px;
 }
+
+#textAreaCode {
+  resize:none;
+  overflow:hidden;
+  overflow-y:scroll;
+}
