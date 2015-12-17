@@ -1,7 +1,7 @@
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required
+
 from forms import NewUsernameForm
 
 
@@ -23,16 +23,16 @@ def changeUsername(request):
         form = NewUsernameForm()
 
     return render(
-        request, 
-        'registration/username_change_form.html', 
+        request,
+        'registration/username_change_form.html',
         {'form': form}
-        )
+    )
 
 
 @login_required
 def changeUsernameDone(request):
     return render(
-        request, 
-        'registration/username_change_done.html', 
+        request,
+        'registration/username_change_done.html',
         {'new_username': request.user}
-        )
+    )

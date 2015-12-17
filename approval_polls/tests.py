@@ -1,10 +1,10 @@
 import datetime
 
-from django.utils import timezone
-from django.test import TestCase
-from django.core.urlresolvers import reverse
-from django.test.client import Client
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.test import TestCase
+from django.test.client import Client
+from django.utils import timezone
 
 from approval_polls.models import Poll
 
@@ -175,7 +175,7 @@ class PollVoteTests(TestCase):
             create_ballot(poll).vote_set.create(choice=choice1)
         for _ in range(10):
             create_ballot(poll).vote_set.create(choice=choice2)
-        response = self.client.post('/approval_polls/'+str(poll.id)+'/vote/',
+        response = self.client.post('/approval_polls/' + str(poll.id) + '/vote/',
                                     data={'choice2': ''},
                                     follow=True)
         self.assertContains(response, '10 votes')
@@ -303,8 +303,8 @@ class UserProfileTests(TestCase):
 
         self.client = Client()
         User.objects.create_user(
-            'user1', 
-            'user1ces@gmail.com', 
+            'user1',
+            'user1ces@gmail.com',
             'password123'
             )
         self.client.login(username='user1', password='password123')
@@ -325,8 +325,8 @@ class UserProfileTests(TestCase):
         desired_date = timezone.localtime(stored_date)
         test_user_date_joined = desired_date.strftime('%B %d, %Y').replace(' 0', ' ')
         self.assertContains(
-            response, 
-            "Member since: "+str(test_user_date_joined)
+            response,
+            "Member since: " + str(test_user_date_joined)
             )
 
     def test_user_profile_last_login(self):
@@ -336,8 +336,8 @@ class UserProfileTests(TestCase):
         desired_date = timezone.localtime(stored_date)
         test_user_last_login = desired_date.strftime('%B %d, %Y').replace(' 0', ' ')
         self.assertContains(
-            response, 
-            "Last Login: "+str(test_user_last_login)
+            response,
+            "Last Login: " + str(test_user_last_login)
             )
 
     def test_show_polls_created_no_polls(self):
@@ -345,28 +345,27 @@ class UserProfileTests(TestCase):
         response = self.client.get(reverse('approval_polls:my_info'))
         html_string = '<p><a href="/approval_polls/my-polls/">Polls I created</a>: 0</p>'
         self.assertContains(
-            response, 
-            html_string, 
+            response,
+            html_string,
             html=True
             )
 
     def test_show_polls_created_one_poll(self):
 
         poll = Poll.objects.create(
-        question='Which is your favorite color?',
-        pub_date=timezone.now() + datetime.timedelta(days=0),
-        user=User.objects.get(username="user1"),
-        vtype=2)
+            question='Which is your favorite color?',
+            pub_date=timezone.now() + datetime.timedelta(days=0),
+            user=User.objects.get(username="user1"),
+            vtype=2
+        )
 
         for _ in range(0):
             create_ballot(poll)
 
-
         response = self.client.get(reverse('approval_polls:my_info'))
         html_string = '<p><a href="/approval_polls/my-polls/">Polls I created</a>: 1</p>'
         self.assertContains(
-            response, 
-            html_string, 
+            response,
+            html_string,
             html=True
-            )
-        
+        )

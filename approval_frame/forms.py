@@ -1,9 +1,10 @@
 from __future__ import unicode_literals
 
 from django import forms
+from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from registration.forms import RegistrationFormUniqueEmail
-from django.contrib.auth.models import User
+
 
 class RegistrationFormCustom(RegistrationFormUniqueEmail):
     """
@@ -12,11 +13,13 @@ class RegistrationFormCustom(RegistrationFormUniqueEmail):
 
     """
     # Overriden to disallow '@' in the username during registration.
-    username = forms.RegexField(regex=r'^[\w.+-]+$',
+    username = forms.RegexField(
+        regex=r'^[\w.+-]+$',
         max_length=30,
         label=_("Username"),
-        error_messages={'invalid': _("This value may contain only letters, "
-            + "numbers and ./+/-/_ characters.")}
+        error_messages={'invalid': _(
+            "This value may contain only letters, numbers and ./+/-/_ characters."
+        )}
     )
 
 
@@ -26,10 +29,12 @@ class NewUsernameForm(forms.Form):
     Related to valid values a user can enter in the 'New Username' field.
 
     """
-    new_username = forms.RegexField(regex=r'^[\w.+-]+$',
+    new_username = forms.RegexField(
+        regex=r'^[\w.+-]+$',
         max_length=30,
-        error_messages={'invalid': _("This value may contain only letters, "
-            + "numbers and ./+/-/_ characters.")}
+        error_messages={'invalid': _(
+            "This value may contain only letters, numbers and ./+/-/_ characters."
+        )}
     )
 
     def clean_new_username(self):
@@ -39,5 +44,5 @@ class NewUsernameForm(forms.Form):
         except User.DoesNotExist:
             return new_username
         raise forms.ValidationError(
-                "A user with that username already exists."
-            )            
+            "A user with that username already exists."
+        )

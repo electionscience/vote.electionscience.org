@@ -3,9 +3,11 @@ from django.template import Library
 register = Library()
 
 # Taken from https://djangosnippets.org/snippets/1357/
+
+
 @register.filter
-def get_range( value ):
-  """
+def get_range(value):
+    """
     Filter - returns a list containing range made from given value
     Usage (in template):
 
@@ -21,5 +23,5 @@ def get_range( value ):
     </ul>
 
     Instead of 3 one may use the variable set in the views
-  """
-  return range(1, value)
+    """
+    return range(1, value)
