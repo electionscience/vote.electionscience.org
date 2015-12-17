@@ -1,10 +1,11 @@
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
-from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+
 
 class EmailOrUsernameBackend(ModelBackend):
-    """ 
+    """
     Class to authenticate the user based on the given username or Email ID.
 
     """

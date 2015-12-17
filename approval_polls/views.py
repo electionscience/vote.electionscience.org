@@ -1,13 +1,15 @@
-from django.http import HttpResponseRedirect
-from django.views.decorators.http import require_http_methods
-from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.core.urlresolvers import reverse
-from django.views import generic
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.contrib.auth.decorators import login_required
-from approval_polls.models import Poll, Ballot
+from django.views import generic
+from django.views.decorators.http import require_http_methods
+
+from approval_polls.models import Ballot, Poll
+
 
 def index(request):
     poll_list = Poll.objects.filter(
@@ -28,10 +30,10 @@ def myPolls(request):
 @login_required
 def myInfo(request):
     return render(
-        request, 
-        'approval_polls/my_info.html', 
+        request,
+        'approval_polls/my_info.html',
         {'current_user': request.user}
-        )
+    )
 
 
 def getPolls(request, poll_list, render_page):
@@ -167,8 +169,8 @@ class CreateView(generic.View):
 
             if not len(choices):
                 return render(request, 'approval_polls/create.html', {
-                  'choice_error': 'At least one choice is required',
-                  'question': question
+                    'choice_error': 'At least one choice is required',
+                    'question': question
                 })
 
             # The voting type to be used by the poll

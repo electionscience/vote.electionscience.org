@@ -3,7 +3,7 @@ $(function () {
 
   /* Add an extra textfield for a poll choice on the poll creation page. */
   this.addChoiceField = function () {
-    var formGroup, input, choiceName;
+    var formGroup, input;
 
     this.numChoiceFields++;
     formGroup = $("<div class='form-group'></div>");
