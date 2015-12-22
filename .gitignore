@@ -9,3 +9,4 @@ approval_frame/local_settings.py
 *.swo
 env
 Thumbs.db
+/staticfiles/

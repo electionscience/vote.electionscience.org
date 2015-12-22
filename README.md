@@ -120,6 +120,18 @@ Testing the code
   
 2. Apart from adding new test cases to cover new functionality, it is always a good practice to keep a check of the code coverage with the tool [`coverage`](https://pypi.python.org/pypi/coverage) to make sure that the code is still well tested. Read more about this [here](https://docs.djangoproject.com/en/1.8/topics/testing/advanced/#integration-with-coverage-py) !
 
+Deploying in production
+-----------------------
+This section is only applicable to you in case you are deploying this app in production, not while developing. In production, it is strongly recommended that `DEBUG` be set to `False`. With this, Django does not serve static files out of the box. More information on this [here](https://docs.djangoproject.com/en/1.8/howto/static-files/#admonition-serving-the-files).
+
+1. Run the following command to collect static files from all installed apps and place them in the 'staticfiles' directory (as given by the `STATIC_ROOT` variable).
+
+    `python manage.py collectstatic`
+
+2. Since Django does not serve static files in production by default, we make the use of a simple [WSGI](https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface) middleware library [`dj-static`](https://pypi.python.org/pypi/dj-static), that provides a Django static file server. Our polls app has been configured to run in production and serve static files once `dj-static` has been installed. 
+
+3. Also, do make sure that the `ALLOWED_HOSTS` variable contains the required production domain name/IP address as outlined in the [deployment checklist](https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/#allowed-hosts).
+
 Discuss
 -------
 Have a question? Want to discuss something? Head over to the forum at https://groups.google.com/forum/#!forum/ces-software.
