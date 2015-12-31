@@ -9,10 +9,26 @@
     <link rel='stylesheet' type='text/css' href='{% static 'approval_polls/style.css' %}'>
     <script src='{% static 'vendor/jquery-1.11.3.min.js' %}'></script>
     <script src='{% static 'vendor/bootstrap/js/bootstrap.min.js' %}'></script>
+    <script src='{% static 'vendor/jstz/js/jstz.min.js' %}'></script>
     <title>Approval Polls from The Center for Election Science</title>
     {% block head %}{% endblock %}
   </head>
   <body>
+    {% load tz %}
+    {% get_current_timezone as TIME_ZONE %}
+    <script>
+      var timezone = jstz.determine();
+      var timezone_name = timezone.name();
+      if (timezone_name != "{{ TIME_ZONE }}") {
+        $('body').append('<form id="set_timezone"></form>');
+        $('#set_timezone')
+          .attr("action","/approval_polls/set-user-timezone/")
+          .attr("method","get")
+          .append('<input type="hidden" name="timezone" value='+timezone_name+'>')
+          .append('<input type="hidden" name="current_path" value={{request.get_full_path}} >')
+        $('#set_timezone').submit()
+      }  
+    </script>
     <div class='container-fluid'>
       <div class='row-fluid'>
         <div class='col-md-5 col-md-offset-3'>
