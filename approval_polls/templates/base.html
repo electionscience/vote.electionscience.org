@@ -17,6 +17,7 @@
     {% load tz %}
     {% get_current_timezone as TIME_ZONE %}
     <script>
+      /* Using inline JavaScript allows us to access a Django template variable ("TIME_ZONE") in the JS code */
       var timezone = jstz.determine();
       var timezone_name = timezone.name();
       if (timezone_name != "{{ TIME_ZONE }}") {
@@ -25,8 +26,8 @@
           .attr("action","/approval_polls/set-user-timezone/")
           .attr("method","get")
           .append('<input type="hidden" name="timezone" value='+timezone_name+'>')
-          .append('<input type="hidden" name="current_path" value={{request.get_full_path}} >')
-        $('#set_timezone').submit()
+          .append('<input type="hidden" name="current_path" value={{request.get_full_path}} >');
+        $('#set_timezone').submit();
       }  
     </script>
     <div class='container-fluid'>
