@@ -10,8 +10,8 @@
   <div class='row-fluid top-buffer'>
     <div class='col-md-12'>
       <div class='well well-sm'>
-        <p> Member since: {{current_user.date_joined|date:"F j, Y"}}</p>
-        <p> Last Login: {{current_user.last_login|date:"F j, Y"}}</p>
+        <p> Member since: {{current_user.date_joined|date:"F j, Y e"}}</p>
+        <p> Last Login: {{current_user.last_login|date:"F j, Y e"}}</p>
         <p><a href='{% url 'approval_polls:my_polls' %}'> Polls I created</a>:
           {{current_user.poll_set.all.count}}</p>
         <p><a href = '/accounts/username/change'>Change Username</a></p>
