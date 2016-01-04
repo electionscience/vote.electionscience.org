@@ -128,7 +128,7 @@ This section is only applicable to you in case you are deploying this app in pro
 
     `python manage.py collectstatic`
 
-2. Since Django does not serve static files in production by default, we make the use of a simple [WSGI](https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface) middleware library [`dj-static`](https://pypi.python.org/pypi/dj-static), that provides a Django static file server. Our polls app has been configured to run in production and serve static files once `dj-static` has been installed. 
+2. Since Django does not serve static files in production by default, we make use of a simple [WSGI](https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface) middleware library [`dj-static`](https://pypi.python.org/pypi/dj-static), that provides a Django static file server. Our polls app has been configured to run in production and serve static files once `dj-static` has been installed. 
 
 3. Also, do make sure that the `ALLOWED_HOSTS` variable contains the required production domain name/IP address as outlined in the [deployment checklist](https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/#allowed-hosts).
 
