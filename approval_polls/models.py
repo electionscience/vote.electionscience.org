@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 
 
 class Poll(models.Model):
@@ -7,6 +8,11 @@ class Poll(models.Model):
     pub_date = models.DateTimeField('date published')
     user = models.ForeignKey(User)
     vtype = models.IntegerField(default=2)
+    close_date = models.DateTimeField('date closed', null=True, blank=True)
+
+    def is_closed(self):
+        if self.close_date:
+            return timezone.now() > self.close_date
 
     def total_ballots(self):
         return self.ballot_set.count()

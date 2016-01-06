@@ -9,7 +9,7 @@ from django.utils import timezone
 from approval_polls.models import Poll
 
 
-def create_poll(question, username="user1", days=0, ballots=0, vtype=2):
+def create_poll(question, username="user1", days=0, ballots=0, vtype=2, close_date=None):
     """
     Creates a poll with the given `question` published the given number of
     `days` offset to now (negative for polls published in the past,
@@ -22,7 +22,8 @@ def create_poll(question, username="user1", days=0, ballots=0, vtype=2):
         question=question,
         pub_date=timezone.now() + datetime.timedelta(days=days),
         user=User.objects.create_user(username, 'test@example.com', 'test'),
-        vtype=vtype
+        vtype=vtype,
+        close_date=close_date,
     )
 
     for _ in range(ballots):
@@ -369,3 +370,95 @@ class UserProfileTests(TestCase):
             html_string,
             html=True
         )
+
+
+class UpdatePollTests(TestCase):
+
+    def setUp(self):
+
+        self.client = Client()
+        poll = create_poll(
+            question='Create Sample Poll.',
+            close_date=timezone.now() + datetime.timedelta(days=10),
+            )
+        poll.choice_set.create(choice_text='Choice 1.')
+        self.client.login(username='user1', password='test')
+        choice_data = {
+            'choice1': 'on',
+            }
+        self.client.post(
+            '/approval_polls/1/vote/',
+            choice_data,
+            follow=True
+            )
+
+    def test_poll_details_show_update_button(self):
+
+        response = self.client.get('/approval_polls/1/')
+        self.assertContains(response, 'Update Vote', status_code=200)
+
+    def test_poll_details_show_checked_choices(self):
+
+        response = self.client.get('/approval_polls/1/')
+        self.assertQuerysetEqual(
+            response.context['checked_choices'],
+            ['<Choice: Choice 1.>']
+        )
+
+    def test_poll_details_logout_current_user(self):
+
+        self.client.logout()
+        response = self.client.get('/approval_polls/1/')
+        self.assertContains(response, 'Login to Vote', status_code=200)
+        self.assertQuerysetEqual(
+            response.context['checked_choices'],
+            []
+        )
+
+    def test_poll_details_different_user(self):
+
+        self.client.logout()
+        User.objects.create_user(
+            'user2',
+            'user2@example.com',
+            'password123'
+            )
+        self.client.login(username='user2', password='password123')
+        response = self.client.get('/approval_polls/1/')
+        self.assertContains(response, 'Vote', status_code=200)
+        self.assertQuerysetEqual(
+            response.context['checked_choices'],
+            []
+        )
+
+    def test_poll_details_unselect_checked_choice(self):
+
+        self.client.login(username='user1', password='test')
+        choice_data = {}
+        self.client.post(
+            '/approval_polls/1/vote/',
+            choice_data,
+            follow=True
+            )
+        response = self.client.get('/approval_polls/1/')
+        self.assertContains(response, 'Vote', status_code=200)
+        self.assertQuerysetEqual(
+            response.context['checked_choices'],
+            []
+        )
+
+    def test_poll_details_closed_poll(self):
+
+        poll_closed = create_poll(
+            question='Create Closed Poll.',
+            username='user2',
+            close_date=timezone.now() + datetime.timedelta(days=-10),
+            )
+        self.client.login(username='user2', password='password123')
+        response = self.client.get(reverse('approval_polls:detail',
+                                   args=(poll_closed.id,)))
+        self.assertContains(
+            response,
+            'Sorry! This poll is closed.',
+            status_code=200
+            )
