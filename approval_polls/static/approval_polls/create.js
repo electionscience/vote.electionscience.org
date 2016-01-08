@@ -1,5 +1,6 @@
 $(function () {
   this.numChoiceFields = 4;
+  var changeDateLogic;
 
   /* Add an extra textfield for a poll choice on the poll creation page. */
   this.addChoiceField = function () {
@@ -19,31 +20,51 @@ $(function () {
   $('[data-toggle=tooltip]').tooltip();
   $('button#add-choice').click($.proxy(this.addChoiceField, this));
 
-  function roundMinutes(date) {
-    if (date.getMinutes() > 0 && date.getMinutes() < 30){
-      date.setHours(date.getHours());
-      date.setMinutes(30);
+  /* Allow user to select a poll closing date and time from a Jquery 
+  DateTime picker. */
+  
+  changeDateLogic = function ( ct, $i ) {
+    var ct, today;
+    ct = new Date(
+      ct.getFullYear(),
+      ct.getMonth(),
+      ct.getDate()
+      );
+    today = new Date();
+    today = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+      );
+    if ( ct.getTime() == today.getTime() ) {
+      $i.datetimepicker({ 
+        minTime:new Date(),
+      });
     }
-    else if (date.getMinutes() > 30 && date.getMinutes() < 60){
-      date.setHours(date.getHours()+1);
-      date.setMinutes(0);
+    else if ( ct.getTime() > today.getTime() ) {
+      $i.datetimepicker({
+        minTime:false,
+      });
     }
-    return date;
-  }
-
-  var minDateTimelogic = function( currentDateTime ){
-    this.setOptions({
-      minDate: roundMinutes(currentDateTime),
-      minTime: currentDateTime,
-    });
+    else if ( ct.getTime() < today.getTime() ) {
+      $i.datetimepicker({
+        minTime:'23:59',
+      });
+    }
   };
 
   $('#datetimepicker').datetimepicker({
     step:30,
-    onShow:minDateTimelogic,
+    roundTime:'ceil',
+    todayButton:false,
+    minDate:new Date(),
+    minTime:new Date(),
+    onChangeMonth:changeDateLogic,
+    onSelectDate:changeDateLogic,
+    onShow:changeDateLogic,
   });
 
-  $("#datetimepicker").keyup(function (e)
+  $('#datetimepicker').keyup(function (e)
   {
     if(e.keyCode == 8 || e.keyCode == 46) {
         $(this).val("");

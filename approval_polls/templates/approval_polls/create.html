@@ -4,6 +4,8 @@
 
 {% block head %}
   {% load staticfiles %}
+  <link rel="stylesheet" href='{% static 'vendor/jquery-datetimepicker/css/jquery.datetimepicker.css' %}'>
+  <script src='{% static 'vendor/jquery-datetimepicker/js/jquery.datetimepicker.full.min.js' %}'></script>
   <script src='{% static 'approval_polls/create.js' %}'></script>
 {% endblock %}
 
@@ -61,7 +63,7 @@
           </div>
           <div class = 'form-group'>
             <p>Please select a closing date and time for this poll, if any</p>
-            <input id = 'datetimepicker' type="text" class="form-control" name = 'close-datetime' value= '' placeholder = 'Poll Closing Date'>
+            <input id='datetimepicker' type='text' class='form-control' name='close-datetime' value='' placeholder='Poll Closing Date' style='background-color: white;' readonly>
           </div>
             </div>
           </div>
