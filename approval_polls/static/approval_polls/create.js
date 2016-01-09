@@ -64,10 +64,11 @@ $(function () {
     onShow:changeDateLogic,
   });
 
-  $('#datetimepicker').keyup(function (e)
-  {
+  $('#datetimepicker').keydown(function (e)
+  {  
     if(e.keyCode == 8 || e.keyCode == 46) {
-        $(this).val("");
+      $(this).val("");
+      e.preventDefault();
     }
   });
 });
