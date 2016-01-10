@@ -23,7 +23,7 @@
       {% for choice in poll.choice_set.all %}
         <div class='checkbox'>
           <label>
-            <input type='checkbox' name='choice{{ forloop.counter }}' id='choice{{ forloop.counter }}'>
+            <input type='checkbox' name='choice{{ forloop.counter }}' id='choice{{ forloop.counter }}' {% if checked_choices %} {% if choice in checked_choices %} checked {% endif %} {% endif %}>
             {{ choice }}
           </label>
         </div>
@@ -32,7 +32,14 @@
         {% if poll.vtype == 2  and not user.is_authenticated %}
           <button class='btn btn-success' type='submit'>Login to Vote</button>
         {% else %}
-          <button class='btn btn-success' type='submit'>Vote</button>
+          {% if poll.is_closed %}
+            <div class='row-fluid top-buffer'>
+              <div class='col-md-12 text-danger'>
+                Sorry! This poll is closed.
+              </div>
+            </div>
+          {% endif %}
+          <button class='btn btn-success' type='submit' {% if poll.is_closed %} disabled {% endif %}>{% if checked_choices %}Update Vote{% else %}Vote{% endif %}</button>
         {% endif %}
       </div>
     </form>

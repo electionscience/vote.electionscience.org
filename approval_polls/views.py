@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.core.urlresolvers import reverse
@@ -62,6 +64,19 @@ class DetailView(generic.DetailView):
     def get_queryset(self):
         return Poll.objects.filter(pub_date__lte=timezone.now())
 
+    def get_context_data(self, **kwargs):
+        context = super(DetailView, self).get_context_data(**kwargs)
+        poll = self.object
+        user = self.request.user
+        checked_choices = []
+        if poll.vtype == 2 and user.is_authenticated():
+            for ballot in poll.ballot_set.all():
+                if ballot.user == user:
+                    for option in ballot.vote_set.all():
+                        checked_choices.append(option.choice)
+        context['checked_choices'] = checked_choices
+        return context
+
 
 class ResultsView(generic.DetailView):
     model = Poll
@@ -114,14 +129,26 @@ def vote(request, poll_id):
                     reverse('approval_polls:results', args=(poll.id,))
                 )
             else:
-                return render(
-                    request,
-                    'approval_polls/detail.html',
-                    {'poll': poll,
-                        'error_message': 'Sorry! You have already voted ' +
-                        'in this poll.'}
-                )
-
+                ballot = poll.ballot_set.get(user=request.user)
+                for counter, choice in enumerate(poll.choice_set.all()):
+                    if 'choice' + str(counter + 1) in request.POST:
+                        ballot_exist = ballot.vote_set.filter(
+                            choice=choice
+                            )
+                        if not ballot_exist:
+                            ballot.vote_set.create(choice=choice)
+                            ballot.save()
+                    else:
+                        ballot_exist = ballot.vote_set.filter(
+                            choice=choice
+                            )
+                        if ballot_exist:
+                            ballot_exist.delete()
+                            ballot.save()
+                poll.save()
+                return HttpResponseRedirect(
+                    reverse('approval_polls:results', args=(poll.id,))
+                    )
         else:
             return HttpResponseRedirect(
                 reverse('auth_login') + '?next=' +
@@ -183,11 +210,30 @@ class CreateView(generic.View):
             # The voting type to be used by the poll
             vtype = request.POST['radio-poll-type']
 
+            if 'close-datetime' in request.POST:
+                closedatetime = request.POST['close-datetime']
+            else:
+                closedatetime = ""
+
+            if closedatetime:
+                closedatetime = datetime.datetime.strptime(
+                    closedatetime,
+                    '%Y/%m/%d %H:%M'
+                    )
+                current_datetime = timezone.localtime(timezone.now())
+                current_tzinfo = current_datetime.tzinfo
+                closedatetime = closedatetime.replace(
+                    tzinfo=current_tzinfo
+                    )
+            else:
+                closedatetime = None
+
             p = Poll(
                 question=question,
                 pub_date=timezone.now(),
                 user=request.user,
-                vtype=vtype
+                vtype=vtype,
+                close_date=closedatetime,
             )
             p.save()
 

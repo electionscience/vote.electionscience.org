@@ -4,6 +4,8 @@
 
 {% block head %}
   {% load staticfiles %}
+  <link rel="stylesheet" href='{% static 'vendor/jquery-datetimepicker/css/jquery.datetimepicker.css' %}'>
+  <script src='{% static 'vendor/jquery-datetimepicker/js/jquery.datetimepicker.full.min.js' %}'></script>
   <script src='{% static 'approval_polls/create.js' %}'></script>
 {% endblock %}
 
@@ -58,6 +60,10 @@
           </div>
           <div class='radio'>
             <label><input type='radio' name='radio-poll-type' checked='true' value='2'>Only users with registered accounts (restricted to one ballot per user, requires login).</label>
+          </div>
+          <div class = 'datetimepicker'>
+            <p>Please select a closing date and time for this poll, if any</p>
+            <input id='datetimepicker' type='text' class='form-control' name='close-datetime' value='' placeholder='Poll Closing Date' style='background-color: white;' readonly>
           </div>
             </div>
           </div>
