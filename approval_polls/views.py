@@ -96,58 +96,69 @@ def vote(request, poll_id):
     poll_vtype = poll.vtype
 
     if poll_vtype == 1:
-        ballot = poll.ballot_set.create(timestamp=timezone.now())
-        for counter, choice in enumerate(poll.choice_set.all()):
-            if 'choice' + str(counter + 1) in request.POST:
-                ballot.vote_set.create(choice=choice)
-                ballot.save()
-        poll.save()
-        return HttpResponseRedirect(
-            reverse('approval_polls:results', args=(poll.id,))
-        )
+        if not poll.is_closed():
+            ballot = poll.ballot_set.create(timestamp=timezone.now())
+            for counter, choice in enumerate(poll.choice_set.all()):
+                if 'choice' + str(counter + 1) in request.POST:
+                    ballot.vote_set.create(choice=choice)
+                    ballot.save()
+            poll.save()
+            return HttpResponseRedirect(
+                reverse('approval_polls:results', args=(poll.id,))
+            )
+        else:
+            return HttpResponseRedirect(
+                reverse('approval_polls:detail', args=(poll.id,))
+                )
     elif poll_vtype == 2:
         # Type 2 poll - the user is required to login to vote.
         if request.user.is_authenticated():
-            # Check if a ballot exists under the users name.
-            existing_ballots = Ballot.objects.filter(
-                poll_id=poll_id,
-                user_id=request.user
-            )
-            if not existing_ballots:
-                # Add the user as the foreign key
-                ballot = poll.ballot_set.create(
-                    timestamp=timezone.now(),
-                    user=request.user
+            # Check if a poll is closed
+            if not poll.is_closed():
+                # Check if a ballot exists under the users name.
+                existing_ballots = Ballot.objects.filter(
+                    poll_id=poll_id,
+                    user_id=request.user
                 )
+                if not existing_ballots:
+                    # Add the user as the foreign key
+                    ballot = poll.ballot_set.create(
+                        timestamp=timezone.now(),
+                        user=request.user
+                    )
 
-                for counter, choice in enumerate(poll.choice_set.all()):
-                    if 'choice' + str(counter + 1) in request.POST:
-                        ballot.vote_set.create(choice=choice)
-                        ballot.save()
-                poll.save()
-                return HttpResponseRedirect(
-                    reverse('approval_polls:results', args=(poll.id,))
-                )
-            else:
-                ballot = poll.ballot_set.get(user=request.user)
-                for counter, choice in enumerate(poll.choice_set.all()):
-                    if 'choice' + str(counter + 1) in request.POST:
-                        ballot_exist = ballot.vote_set.filter(
-                            choice=choice
-                            )
-                        if not ballot_exist:
+                    for counter, choice in enumerate(poll.choice_set.all()):
+                        if 'choice' + str(counter + 1) in request.POST:
                             ballot.vote_set.create(choice=choice)
                             ballot.save()
-                    else:
-                        ballot_exist = ballot.vote_set.filter(
-                            choice=choice
-                            )
-                        if ballot_exist:
-                            ballot_exist.delete()
-                            ballot.save()
-                poll.save()
+                    poll.save()
+                    return HttpResponseRedirect(
+                        reverse('approval_polls:results', args=(poll.id,))
+                    )
+                else:
+                    ballot = poll.ballot_set.get(user=request.user)
+                    for counter, choice in enumerate(poll.choice_set.all()):
+                        if 'choice' + str(counter + 1) in request.POST:
+                            ballot_exist = ballot.vote_set.filter(
+                                choice=choice
+                                )
+                            if not ballot_exist:
+                                ballot.vote_set.create(choice=choice)
+                                ballot.save()
+                        else:
+                            ballot_exist = ballot.vote_set.filter(
+                                choice=choice
+                                )
+                            if ballot_exist:
+                                ballot_exist.delete()
+                                ballot.save()
+                    poll.save()
+                    return HttpResponseRedirect(
+                        reverse('approval_polls:results', args=(poll.id,))
+                        )
+            else:
                 return HttpResponseRedirect(
-                    reverse('approval_polls:results', args=(poll.id,))
+                    reverse('approval_polls:detail', args=(poll.id,))
                     )
         else:
             return HttpResponseRedirect(
