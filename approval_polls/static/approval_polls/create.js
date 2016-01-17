@@ -1,6 +1,6 @@
 $(function () {
   this.numChoiceFields = 4;
-  var changeDateLogic, roundMinutes, roundDate;
+  var changeDateLogic, roundMinutes, setDefaultOptions, changeDisabledOptions;
 
   /* Add an extra textfield for a poll choice on the poll creation page. */
   this.addChoiceField = function () {
@@ -23,82 +23,66 @@ $(function () {
   /* Allow user to select a poll closing date and time from a Jquery 
   DateTime picker. */
 
-  roundMinutes = function( today ) {
-    var hr, min, time;
-    hr = today.getHours();
+  roundMinutes = function ( today ) {
+    var hr, min, time;    
     min = today.getMinutes();
     if (min >= 0 && min < 30){
-      min = 30;
+      today.setMinutes(30);
     }
     else if (min >= 30 && min < 60){
-      hr = hr + 1;
-      min = 0;      
+      today.setHours(today.getHours() + 1);
+      today.setMinutes(0);
     }
-    hr = ('0'+ hr).slice(-2);
-    min = ('0'+ min).slice(-2);
+    hr = ('0' + today.getHours()).slice(-2);
+    min = ('0'+ today.getMinutes()).slice(-2);
     time = hr + ':' + min;
-    return time;
+    return [time, today];
   };
 
-  roundDate = function ( today ) {
-    var hr, min;
-    hr = today.getHours();
-    min = today.getMinutes();
-    if (hr == 23  && min >= 30){
-      today.setDate(today.getDate()+1);
-    }
-    return today;
+  setDefaultOptions = function () {
+    var options, roundDateTime, roundDate, roundTime;
+    options = {};
+    roundDateTime = roundMinutes(new Date());
+    roundTime = roundDateTime[0];
+    roundDate = roundDateTime[1];
+    options['defaultDate'] = roundDate;
+    options['minDate'] = roundDate;
+    options['defaultTime'] = roundTime;
+    options['minTime'] = roundTime;
+    return options;
   };
 
   changeDateLogic = function ( ct, $i ) {
-    var today, ceilTime, ctHours, ctMinutes, ctTime;
-    today = roundDate(new Date());
-    ceilTime = roundMinutes(new Date());
-    ctHours = ('0'+ ct.getHours()).slice(-2);
-    ctMinutes = ('0'+ ct.getMinutes()).slice(-2)
-    ctTime = ctHours + ':' + ctMinutes;
-    ct = new Date(
-      ct.getFullYear(),
-      ct.getMonth(),
-      ct.getDate()
-      );
-    today = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate()
-      );
-    if (ct.getTime() == today.getTime()){
-      if (Date.parse('01/01/2000' + ' ' + ctTime) < Date.parse('01/01/2000' + ' ' + ceilTime)){
+    var selected, current, roundDate;
+    roundDate = roundMinutes(new Date())[1];
+    selected = new Date(ct.dateFormat('Y/m/d'));
+    current = new Date(roundDate.dateFormat('Y/m/d'));
+    if (selected.getTime() == current.getTime()){
+      if (ct.dateFormat('H:i') < roundDate.dateFormat('H:i')){
         $('#datetimepicker').val('');
       }
-      $i.datetimepicker({
-        defaultDate:today,
-        minDate:today,
-        defaultTime:ceilTime,
-        minTime:ceilTime,
-      });      
+      $i.datetimepicker(setDefaultOptions());
     }
-    else if (ct.getTime() > today.getTime()){
+    else if (selected.getTime() > current.getTime()){
       $i.datetimepicker({
         minTime:false,
       });
     }
-    else if (ct.getTime() < today.getTime()){
+    else if (selected.getTime() < current.getTime()){
       $('#datetimepicker').val('');
       $i.datetimepicker({
         defaultDate:false,
         minTime:'23:59',
       });
     }
+    $('#datetimepicker').change();
   };
+
+  $('#datetimepicker').datetimepicker(setDefaultOptions());
 
   $('#datetimepicker').datetimepicker({
     step:30,
     todayButton:false,
-    defaultDate:roundDate(new Date()),
-    minDate:roundDate(new Date()),
-    defaultTime:roundMinutes(new Date()),
-    minTime:roundMinutes(new Date()),
     onShow:changeDateLogic,
     onSelectDate:changeDateLogic,
     onChangeMonth:changeDateLogic,
@@ -107,8 +91,27 @@ $(function () {
   $('#datetimepicker').keydown(function (e)
   {  
     if(e.keyCode == 8 || e.keyCode == 46) {
-      $(this).val("");
+      $(this).val('');
+      $(this).change();
       e.preventDefault();
     }
   });
+
+  changeDisabledOptions = function () {
+    if ($('#datetimepicker').val() == ''){
+      $('#checkbox1').attr('disabled', true); 
+      $('#checkbox2').attr('disabled', true);
+    }
+    else{
+      $('#checkbox1').prop('disabled', false);
+      $('#checkbox2').prop('disabled', false);
+    }
+  };
+
+  $('#datetimepicker').change(function () {
+    changeDisabledOptions();
+  });
+
+  $('#datetimepicker').change();
+
 });

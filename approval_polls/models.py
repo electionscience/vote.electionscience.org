@@ -9,6 +9,8 @@ class Poll(models.Model):
     user = models.ForeignKey(User)
     vtype = models.IntegerField(default=2)
     close_date = models.DateTimeField('date closed', null=True, blank=True)
+    show_close_date = models.BooleanField(default=False)
+    show_countdown = models.BooleanField(default=False)
 
     def is_closed(self):
         if self.close_date:
