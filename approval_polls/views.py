@@ -75,6 +75,9 @@ class DetailView(generic.DetailView):
                     for option in ballot.vote_set.all():
                         checked_choices.append(option.choice)
         context['checked_choices'] = checked_choices
+        if not poll.is_closed() and poll.close_date is not None:
+            time_diff = poll.close_date - timezone.now()
+            context['time_difference'] = time_diff.total_seconds()
         return context
 
 
@@ -239,12 +242,24 @@ class CreateView(generic.View):
             else:
                 closedatetime = None
 
+            if 'show-close-date' in request.POST:
+                show_close_date = True
+            else:
+                show_close_date = False
+
+            if 'show-countdown' in request.POST:
+                show_countdown = True
+            else:
+                show_countdown = False
+
             p = Poll(
                 question=question,
                 pub_date=timezone.now(),
                 user=request.user,
                 vtype=vtype,
                 close_date=closedatetime,
+                show_close_date=show_close_date,
+                show_countdown=show_countdown,
             )
             p.save()
 

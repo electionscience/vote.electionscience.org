@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 
+{% block head %}
+  {% load staticfiles %}
+  <script src='{% static 'approval_polls/detail.js' %}'></script>
+{% endblock %}
+
 {% block content %}
 
 <div class='row-fluid'>
@@ -49,8 +54,20 @@
 
 <div class='row-fluid top-buffer'>
   <div class='col-md-12'>
-
-    <p class='text-center'>Creator: {{poll.user.username}}</p>
+    {% if poll.show_close_date %}
+      <div class='text-center'>
+        <p class='label label-info'>Closing Date: {{ poll.close_date|date:"N j, Y, P e" }}</p>
+      </div>
+    {% endif %}
+    {% if poll.show_countdown and time_difference %}
+      <div class='text-center'>
+        <p class='label label-warning' id='timer'></p>
+        <input type='hidden' id='time_difference' value='{{ time_difference }}' readonly>
+      </div>
+    {% endif %}
+    <div class='text-center form-group'>
+      <p class='label label-default'>Creator: {{poll.user.username}}</p>
+    </div>
     <p class='text-center'>
       <a href='{% url 'approval_polls:results' poll.id %}'>See Results</a>
     </p>
@@ -67,5 +84,6 @@
     </p>
   </div>
 </div>
+
 {% endblock %}
 
