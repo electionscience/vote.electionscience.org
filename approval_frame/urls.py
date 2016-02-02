@@ -19,5 +19,6 @@ urlpatterns = patterns(
     url(r'^accounts/username/change/done/$', views.changeUsernameDone, name="username_change_done"),
     url(r'^accounts/password/change/$', 'django.contrib.auth.views.password_change',
         {'post_change_redirect': '/accounts/password_change/done/'}, name="password_change"),
-    url(r'^accounts/password/change/done/$', 'django.contrib.auth.views.password_change_done')
+    url(r'^accounts/password/change/done/$', 'django.contrib.auth.views.password_change_done'),
+    url('', include('social.apps.django_app.urls', namespace='social'))
 )
