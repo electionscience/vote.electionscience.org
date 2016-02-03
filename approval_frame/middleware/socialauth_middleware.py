@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 
 class SocialAuthExceptionMiddleware(SocialAuthExceptionMiddleware):
     def process_exception(self, request, exception):
-        if hasattr(social_exceptions, 'AuthCanceled'):
+        if isinstance(exception, social_exceptions.AuthCanceled):
             return HttpResponseRedirect(reverse('auth_login'))
         else:
             raise exception

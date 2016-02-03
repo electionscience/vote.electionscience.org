@@ -170,7 +170,6 @@ AUTHENTICATION_BACKENDS = (
     'approval_frame.backends.EmailOrUsernameBackend',
     'social.backends.facebook.FacebookOAuth2',
     'social.backends.google.GoogleOAuth2',
-    'social.backends.twitter.TwitterOAuth',
     'django.contrib.auth.backends.ModelBackend',
 );
 
