@@ -1,5 +1,11 @@
 {% extends 'base.html' %}
 
+{% block head %}
+  {% load staticfiles %}
+  <link rel='stylesheet' type='text/css' href='{% static 'vendor/bootstrap-social/css/bootstrap-social.css' %}'> 
+  <link rel='stylesheet' type='text/css' href='{% static 'vendor/font-awesome/css/font-awesome.css' %}'>
+{% endblock %}
+
 {% block content %}
 
   {% if form.errors %}
@@ -20,6 +26,21 @@
         {% csrf_token %}
         <legend>Login</legend>
         <div class='form-group'>
+          <a href='{% url 'social:begin' 'facebook' %}?next={{ next }}' class='btn btn-block btn-social btn-facebook'>
+            <span class='fa fa-facebook'></span> Login with Facebook
+          </a>
+          <a href='{% url 'social:begin' 'google-oauth2' %}?next={{ next }}' class='btn btn-block btn-social btn-google'>
+            <span class='fa fa-google'></span> Login with Google
+          </a>
+        </div>
+        <table width='100%'>
+          <tr>
+            <td><hr /></td>
+            <td id='socialAuthSep'>or</td>
+            <td><hr /></td>
+          </tr>
+        </table>
+        <div class='form-group'>
           <input type='text' class='form-control' id='{{ form.username.id_for_label }}'
                  name='{{ form.username.name }}' placeholder='Username or Email ID'
                  maxlength={{ form.username.field.max_length }}>
@@ -37,7 +58,7 @@
       </form>
     </div>
   </div>
-
+  
   <div class='row-fluid top-buffer'>
     <div class='col-md-6 col-md-offset-3'>
       <p class='pull-left'>

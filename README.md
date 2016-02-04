@@ -60,6 +60,8 @@ Steps (assumes a linux system)
    This will ask you to create a superuser account, which is necessary if you want to use the Django admin interface.
    But also, you'll need a user account in order to create polls in the system, and it's easiest to do that here.
    (If you don't create an account here, you'll have to mess around copying urls from from the server output to fake confirming an email address in order to create a user account later... so just do it now.)
+   
+   If you would like to setup social authentication for your app while in development, please refer to the following document: [Configure Social Authentication](/docs/Social_Auth_Configure.md)
 
 7. Start the Django server:
 
