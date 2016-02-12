@@ -33,6 +33,14 @@
           </label>
         </div>
       {% endfor %}
+      {% if poll.show_write_in and not poll.is_closed %}
+        <p>
+        <button type='button' class='btn btn-primary btn-sm' id='add-option'
+          title='Add Option' data-toggle='tooltip' data-placement='bottom'>
+          <small><i class='glyphicon glyphicon-plus'></i></small>
+        </button>
+        </p>
+      {% endif %}
       <div class='text-center'>
         {% if poll.vtype == 2  and not user.is_authenticated %}
           <button class='btn btn-success' type='submit'>Login to Vote</button>
