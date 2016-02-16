@@ -123,11 +123,15 @@ def vote(request, poll_id):
                     ballot.save()
             for key, value in request.POST.items():
                 if key + 'txt' in request.POST:
-                    choice_txt = request.POST[key + 'txt']
+                    choice_txt = request.POST[key + 'txt'].strip()
                     if choice_txt:
-                        choice = poll.choice_set.create(choice_text=choice_txt)
-                        ballot.vote_set.create(choice=choice)
-                        ballot.save()
+                        choice = poll.choice_set.filter(choice_text=choice_txt)
+                        if not choice:
+                            choice = poll.choice_set.create(choice_text=choice_txt)
+                            ballot_exist = ballot.vote_set.filter(choice=choice)
+                            if not ballot_exist:
+                                ballot.vote_set.create(choice=choice)
+                                ballot.save()
             poll.save()
             return HttpResponseRedirect(
                 reverse('approval_polls:results', args=(poll.id,))
@@ -159,11 +163,15 @@ def vote(request, poll_id):
                             ballot.save()
                     for key, value in request.POST.items():
                         if key + 'txt' in request.POST:
-                            choice_txt = request.POST[key + 'txt']
+                            choice_txt = request.POST[key + 'txt'].strip()
                             if choice_txt:
-                                choice = poll.choice_set.create(choice_text=choice_txt)
-                                ballot.vote_set.create(choice=choice)
-                                ballot.save()
+                                choice = poll.choice_set.filter(choice_text=choice_txt)
+                                if not choice:
+                                    choice = poll.choice_set.create(choice_text=choice_txt)
+                                    ballot_exist = ballot.vote_set.filter(choice=choice)
+                                    if not ballot_exist:
+                                        ballot.vote_set.create(choice=choice)
+                                        ballot.save()
                     poll.save()
                     return HttpResponseRedirect(
                         reverse('approval_polls:results', args=(poll.id,))
@@ -187,11 +195,15 @@ def vote(request, poll_id):
                                 ballot.save()
                     for key, value in request.POST.items():
                         if key + 'txt' in request.POST:
-                            choice_txt = request.POST[key + 'txt']
+                            choice_txt = request.POST[key + 'txt'].strip()
                             if choice_txt:
-                                choice = poll.choice_set.create(choice_text=choice_txt)
-                                ballot.vote_set.create(choice=choice)
-                                ballot.save()
+                                choice = poll.choice_set.filter(choice_text=choice_txt)
+                                if not choice:
+                                    choice = poll.choice_set.create(choice_text=choice_txt)
+                                    ballot_exist = ballot.vote_set.filter(choice=choice)
+                                    if not ballot_exist:
+                                        ballot.vote_set.create(choice=choice)
+                                        ballot.save()
                     poll.save()
                     return HttpResponseRedirect(
                         reverse('approval_polls:results', args=(poll.id,))

@@ -7,24 +7,28 @@ $(function () {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
   };
 
-  $('a:contains("remove")').click(function() {
+  $('a[id^="delete-poll-"]').click(function() {
     var alertDiv, alertDivId;
     alertDivId = $(this).attr('id');
+    alertDivId = alertDivId.split('-').pop();
 
     alertDiv = "<div class='alert alert-danger' id='alert" + alertDivId + "'>" + 
     "<p>This poll will be permanently deleted. Are you sure?</p><p>" + 
-      "<button id='" + alertDivId + "' type='button' class='btn btn-danger btn-xs'>Delete</button>" + 
-      " <button id='" + alertDivId + "' type='button' class='btn btn-primary btn-xs'>Cancel</button>" + 
+      "<button id='confirm-delete-" + alertDivId + "' type='button' class='btn btn-danger btn-xs'>Delete</button>" + 
+      " <button id='cancel-delete-" + alertDivId + "' type='button' class='btn btn-primary btn-xs'>Cancel</button>" + 
     "</p</div>";
 
     if ($('#alert' + alertDivId).length == 0) {
+      $('.well').css('border-color', '#dcdcdc');
+      $('.alert').remove();
       $('#well' + alertDivId).before(alertDiv);
       $('#well' + alertDivId).css('border-color', 'red');
     }
 
-    $('button:contains("Delete")').click(function() {
+    $('button[id^="confirm-delete-"]').click(function() {
       var csrfToken, buttonId;
       buttonId = $(this).attr('id');
+      buttonId = buttonId.split('-').pop();
       csrfToken = $('#csrfmiddlewaretoken').val();
       $('#well' + buttonId).css('border-color', '#dcdcdc');
       $('#alert' + buttonId).remove();
@@ -37,21 +41,18 @@ $(function () {
           }
         },
         success: function (data) {
-          if ($('.well').length == 1) {
-            window.location.reload();
-          }
-          else {
-            $('#well' + buttonId).fadeOut(100, function(){ $(this).remove();});
-          }         
+          $('#well' + buttonId).remove();
+          window.location.reload();       
         },
         error: function (data) {
         }
       });
     });
 
-    $('button:contains("Cancel")').click(function() {
+    $('button[id^="cancel-delete-"]').click(function() {
       var buttonId;
       buttonId = $(this).attr('id');
+      buttonId = buttonId.split('-').pop();
       $('#well' + buttonId).css('border-color', '#dcdcdc');
       $('#alert' + buttonId).remove();
     });

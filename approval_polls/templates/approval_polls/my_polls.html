@@ -19,7 +19,7 @@
             <div id='pollQuestion'>
               <a href="{% url 'approval_polls:detail' poll.id %}">{{ poll.question }}</a>
             </div>
-            <a class='pull-right btn btn-danger btn-xs' id='{{ poll.id }}'> remove </a>
+            <a class='pull-right btn btn-danger btn-xs' id='delete-poll-{{ poll.id }}'> remove </a>
             <a class='pull-right btn btn-warning btn-xs right-buffer'> suspend </a>
             <a class='pull-right btn btn-primary btn-xs right-buffer'> edit </a> 
             <div style="display:none">

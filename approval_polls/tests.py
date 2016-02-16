@@ -462,3 +462,50 @@ class UpdatePollTests(TestCase):
             'Sorry! This poll is closed.',
             status_code=200
             )
+
+
+class DeletePollTests(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        create_poll(question="question1", days=-5, vtype=1)
+        poll = Poll.objects.create(
+            question="question2",
+            pub_date=timezone.now() + datetime.timedelta(days=-10),
+            user=User.objects.get(username="user1"),
+            vtype=2,
+            close_date=None,
+        )
+
+        for _ in range(0):
+            create_ballot(poll)
+
+    def test_delete_one_poll(self):
+        self.client.login(username='user1', password='test')
+        self.client.delete(
+            '/approval_polls/1/',
+            follow=True
+            )
+        response = self.client.get(reverse('approval_polls:my_polls'))
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(
+            response.context['latest_poll_list'],
+            ['<Poll: question2>']
+        )
+
+    def test_delete_all_polls(self):
+        self.client.login(username='user1', password='test')
+        self.client.delete(
+            '/approval_polls/1/',
+            follow=True
+            )
+        self.client.delete(
+            '/approval_polls/2/',
+            follow=True
+            )
+        response = self.client.get(reverse('approval_polls:my_polls'))
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(
+            response.context['latest_poll_list'],
+            []
+        )
