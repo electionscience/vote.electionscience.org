@@ -477,11 +477,11 @@ class DeletePollTests(TestCase):
             close_date=None,
         )
 
-        for _ in range(0):
+        for _ in range(2):
             create_ballot(poll)
+        self.client.login(username='user1', password='test')
 
     def test_delete_one_poll(self):
-        self.client.login(username='user1', password='test')
         self.client.delete(
             '/approval_polls/1/',
             follow=True
@@ -492,9 +492,10 @@ class DeletePollTests(TestCase):
             response.context['latest_poll_list'],
             ['<Poll: question2>']
         )
+        response = self.client.get('/approval_polls/1/')
+        self.assertEqual(response.status_code, 404)
 
     def test_delete_all_polls(self):
-        self.client.login(username='user1', password='test')
         self.client.delete(
             '/approval_polls/1/',
             follow=True
@@ -509,3 +510,7 @@ class DeletePollTests(TestCase):
             response.context['latest_poll_list'],
             []
         )
+        response = self.client.get('/approval_polls/1/')
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get('/approval_polls/2/')
+        self.assertEqual(response.status_code, 404)
