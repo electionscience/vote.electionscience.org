@@ -21,3 +21,13 @@
   padding:0 10px;
   text-align:center;
 }
+
+#myPollList {
+  display:inline-block;
+  width:100%;
+}
+
+#pollQuestion {
+  display:inline-block;
+  width:60%;
+}

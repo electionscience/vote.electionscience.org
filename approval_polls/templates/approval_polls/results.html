@@ -23,7 +23,15 @@
       <p class='small'>{{ choice.votes }} vote{{ choice.votes|pluralize }} ({{ choice.percentage }}%)</p>
       </h4>
       <div class='chart bg-info'>
-        <div class='bg-primary' style='width:{{ choice.percentage }}%'></div>
+        {% if poll.show_lead_color %}
+          {% if choice in leading_choices %}
+            <div class='progress-bar-success' style='width:{{ choice.percentage }}%'></div>
+          {% else %}
+            <div class='bg-primary' style='width:{{ choice.percentage }}%'></div>
+          {% endif %}
+        {% else %}
+          <div class='bg-primary' style='width:{{ choice.percentage }}%'></div>
+        {% endif %}
       </div>
     {% endfor %}
   </div>

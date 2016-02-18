@@ -1,4 +1,27 @@
 $(function () {  
+
+  this.numChoiceFields = $('input:checkbox').length;
+
+  this.addChoiceField = function () {
+    var checkBox, input;
+
+    this.numChoiceFields++;
+    checkBox = $("<div class='checkbox'></div>");
+    input = $("<label><input type='checkbox' name='choice" +
+            this.numChoiceFields + "' id='choice" +
+            this.numChoiceFields + "'>" + 
+            "<input class='form-control' type='text' maxlength=200 name='choice" +
+            this.numChoiceFields + "txt' placeholder='Choice " +
+            this.numChoiceFields + "'></label>");
+
+    checkBox.append(input);
+
+    $('.checkbox').last().after(checkBox);
+  };
+
+  $('[data-toggle=tooltip]').tooltip();
+  $('button#add-option').click($.proxy(this.addChoiceField, this));
+
   var convertSeconds, onZero, time_difference;
 
   convertSeconds = function (total_seconds) {

@@ -80,6 +80,11 @@ class DetailView(generic.DetailView):
             context['time_difference'] = time_diff.total_seconds()
         return context
 
+    def delete(self, request, *args, **kwargs):
+        poll_id = self.get_object().id
+        Poll.objects.filter(id=poll_id).delete()
+        return HttpResponseRedirect('/approval_polls/my-polls/')
+
 
 class ResultsView(generic.DetailView):
     model = Poll
@@ -87,6 +92,17 @@ class ResultsView(generic.DetailView):
 
     def get_queryset(self):
         return Poll.objects.filter(pub_date__lte=timezone.now())
+
+    def get_context_data(self, **kwargs):
+        context = super(ResultsView, self).get_context_data(**kwargs)
+        poll = self.object
+        choices = {}
+        for choice in poll.choice_set.all():
+            choices[choice] = choice.votes()
+        maxvotes = max(choices.values())
+        leading_choices = [k for k, v in choices.items() if v == maxvotes]
+        context['leading_choices'] = leading_choices
+        return context
 
 
 @require_http_methods(['POST'])
@@ -105,6 +121,17 @@ def vote(request, poll_id):
                 if 'choice' + str(counter + 1) in request.POST:
                     ballot.vote_set.create(choice=choice)
                     ballot.save()
+            for key, value in request.POST.items():
+                if key + 'txt' in request.POST:
+                    choice_txt = request.POST[key + 'txt'].strip()
+                    if choice_txt:
+                        choice = poll.choice_set.filter(choice_text=choice_txt)
+                        if not choice:
+                            choice = poll.choice_set.create(choice_text=choice_txt)
+                            ballot_exist = ballot.vote_set.filter(choice=choice)
+                            if not ballot_exist:
+                                ballot.vote_set.create(choice=choice)
+                                ballot.save()
             poll.save()
             return HttpResponseRedirect(
                 reverse('approval_polls:results', args=(poll.id,))
@@ -134,6 +161,17 @@ def vote(request, poll_id):
                         if 'choice' + str(counter + 1) in request.POST:
                             ballot.vote_set.create(choice=choice)
                             ballot.save()
+                    for key, value in request.POST.items():
+                        if key + 'txt' in request.POST:
+                            choice_txt = request.POST[key + 'txt'].strip()
+                            if choice_txt:
+                                choice = poll.choice_set.filter(choice_text=choice_txt)
+                                if not choice:
+                                    choice = poll.choice_set.create(choice_text=choice_txt)
+                                    ballot_exist = ballot.vote_set.filter(choice=choice)
+                                    if not ballot_exist:
+                                        ballot.vote_set.create(choice=choice)
+                                        ballot.save()
                     poll.save()
                     return HttpResponseRedirect(
                         reverse('approval_polls:results', args=(poll.id,))
@@ -155,6 +193,17 @@ def vote(request, poll_id):
                             if ballot_exist:
                                 ballot_exist.delete()
                                 ballot.save()
+                    for key, value in request.POST.items():
+                        if key + 'txt' in request.POST:
+                            choice_txt = request.POST[key + 'txt'].strip()
+                            if choice_txt:
+                                choice = poll.choice_set.filter(choice_text=choice_txt)
+                                if not choice:
+                                    choice = poll.choice_set.create(choice_text=choice_txt)
+                                    ballot_exist = ballot.vote_set.filter(choice=choice)
+                                    if not ballot_exist:
+                                        ballot.vote_set.create(choice=choice)
+                                        ballot.save()
                     poll.save()
                     return HttpResponseRedirect(
                         reverse('approval_polls:results', args=(poll.id,))
@@ -252,6 +301,16 @@ class CreateView(generic.View):
             else:
                 show_countdown = False
 
+            if 'show-write-in' in request.POST:
+                show_write_in = True
+            else:
+                show_write_in = False
+
+            if 'show-lead-color' in request.POST:
+                show_lead_color = True
+            else:
+                show_lead_color = False
+
             p = Poll(
                 question=question,
                 pub_date=timezone.now(),
@@ -260,6 +319,8 @@ class CreateView(generic.View):
                 close_date=closedatetime,
                 show_close_date=show_close_date,
                 show_countdown=show_countdown,
+                show_write_in=show_write_in,
+                show_lead_color=show_lead_color,
             )
             p.save()
 
