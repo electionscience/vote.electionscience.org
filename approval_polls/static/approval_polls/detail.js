@@ -1,5 +1,7 @@
 $(function () {  
 
+  var invitation_key, invitation_email;
+
   this.numChoiceFields = $('input:checkbox').length;
 
   this.addChoiceField = function () {

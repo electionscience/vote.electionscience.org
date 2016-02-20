@@ -1,0 +1,1 @@
+Invitation to participate in a poll at {{ site.name }}

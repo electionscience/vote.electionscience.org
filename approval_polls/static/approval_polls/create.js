@@ -1,6 +1,7 @@
 $(function () {
   this.numChoiceFields = 4;
   var changeDateLogic, roundMinutes, setDefaultOptions, changeDisabledOptions;
+  var validateTokenField;
 
   /* Add an extra textfield for a poll choice on the poll creation page. */
   this.addChoiceField = function () {
@@ -114,4 +115,60 @@ $(function () {
 
   $('#datetimepicker').change();
 
+
+  /* Validate the token field for the email list. */
+  validateTokenField = function() {
+    var re = /\S+@\S+\.\S+/;
+    var existingTokens;
+    var tokensValid = true;
+    existingTokens = $('#tokenEmailField').tokenfield('getTokens');
+
+    if (existingTokens.length === 0) {
+      $('#email-error').hide();
+    }
+    else {
+      $.each(existingTokens, function(index, token) {
+          if (!re.test(token.value)) {
+            tokensValid = false;
+          }  
+      });
+      if (tokensValid) {
+        $('#email-error').hide();
+      }
+      else {
+        $('#email-error').show();
+      }
+    }
+  };
+  $('#tokenEmailField')
+    .on('tokenfield:createtoken', function (e) {
+    var data = e.attrs.value.split('|');
+    e.attrs.value = data[1] || data[0];
+    e.attrs.label = data[1] ? data[0] + ' (' + data[1] + ')' : data[0];
+  })
+  .on('tokenfield:createdtoken', function (e) {
+    // Simple E-mail validation
+    var re = /\S+@\S+\.\S+/;
+    var valid = re.test(e.attrs.value);
+    if (!valid) {
+      $(e.relatedTarget).addClass('invalid');
+    }
+    validateTokenField();
+  })
+  .on('tokenfield:removedtoken', function (e) {
+    validateTokenField();
+  })
+  .tokenfield();
+
+  // Toggle the visibility of the email input 
+  $('input[name=radio-poll-type]:radio').click(function() {
+    if ($(this).attr('value') == 3) {
+      $('#email-input').show();
+      $('#poll-visibility').prop('checked', false);
+    }
+    else {
+      $('#email-input').hide();
+      $('#poll-visibility').prop('checked', true);
+    }
+  });
 });

@@ -5,7 +5,9 @@
 {% block head %}
   {% load staticfiles %}
   <link rel="stylesheet" href='{% static 'vendor/jquery-datetimepicker/css/jquery.datetimepicker.css' %}'>
+  <link rel="stylesheet" href='{% static 'vendor/bootstrap-tokenfield/css/bootstrap-tokenfield.min.css' %}'> 
   <script src='{% static 'vendor/jquery-datetimepicker/js/jquery.datetimepicker.full.min.js' %}'></script>
+  <script src='{% static 'vendor/bootstrap-tokenfield/js/bootstrap-tokenfield.min.js' %}'></script>
   <script src='{% static 'approval_polls/create.js' %}'></script>
 {% endblock %}
 
@@ -37,11 +39,11 @@
       </div>
       {% endfor %}
       <p>
-      <button type='button' class='btn btn-primary btn-sm' id='add-choice'
+        <button type='button' class='btn btn-primary btn-sm' id='add-choice'
               title='Add choice' data-toggle='tooltip' data-placement='bottom'>
-        <i class='glyphicon glyphicon-plus'></i>
-      </button>
-</p>
+          <i class='glyphicon glyphicon-plus'></i>
+        </button>
+      </p>
       <!-- Add the collapsible poll settings panel here -->
       <div class='panel-group' id='accordion' role='tablist' aria-multiselectable='true'>
         <div class='panel panel-default'>
@@ -55,31 +57,46 @@
           <div id='collapsePollSettings' class='panel-collapse collapse' role='tabpanel' aria-labelledby='headingOne'>
             <div class='panel-body'>
              Who should be allowed to vote in this poll ?
-          <div class='radio'>
-            <label><input type='radio' name='radio-poll-type' value='1'>Anyone (No restriction on the number of ballots per user).</label>
-          </div>
-          <div class='radio'>
-            <label><input type='radio' name='radio-poll-type' checked='true' value='2'>Only users with registered accounts (restricted to one ballot per user, requires login).</label>
-          </div>
-          <hr>
-          <div class = 'datetimepicker'>
-            <p>Please select a closing date and time for this poll, if any</p>
-            <input id='datetimepicker' type='text' class='form-control' name='close-datetime' value='' placeholder='Poll Closing Date' style='background-color: white;' readonly>
-          </div>
-          <div class='checkbox'>
-            <label><input type='checkbox' name='show-close-date' id='checkbox1' value=''>Display Poll Closing Date with this poll.</label>
-          </div>
-          <div class='checkbox'>
-            <label><input type='checkbox' name='show-countdown' id='checkbox2' value=''>Display Poll Closing Countdown with this poll.</label>
-          </div>
-          <hr>
-          <p>Customize Poll</p>
-          <div class='checkbox'>
-            <label><input type='checkbox' name='show-write-in' value=''>Permit Write-in option with this poll.</label>
-          </div>
-          <div class='checkbox'>
-            <label><input type='checkbox' name='show-lead-color' value=''>Show Leading option in different color.</label>
-          </div>
+              <div class='radio'>
+                <label><input type='radio' name='radio-poll-type' value='1'>Anyone (No restriction on the number of ballots per user).</label>
+              </div>
+              <div class='radio'>
+                <label><input type='radio' name='radio-poll-type' checked='true' value='2'>Only users with registered accounts (restricted to one ballot per user, requires login).</label>
+              </div>
+              <div class='radio'>
+                <label class='full-width'><input type='radio' name='radio-poll-type' value='3'>Only specific Email owners (will be invited by Email).
+                  <div id='email-input' hidden>
+                    <h6>Enter comma-separated Email IDs:</h6>
+                    <input type='text' name='token-emails' class='form-control' id='tokenEmailField' placeholder='Email IDs' />
+                    <label id='email-error' for='token-emails' class='alert alert-danger full-width' hidden>One or more Email addresses are invalid.
+                    </label>  
+                  </div>
+                </label>
+              </div>
+              <hr>
+              <p>Poll Visibility</p>
+              <div class='checkbox'>
+                <label><input type='checkbox' id='poll-visibility' name='public-poll-visibility' value='' checked>List this poll on the home page.</label>
+              </div>
+              <hr>
+              <div class = 'datetimepicker'>
+                <p>Please select a closing date and time for this poll, if any</p>
+                <input id='datetimepicker' type='text' class='form-control' name='close-datetime' value='' placeholder='Poll Closing Date' style='background-color: white;' readonly>
+              </div>
+              <div class='checkbox'>
+                <label><input type='checkbox' name='show-close-date' id='checkbox1' value=''>Display Poll Closing Date with this poll.</label>
+              </div>
+              <div class='checkbox'>
+                <label><input type='checkbox' name='show-countdown' id='checkbox2' value=''>Display Poll Closing Countdown with this poll.</label>
+              </div>
+              <hr>
+              <p>Customize Poll</p>
+              <div class='checkbox'>
+                <label><input type='checkbox' name='show-write-in' value=''>Permit Write-in option with this poll.</label>
+              </div>
+              <div class='checkbox'>
+                <label><input type='checkbox' name='show-lead-color' value=''>Show Leading option in different color.</label>
+              </div>
             </div>
           </div>
         </div>

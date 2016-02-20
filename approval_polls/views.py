@@ -1,4 +1,5 @@
 import datetime
+import re
 
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -10,12 +11,13 @@ from django.utils.decorators import method_decorator
 from django.views import generic
 from django.views.decorators.http import require_http_methods
 
-from approval_polls.models import Ballot, Poll
+from approval_polls.models import Ballot, Poll, VoteInvitation
 
 
 def index(request):
     poll_list = Poll.objects.filter(
-        pub_date__lte=timezone.now()
+        pub_date__lte=timezone.now(),
+        is_private=False,
     ).order_by('-pub_date')
     return getPolls(request, poll_list, 'approval_polls/index.html')
 
@@ -69,11 +71,42 @@ class DetailView(generic.DetailView):
         poll = self.object
         user = self.request.user
         checked_choices = []
+        allowed_emails = []
         if poll.vtype == 2 and user.is_authenticated():
             for ballot in poll.ballot_set.all():
                 if ballot.user == user:
                     for option in ballot.vote_set.all():
                         checked_choices.append(option.choice)
+        elif poll.vtype == 3:
+            # The user can either be authenticated, or redirected through a link.
+            invitations = VoteInvitation.objects.filter(poll_id=poll.id)
+            allowed_emails = []
+            for invitation in invitations:
+                allowed_emails.append(invitation.email)
+            if user.is_authenticated():
+                # If the user is authenticated, the poll should be accessible from the home
+                # page, if it is public.
+                if user.email in allowed_emails or user == poll.user:
+                    context['vote_authorized'] = True
+                    # Get the checked choices.
+                    for ballot in poll.ballot_set.all():
+                        if ballot.user == user:
+                            for option in ballot.vote_set.all():
+                                checked_choices.append(option.choice)
+            if 'key' in self.request.GET and 'email' in self.request.GET:
+                invitations = VoteInvitation.objects.filter(
+                    key=self.request.GET['key'],
+                    email=self.request.GET['email'],
+                    poll_id=poll.id,
+                )
+                if invitations:
+                    context['vote_invitation'] = invitations[0]
+                    context['vote_authorized'] = True
+                    ballot = invitations[0].ballot
+                    if ballot is not None:
+                        for option in ballot.vote_set.all():
+                            checked_choices.append(option.choice)
+        context['allowed_emails'] = allowed_emails
         context['checked_choices'] = checked_choices
         if not poll.is_closed() and poll.close_date is not None:
             time_diff = poll.close_date - timezone.now()
@@ -112,6 +145,7 @@ def vote(request, poll_id):
     # Get the type of vote method required for this poll.
     # Type 1 - No restriction on the number of ballots.
     # Type 2 - Only users with registered accounts are allowed to vote.
+    # Type 3 - Only users with the invitation email link (& poll owner) are allowed to vote.
     poll_vtype = poll.vtype
 
     if poll_vtype == 1:
@@ -217,6 +251,85 @@ def vote(request, poll_id):
                 reverse('auth_login') + '?next=' +
                 reverse('approval_polls:detail', args=(poll.id,))
             )
+    elif poll_vtype == 3:
+        # Type 3 - Vote through the email invitation link.
+        invitations = []
+        auth_user = None
+        ballot = None
+
+        # Find the appropriate ballot and user
+        if 'invitation_key' in request.POST and 'invitation_email' in request.POST:
+            invitations = VoteInvitation.objects.filter(
+                key=request.POST['invitation_key'],
+                email=request.POST['invitation_email'],
+                poll_id=poll.id,
+            )
+            if invitations:
+                ballot = invitations[0].ballot
+            if request.user.is_authenticated() and request.user.email == request.POST['invitation_email']:
+                auth_user = request.user
+        elif request.user.is_authenticated():
+            invitations = VoteInvitation.objects.filter(
+                email=request.user.email,
+                poll_id=poll.id,
+            )
+            if invitations:
+                ballot = invitations[0].ballot
+            auth_user = request.user
+        elif request.user == poll.user:
+            # The owner of this poll is allowed to vote by default
+            auth_user = request.user
+
+        if invitations or request.user == poll.user:
+            if not poll.is_closed():
+                if ballot is None:
+                    ballot = poll.ballot_set.create(timestamp=timezone.now(), user=auth_user)
+                    for counter, choice in enumerate(poll.choice_set.all()):
+                        if 'choice' + str(counter + 1) in request.POST:
+                            ballot.vote_set.create(choice=choice)
+                            ballot.save()
+                else:
+                    for counter, choice in enumerate(poll.choice_set.all()):
+                        if 'choice' + str(counter + 1) in request.POST:
+                            ballot_exist = ballot.vote_set.filter(
+                                choice=choice
+                            )
+                            if not ballot_exist:
+                                ballot.vote_set.create(choice=choice)
+                                ballot.save()
+                        else:
+                            ballot_exist = ballot.vote_set.filter(
+                                choice=choice
+                            )
+                            if ballot_exist:
+                                ballot_exist.delete()
+                                ballot.save()
+                if poll.show_write_in:
+                    for key, value in request.POST.items():
+                        if key + 'txt' in request.POST:
+                            choice_txt = request.POST[key + 'txt'].strip()
+                            if choice_txt:
+                                choice = poll.choice_set.filter(choice_text=choice_txt)
+                                if not choice:
+                                    choice = poll.choice_set.create(choice_text=choice_txt)
+                                    ballot_exist = ballot.vote_set.filter(choice=choice)
+                                    if not ballot_exist:
+                                        ballot.vote_set.create(choice=choice)
+                                        ballot.save()
+                poll.save()
+                invitations[0].ballot = ballot
+                invitations[0].save()
+                return HttpResponseRedirect(
+                    reverse('approval_polls:results', args=(poll.id,))
+                )
+            else:
+                return HttpResponseRedirect(
+                    reverse('approval_polls:detail', args=(poll.id,))
+                )
+        else:
+            return HttpResponseRedirect(
+                reverse('approval_polls:detail', args=(poll.id,))
+                )
 
 
 def embed_instructions(request, poll_id):
@@ -237,6 +350,7 @@ class CreateView(generic.View):
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
         choices = []
+        email_list = []
 
         if 'question' not in request.POST:
             return render(
@@ -311,6 +425,18 @@ class CreateView(generic.View):
             else:
                 show_lead_color = False
 
+            if 'public-poll-visibility' in request.POST:
+                is_private = False
+            else:
+                is_private = True
+
+            if vtype == '3':
+                # Get all the email Ids to store in the DB.
+                emails = request.POST['token-emails']
+                for email in emails.split(','):
+                    if (re.match("([^@|\s]+@[^@]+\.[^@|\s]+)", email)):
+                        email_list.append(email.strip())
+
             p = Poll(
                 question=question,
                 pub_date=timezone.now(),
@@ -321,11 +447,23 @@ class CreateView(generic.View):
                 show_countdown=show_countdown,
                 show_write_in=show_write_in,
                 show_lead_color=show_lead_color,
+                is_private=is_private,
             )
             p.save()
 
             for choice in choices:
                 p.choice_set.create(choice_text=choice)
+
+            # Add in the vote invitation info, if any.
+            for email in email_list:
+                vi = VoteInvitation(
+                    email=email,
+                    sent_date=timezone.now(),
+                    poll=p,
+                    key=VoteInvitation.generate_key(),
+                )
+                vi.save()
+                vi.send_email()
 
             return HttpResponseRedirect(
                 reverse('approval_polls:embed_instructions', args=(p.id,))

@@ -12,5 +12,6 @@ urlpatterns = patterns(
     url(r'^(?P<poll_id>\d+)/vote/$', views.vote, name='vote'),
     url(r'^create/$', views.CreateView.as_view(), name='create'),
     url(r'^my-info/$', views.myInfo, name='my_info'),
-    url(r'^set-user-timezone/$', views.set_user_timezone, name='set-user-timezone')
+    url(r'^set-user-timezone/$', views.set_user_timezone, name='set-user-timezone'),
+    url(r'^invitation/(?P<pk>\d+)/$', views.DetailView.as_view(), name='invitation'),
 )
