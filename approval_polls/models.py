@@ -1,6 +1,12 @@
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
+from django.core.mail import EmailMultiAlternatives
 from django.db import models
+from django.template import RequestContext
+from django.template.loader import render_to_string
 from django.utils import timezone
+from django.utils.crypto import get_random_string
 
 
 class Poll(models.Model):
@@ -13,6 +19,7 @@ class Poll(models.Model):
     show_countdown = models.BooleanField(default=False)
     show_write_in = models.BooleanField(default=False)
     show_lead_color = models.BooleanField(default=False)
+    is_private = models.BooleanField(default=False)
 
     def is_closed(self):
         if self.close_date:
@@ -73,3 +80,59 @@ class Vote(models.Model):
 
     def __unicode__(self):
         return str(self.ballot) + " for " + str(self.choice)
+
+
+class VoteInvitation(models.Model):
+    email = models.EmailField('voter email')
+    poll = models.ForeignKey(Poll)
+    ballot = models.ForeignKey(Ballot, null=True, blank=True)
+    sent_date = models.DateTimeField('invite sent on', null=True, blank=True)
+    key = models.CharField('key', max_length=64, unique=True)
+
+    @classmethod
+    def generate_key(cls):
+        return get_random_string(64)
+
+    def send_email(self, request=None):
+        """
+        Send the invitation email to the voter.
+
+        """
+        email_subject = getattr(
+            settings,
+            'INVITATION_EMAIL_SUBJECT',
+            'approval_polls/invitation_email_subject.txt'
+        )
+        email_body_html = getattr(
+            settings,
+            'INVITATION_EMAIL_HTML',
+            'approval_polls/invitation_email_body.html'
+        )
+
+        ctx_dict = {}
+        if request is not None:
+            ctx_dict = RequestContext(request, ctx_dict)
+
+        current_site = Site.objects.get_current()
+        param_string = '?key=' + self.key + '&email=' + self.email
+        ctx_dict.update({
+            'param_string': param_string,
+            'poll': self.poll,
+            'site': current_site,
+        })
+
+        subject = render_to_string(email_subject, ctx_dict)
+        message_html = render_to_string(email_body_html, ctx_dict)
+        from_email = settings.DEFAULT_FROM_EMAIL
+        email_message = EmailMultiAlternatives(
+            subject,
+            '',
+            from_email,
+            [self.poll.user.email],
+        )
+        email_message.attach_alternative(message_html, 'text/html')
+
+        email_message.send()
+
+    def __unicode__(self):
+        return str(self.email) + " for " + str(self.poll.id)
