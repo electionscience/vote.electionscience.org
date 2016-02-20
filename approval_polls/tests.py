@@ -9,21 +9,22 @@ from django.utils import timezone
 from approval_polls.models import Poll
 
 
-def create_poll(question, username="user1", days=0, ballots=0, vtype=2, close_date=None):
+def create_poll(question, username="user1", days=0, ballots=0, vtype=2, close_date=None, is_private=False):
     """
     Creates a poll with the given `question` published the given number of
     `days` offset to now (negative for polls published in the past,
     positive for polls that have yet to be published), and user as the
     foreign key pointing to the user model. Defaults to vote type 2 for
     this poll (1 - Does not require authentication to vote, 2 - Requires
-    authentication to vote).
+    authentication to vote, 3 - Email Invitation to vote).
     """
     poll = Poll.objects.create(
         question=question,
         pub_date=timezone.now() + datetime.timedelta(days=days),
-        user=User.objects.create_user(username, 'test@example.com', 'test'),
+        user=User.objects.create_user(username, ''.join([username, '@example.com']), 'test'),
         vtype=vtype,
         close_date=close_date,
+        is_private=is_private,
     )
 
     for _ in range(ballots):
@@ -514,3 +515,59 @@ class DeletePollTests(TestCase):
         self.assertEqual(response.status_code, 404)
         response = self.client.get('/approval_polls/2/')
         self.assertEqual(response.status_code, 404)
+
+
+class PollVisibilityTests(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        self.client.login(username='user1', password='test')
+        create_poll(question="public poll", days=-10, vtype=3, ballots=2, is_private=False)
+        poll = Poll.objects.create(
+            question="private poll",
+            pub_date=timezone.now() + datetime.timedelta(days=-10),
+            user=User.objects.get(username="user1"),
+            vtype=3,
+            is_private=True,
+        )
+        for _ in range(2):
+            create_ballot(poll)
+        User.objects.create_user('user2', 'user2@example.com', 'test')
+
+    def test_public_poll(self):
+        """
+        A poll that is marked public should appear on the home page, and
+        a private one should not.
+        """
+        response = self.client.get(reverse('approval_polls:index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(
+            response.context['latest_poll_list'],
+            ['<Poll: public poll>'],
+        )
+
+    def test_private_poll(self):
+        """
+        A poll that is marked private is visible to its owner, along with
+        his/her public polls.
+        """
+        self.client.login(username='user1', password='test')
+        response = self.client.get(reverse('approval_polls:my_polls'))
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(
+            response.context['latest_poll_list'],
+            ['<Poll: private poll>', '<Poll: public poll>'],
+        )
+
+    def test_private_poll_different_user(self):
+        """
+        A poll that is marked private should not be visible to another user.
+        """
+        self.client.logout()
+        self.client.login(username='user2', password='test')
+        response = self.client.get(reverse('approval_polls:my_polls'))
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(
+            response.context['latest_poll_list'],
+            [],
+        )
