@@ -16,7 +16,7 @@ $(function () {
     "<p>This poll will be permanently deleted. Are you sure?</p><p>" + 
       "<button id='confirm-delete-" + alertDivId + "' type='button' class='btn btn-danger btn-xs'>Delete</button>" + 
       " <button id='cancel-delete-" + alertDivId + "' type='button' class='btn btn-primary btn-xs'>Cancel</button>" + 
-    "</p</div>";
+    "</p></div>";
 
     if ($('#alert' + alertDivId).length == 0) {
       $('.well').css('border-color', '#dcdcdc');

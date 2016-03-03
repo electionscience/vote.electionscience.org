@@ -48,6 +48,7 @@ class Poll(models.Model):
 class Choice(models.Model):
     poll = models.ForeignKey(Poll)
     choice_text = models.CharField(max_length=200)
+    choice_link = models.CharField(max_length=2048, null=True, blank=True)
 
     def votes(self):
         return self.vote_set.count()

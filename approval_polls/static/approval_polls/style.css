@@ -22,7 +22,7 @@
   text-align:center;
 }
 
-#myPollList {
+.full-height {
   display:inline-block;
   width:100%;
 }

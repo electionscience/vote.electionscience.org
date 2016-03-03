@@ -29,7 +29,11 @@
         <div class='checkbox'>
           <label>
             <input type='checkbox' name='choice{{ forloop.counter }}' id='choice{{ forloop.counter }}' {% if checked_choices %} {% if choice in checked_choices %} checked {% endif %} {% endif %}>
-            {{ choice }}
+            {% if choice.choice_link %}
+              <a href={{choice.choice_link}} target='_blank'>{{ choice }}</a>
+            {% else %}
+              {{ choice }}
+            {% endif %}
           </label>
         </div>
       {% endfor %}

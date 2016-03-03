@@ -9,17 +9,104 @@ $(function () {
 
     this.numChoiceFields++;
     formGroup = $("<div class='form-group'></div>");
-    input = $("<input class='form-control' type='text' maxlength=200 name='choice" +
+    input = $("<div class='input-group' id='div-choice" + this.numChoiceFields + "'><input class='form-control' type='text' maxlength=200 name='choice" +
             this.numChoiceFields + "' placeholder='Choice " +
-            this.numChoiceFields + "'>");
+            this.numChoiceFields + "'><span class='input-group-addon'>"+
+            "<a href='#' id='link-choice" + this.numChoiceFields + "' title='Add link' data-toggle='tooltip' data-placement='bottom'>"+
+            "<span class='glyphicon glyphicon-link'></span></a></span>" + 
+            "<input type='hidden' id='linkurl-choice" + this.numChoiceFields + "' name='linkurl-choice" + this.numChoiceFields + "' value=''></div>");
 
     formGroup.append(input);
 
     $('.form-group').last().after(formGroup);
+    $('[data-toggle=tooltip]').tooltip();
   };
 
   $('[data-toggle=tooltip]').tooltip();
   $('button#add-choice').click($.proxy(this.addChoiceField, this));
+  
+  /* Allow user to attach an external link to an option. */
+
+  // Event delegation to capture dynamically added links
+  $('.row-fluid').on('click', 'a', function() {
+    var alertDiv, alertDivId, currentUrl;
+    alertDivId = $(this).attr('id');
+    alertDivId = alertDivId.split('-').pop();
+
+    alertDiv = "<div class='alert alert-info' id='alert-" + alertDivId + "'>" + 
+      "<p><input type='text' class='form-control' id='url-" + alertDivId + "' placeholder='Link to URL'></p><p>" + 
+      "<button id='confirm-link-" + alertDivId + "' type='button' class='btn btn-success btn-xs'>Insert Link</button>" + 
+      " <button id='remove-link-" + alertDivId + "' type='button' class='btn btn-danger btn-xs'>Reset Link</button>" + 
+      " <button id='cancel-link-" + alertDivId + "' type='button' class='btn btn-info btn-xs'>Cancel</button></p></div>";
+
+    if ($('#alert-' + alertDivId).length == 0) {
+      // Remove all previous alerts
+      $('.alert').remove();
+      // Append the alert box before selected option
+      $('#div-' + alertDivId).before(alertDiv);
+      // Populate textbox with the last 'valid and inserted' URL
+      currentUrl = $('#linkurl-' + alertDivId).val();
+      $('#url-' + alertDivId).val(currentUrl);
+    }
+
+    $('button[id^="confirm-link-"]').click(function() {
+      var buttonId, linkUrl, validUrl;
+      buttonId = $(this).attr('id');
+      buttonId = buttonId.split('-').pop();
+      linkUrl = $('#url-' + buttonId).val();
+      linkUrl = $.trim(linkUrl);
+      // Copyright (c) 2010-2013 Diego Perini, MIT licensed
+      // https://gist.github.com/dperini/729294
+      // see also https://mathiasbynens.be/demo/url-regex
+      // modified to allow protocol-relative URLs
+      validUrl = /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})).?)(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(linkUrl);
+      if (!validUrl) {
+        // If URL is not valid, change class of alert box
+        $('#alert-' + buttonId).attr('class', 'alert alert-info has-error');
+        // If URL is not valid, show an error message
+        $('label[for="url-' + buttonId + '"]').remove();
+        $('#alert-' + buttonId).prepend("<label class='control-label' for='url-" + alertDivId + "'>Please enter a valid URL</label>");
+      }
+      else {
+        // Reset class of alert box
+        $('#alert-' + buttonId).attr('class', 'alert alert-info');
+        // Remove any error message
+        $("label[for='url-" + buttonId + "']").remove();
+        // Update value of hidden input field
+        $('#linkurl-' + alertDivId).val(linkUrl);
+        // Remove alert box
+        $('#alert-' + buttonId).remove();
+        // Change color of link to show a valid insertion
+        $('#link-' + buttonId).attr('class','text-success');
+      }
+    });
+
+    $('button[id^="cancel-link-"]').click(function() {
+      var buttonId;
+      buttonId = $(this).attr('id');
+      buttonId = buttonId.split('-').pop();
+      // Remove alert box
+      $('#alert-' + buttonId).remove();
+    });
+
+    $('button[id^="remove-link-"]').click(function() {
+      var buttonId;
+      buttonId = $(this).attr('id');
+      buttonId = buttonId.split('-').pop();
+      // Reset value of hidden input field to empty string
+      $('#linkurl-' + buttonId).val('');
+      // Reset value of textbox
+      $('#url-' + alertDivId).val('');
+      // Reset class of alert box
+      $('#alert-' + buttonId).attr('class', 'alert alert-info');
+      // Remove any error message
+      $("label[for='url-" + buttonId + "']").remove();
+      // Reset color of link to show no current insertion
+      $('#link-' + buttonId).removeAttr('class');
+    });
+    // To prevent navigation
+    return false;
+  });
 
   /* Allow user to select a poll closing date and time from a Jquery 
   DateTime picker. */

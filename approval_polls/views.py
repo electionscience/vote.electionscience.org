@@ -351,6 +351,7 @@ class CreateView(generic.View):
     def post(self, request, *args, **kwargs):
         choices = []
         email_list = []
+        choices_links = {}
 
         if 'question' not in request.POST:
             return render(
@@ -370,13 +371,19 @@ class CreateView(generic.View):
 
             c = 1
             name = 'choice1'
+            linkname = 'linkurl-choice1'
 
             while (name in request.POST):
                 text = request.POST[name].strip()
                 if (text):
                     choices.append(text)
+                    if linkname in request.POST:
+                        linktext = request.POST[linkname].strip()
+                        if linktext:
+                            choices_links[text] = linktext
                 c += 1
                 name = 'choice{}'.format(c)
+                linkname = 'linkurl-choice{}'.format(c)
 
             if not len(choices):
                 return render(request, 'approval_polls/create.html', {
@@ -452,7 +459,10 @@ class CreateView(generic.View):
             p.save()
 
             for choice in choices:
-                p.choice_set.create(choice_text=choice)
+                if choice in choices_links:
+                    p.choice_set.create(choice_text=choice, choice_link=choices_links[choice])
+                else:
+                    p.choice_set.create(choice_text=choice)
 
             # Add in the vote invitation info, if any.
             for email in email_list:
