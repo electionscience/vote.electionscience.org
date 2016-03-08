@@ -21,7 +21,7 @@
     </div>
 {% endif %}
 
-<div class='row-fluid top-buffer'>
+<div class='row-fluid top-buffer full-height'>
   <div class='col-md-12'>
     <form action='{% url 'approval_polls:vote' poll.id %}' method='post'>
       {% csrf_token %}

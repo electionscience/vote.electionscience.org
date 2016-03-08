@@ -161,7 +161,15 @@ def vote(request, poll_id):
                     if choice_txt:
                         choice = poll.choice_set.filter(choice_text=choice_txt)
                         if not choice:
-                            choice = poll.choice_set.create(choice_text=choice_txt)
+                            if 'linkurl-' + key in request.POST:
+                                choicelink_txt = request.POST['linkurl-' + key].strip()
+                            if choicelink_txt:
+                                choice = poll.choice_set.create(
+                                    choice_text=choice_txt,
+                                    choice_link=choicelink_txt
+                                    )
+                            else:
+                                choice = poll.choice_set.create(choice_text=choice_txt)
                             ballot_exist = ballot.vote_set.filter(choice=choice)
                             if not ballot_exist:
                                 ballot.vote_set.create(choice=choice)
@@ -201,7 +209,15 @@ def vote(request, poll_id):
                             if choice_txt:
                                 choice = poll.choice_set.filter(choice_text=choice_txt)
                                 if not choice:
-                                    choice = poll.choice_set.create(choice_text=choice_txt)
+                                    if 'linkurl-' + key in request.POST:
+                                        choicelink_txt = request.POST['linkurl-' + key].strip()
+                                    if choicelink_txt:
+                                        choice = poll.choice_set.create(
+                                            choice_text=choice_txt,
+                                            choice_link=choicelink_txt
+                                            )
+                                    else:
+                                        choice = poll.choice_set.create(choice_text=choice_txt)
                                     ballot_exist = ballot.vote_set.filter(choice=choice)
                                     if not ballot_exist:
                                         ballot.vote_set.create(choice=choice)
@@ -233,7 +249,15 @@ def vote(request, poll_id):
                             if choice_txt:
                                 choice = poll.choice_set.filter(choice_text=choice_txt)
                                 if not choice:
-                                    choice = poll.choice_set.create(choice_text=choice_txt)
+                                    if 'linkurl-' + key in request.POST:
+                                        choicelink_txt = request.POST['linkurl-' + key].strip()
+                                    if choicelink_txt:
+                                        choice = poll.choice_set.create(
+                                            choice_text=choice_txt,
+                                            choice_link=choicelink_txt
+                                            )
+                                    else:
+                                        choice = poll.choice_set.create(choice_text=choice_txt)
                                     ballot_exist = ballot.vote_set.filter(choice=choice)
                                     if not ballot_exist:
                                         ballot.vote_set.create(choice=choice)
@@ -311,7 +335,15 @@ def vote(request, poll_id):
                             if choice_txt:
                                 choice = poll.choice_set.filter(choice_text=choice_txt)
                                 if not choice:
-                                    choice = poll.choice_set.create(choice_text=choice_txt)
+                                    if 'linkurl-' + key in request.POST:
+                                        choicelink_txt = request.POST['linkurl-' + key].strip()
+                                    if choicelink_txt:
+                                        choice = poll.choice_set.create(
+                                            choice_text=choice_txt,
+                                            choice_link=choicelink_txt
+                                            )
+                                    else:
+                                        choice = poll.choice_set.create(choice_text=choice_txt)
                                     ballot_exist = ballot.vote_set.filter(choice=choice)
                                     if not ballot_exist:
                                         ballot.vote_set.create(choice=choice)
