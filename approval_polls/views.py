@@ -2,6 +2,7 @@ import datetime
 import re
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -290,19 +291,25 @@ def vote(request, poll_id):
             )
             if invitations:
                 ballot = invitations[0].ballot
-            if request.user.is_authenticated() and request.user.email == request.POST['invitation_email']:
-                auth_user = request.user
+
+            # Check for the same email for an existing user in the database.
+            users = User.objects.filter(email=request.POST['invitation_email'])
+            if users:
+                auth_user = users[0]
+
         elif request.user.is_authenticated():
+            auth_user = request.user
             invitations = VoteInvitation.objects.filter(
                 email=request.user.email,
                 poll_id=poll.id,
             )
             if invitations:
                 ballot = invitations[0].ballot
-            auth_user = request.user
-        elif request.user == poll.user:
-            # The owner of this poll is allowed to vote by default
-            auth_user = request.user
+            elif request.user == poll.user:
+                # The owner of this poll is allowed to vote by default
+                ballots = poll.ballot_set.filter(user=auth_user)
+                if ballots:
+                    ballot = ballots[0]
 
         if invitations or request.user == poll.user:
             if not poll.is_closed():
@@ -349,8 +356,9 @@ def vote(request, poll_id):
                                         ballot.vote_set.create(choice=choice)
                                         ballot.save()
                 poll.save()
-                invitations[0].ballot = ballot
-                invitations[0].save()
+                if invitations:
+                    invitations[0].ballot = ballot
+                    invitations[0].save()
                 return HttpResponseRedirect(
                     reverse('approval_polls:results', args=(poll.id,))
                 )
@@ -473,8 +481,9 @@ class CreateView(generic.View):
                 # Get all the email Ids to store in the DB.
                 emails = request.POST['token-emails']
                 for email in emails.split(','):
-                    if (re.match("([^@|\s]+@[^@]+\.[^@|\s]+)", email)):
+                    if (re.match("([^@|\s]+@[^@]+\.[^@|\s]+)", email.strip())):
                         email_list.append(email.strip())
+                    email_list = list(set(email_list))
 
             p = Poll(
                 question=question,
