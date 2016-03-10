@@ -129,11 +129,11 @@ class VoteInvitation(models.Model):
             subject,
             '',
             from_email,
-            [self.poll.user.email],
+            [self.email],
         )
         email_message.attach_alternative(message_html, 'text/html')
 
         email_message.send()
 
     def __unicode__(self):
-        return str(self.email) + " for " + str(self.poll.id)
+        return str(self.email) + " for Poll:" + str(self.poll.id)
