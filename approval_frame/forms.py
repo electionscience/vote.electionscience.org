@@ -22,6 +22,26 @@ class RegistrationFormCustom(RegistrationFormUniqueEmail):
         )}
     )
 
+    zipcode = forms.CharField(
+        required=False,
+        label=_("Zip Code (for newsletter)")
+        )
+
+    newslettercheckbox = forms.BooleanField(required=False)
+
+    def clean(self):
+        cleaned_data = super(RegistrationFormCustom, self).clean()
+        zipcode = cleaned_data.get('zipcode')
+        newslettercheckbox = cleaned_data.get('newslettercheckbox')
+        if newslettercheckbox:
+            if zipcode:
+                if len(zipcode) != 5:
+                    msg = "Please enter a zip code (5 digits)"
+                    self.add_error('zipcode', msg)
+            else:
+                msg = "This field is required."
+                self.add_error('zipcode', msg)
+
 
 class NewUsernameForm(forms.Form):
     """

@@ -3,6 +3,11 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 from forms import NewUsernameForm
+from forms import RegistrationFormCustom
+from registration.backends.default.views import RegistrationView
+
+from mailchimp_api_key import get_mailchimp_api
+import mailchimp
 
 
 @login_required
@@ -36,3 +41,23 @@ def changeUsernameDone(request):
         'registration/username_change_done.html',
         {'new_username': request.user}
     )
+
+
+class CustomRegistrationView(RegistrationView):
+    form_class = RegistrationFormCustom
+
+    def form_valid(self, request, form):
+        form = self.form_class(request.POST)
+        try:
+            m = get_mailchimp_api()
+            lists = m.lists.list()
+            list_id = lists['data'][0]['id']
+            if 'newslettercheckbox' in request.POST:
+                m.lists.subscribe(list_id, {'email': request.POST['email']}, {'MMERGE3': request.POST['zipcode']})
+            return super(CustomRegistrationView, self).form_valid(request, form)
+        except mailchimp.ListAlreadySubscribedError:
+                form.add_error('newslettercheckbox', 'That email is already subscribed to the list')
+                return render(request, 'registration/registration_form.html', {'form': form})
+        except mailchimp.Error, e:
+                form.add_error('newslettercheckbox', e)
+                return render(request, 'registration/registration_form.html', {'form': form})

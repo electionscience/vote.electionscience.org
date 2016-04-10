@@ -5,3 +5,4 @@ pytz==2015.7
 python-openid==2.2.5
 requests-oauthlib==0.6.0
 python-social-auth==0.2.13
+mailchimp==2.0.9

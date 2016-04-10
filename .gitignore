@@ -10,3 +10,4 @@ approval_frame/local_settings.py
 env
 Thumbs.db
 /staticfiles/
+approval_frame/mailchimp_api_key.py
