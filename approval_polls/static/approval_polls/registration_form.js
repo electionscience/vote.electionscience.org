@@ -1,15 +1,18 @@
 $(function () {
+  var id_NewsLetter, id_ZipCode;
 
-  $('#id_newslettercheckbox').change(function() {
+  id_NewsLetter = $('#id_newslettercheckbox');
+  id_ZipCode = $('#id_zipcode');
+
+  id_NewsLetter.change(function() {
   	if ($(this).prop('checked')) {
-  	  $('#id_zipcode').prop('disabled', false);
+  	  id_ZipCode.prop('disabled', false);
   	}
   	else {
-  	  $('#id_zipcode').val('');
-  	  $('#id_zipcode').prop('disabled', true);
+  	  id_ZipCode.prop('disabled', true).val('');
   	}
   });
 
-  $('#id_newslettercheckbox').change();
+  id_NewsLetter.change();
 
 });
