@@ -6,7 +6,7 @@ from forms import NewUsernameForm
 from forms import RegistrationFormCustom
 from registration.backends.default.views import RegistrationView
 
-from mailchimp_api_key import get_mailchimp_api
+from mailchimp_api import get_mailchimp_api
 import mailchimp
 
 
@@ -47,7 +47,6 @@ class CustomRegistrationView(RegistrationView):
     form_class = RegistrationFormCustom
 
     def form_valid(self, request, form):
-        form = self.form_class(request.POST)
         try:
             m = get_mailchimp_api()
             lists = m.lists.list()
@@ -56,8 +55,8 @@ class CustomRegistrationView(RegistrationView):
                 m.lists.subscribe(list_id, {'email': request.POST['email']}, {'MMERGE3': request.POST['zipcode']})
             return super(CustomRegistrationView, self).form_valid(request, form)
         except mailchimp.ListAlreadySubscribedError:
-                form.add_error('newslettercheckbox', 'That email is already subscribed to the list')
-                return render(request, 'registration/registration_form.html', {'form': form})
+            form.add_error('newslettercheckbox', 'That email is already subscribed to the list')
+            return render(request, 'registration/registration_form.html', {'form': form})
         except mailchimp.Error, e:
-                form.add_error('newslettercheckbox', e)
-                return render(request, 'registration/registration_form.html', {'form': form})
+            form.add_error('newslettercheckbox', e)
+            return render(request, 'registration/registration_form.html', {'form': form})

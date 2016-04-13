@@ -35,8 +35,8 @@ class RegistrationFormCustom(RegistrationFormUniqueEmail):
         newslettercheckbox = cleaned_data.get('newslettercheckbox')
         if newslettercheckbox:
             if zipcode:
-                if len(zipcode) != 5:
-                    msg = "Please enter a zip code (5 digits)"
+                if len(zipcode) != 5 or not zipcode.isdigit():
+                    msg = "Please enter a zip code (5 digits, Non-U.S. : 00000)"
                     self.add_error('zipcode', msg)
             else:
                 msg = "This field is required."
