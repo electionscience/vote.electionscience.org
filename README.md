@@ -63,6 +63,14 @@ Steps (assumes a linux system)
    
    If you would like to setup social authentication for your app while in development, please refer to the following document: [Configure Social Authentication](/docs/Social_Auth_Configure.md)
 
+   For the newsletter subscription functionality to work in production and development, 
+   please add the following in approval\_frame/settings.py and approval\_frame/local\_settings.py respectively.
+
+   ```
+   MAILCHIMP_API_KEY = '************************************'
+   ```
+   _The API key is protected and can be obtained by mailing the current project lead(s)._
+
 7. Start the Django server:
 
   `python manage.py runserver`

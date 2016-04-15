@@ -1,9 +1,8 @@
 from django.conf.urls import include, patterns, url
 from django.contrib import admin
-from registration.backends.default.views import RegistrationView
 
 from approval_frame import views
-from forms import RegistrationFormCustom
+from views import CustomRegistrationView
 
 # autodiscover is required only for older versions of Django
 admin.autodiscover()
@@ -12,7 +11,7 @@ urlpatterns = patterns(
     '',
     url(r'^approval_polls/', include('approval_polls.urls', namespace="approval_polls")),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^accounts/register/$', RegistrationView.as_view(form_class=RegistrationFormCustom),
+    url(r'^accounts/register/$', CustomRegistrationView.as_view(),
         name='registration_register'),
     url(r'^accounts/', include('registration.backends.default.urls')),
     url(r'^accounts/username/change/$', views.changeUsername, name="username_change"),
