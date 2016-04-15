@@ -25,6 +25,7 @@
   <div class='col-md-12'>
     <form action='{% url 'approval_polls:vote' poll.id %}' method='post'>
       {% csrf_token %}
+      <em>Choose as many options as you wish</em>
       {% for choice in poll.choice_set.all %}
         <div class='checkbox'>
           <label>
