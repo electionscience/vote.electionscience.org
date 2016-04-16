@@ -13,9 +13,9 @@ $(function () {
             "<input type='checkbox' name='choice" +
             this.numChoiceFields + "' id='choice" +
             this.numChoiceFields + "'>" + 
-            "<div class='input-group' id='div-choice" + this.numChoiceFields + "'><input class='form-control' type='text' maxlength=200 name='choice" +
+            "<div class='input-group' id='div-choice" + this.numChoiceFields + "' style='width:auto'><input class='form-control' type='text' maxlength=200 name='choice" +
             this.numChoiceFields + "txt' placeholder='Choice " +
-            this.numChoiceFields + "'><span class='input-group-addon'>"+
+            this.numChoiceFields + "'><span class='input-group-addon' style='width:auto'>"+
             "<a href='#' id='link-choice" + this.numChoiceFields + "' title='Add link' data-toggle='tooltip' data-placement='bottom'>"+
             "<span class='glyphicon glyphicon-link'></span></a></span>" + 
             "<input type='hidden' id='linkurl-choice" + this.numChoiceFields + "' name='linkurl-choice" + this.numChoiceFields + "' value=''></div></label>");

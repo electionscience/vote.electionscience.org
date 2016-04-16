@@ -20,6 +20,12 @@
   <div class='col-md-12'>
     {% for choice in poll.choice_set.all %}
       <h4>{{ choice }}
+      {% if poll.is_closed and choice in leading_choices %}
+      <p class='small label-inline'>
+        <span class='label label-success'>Winner
+        <span class='glyphicon glyphicon-star'></span></span>
+      </p>
+      {% endif %}
       <p class='small'>{{ choice.votes }} vote{{ choice.votes|pluralize }} ({{ choice.percentage }}%)</p>
       </h4>
       <div class='chart bg-info'>
