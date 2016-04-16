@@ -37,8 +37,8 @@ $(function () {
     alertDivId = $(this).attr('id');
     alertDivId = alertDivId.split('-').pop();
 
-    alertDiv = "<div class='alert alert-info' id='alert-" + alertDivId + "'>" + 
-      "<p><input type='text' class='form-control' id='url-" + alertDivId + "' placeholder='Link to URL'></p><p>" + 
+    alertDiv = "<div class='alert alert-info' id='alert-" + alertDivId + "' style='width:60%'>" + 
+      "<p><input type='text' class='form-control' id='url-" + alertDivId + "' placeholder='Link to URL' style='width:100%'></p><p>" + 
       "<button id='confirm-link-" + alertDivId + "' type='button' class='btn btn-success btn-xs'>Insert Link</button>" + 
       " <button id='remove-link-" + alertDivId + "' type='button' class='btn btn-danger btn-xs'>Reset Link</button>" + 
       " <button id='cancel-link-" + alertDivId + "' type='button' class='btn btn-info btn-xs'>Cancel</button></p></div>";
