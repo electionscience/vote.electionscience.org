@@ -35,3 +35,7 @@
 .full-width {
   width: 100%
 }
+
+.label-inline {
+  display:inline-block;
+}
