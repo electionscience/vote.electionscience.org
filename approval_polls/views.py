@@ -134,7 +134,10 @@ class ResultsView(generic.DetailView):
         for choice in poll.choice_set.all():
             choices[choice] = choice.votes()
         maxvotes = max(choices.values())
-        leading_choices = [k for k, v in choices.items() if v == maxvotes]
+        if maxvotes == 0:
+            leading_choices = []
+        else:
+            leading_choices = [k for k, v in choices.items() if v == maxvotes]
         context['leading_choices'] = leading_choices
         return context
 
