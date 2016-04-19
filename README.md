@@ -13,6 +13,12 @@ Dependencies
 1. [Python (2.7)](https://www.python.org/download/) 
 2. [Django (1.8.1)](https://docs.djangoproject.com/en/1.8/topics/install/)
 3. [django-registrations-redux package (1.1)](https://django-registration-redux.readthedocs.org/en/latest/quickstart.html).
+4. [dj-static (0.0.6)](https://pypi.python.org/pypi/dj-static)
+5. [pytz (2015.7)](https://pypi.python.org/pypi/pytz/2015.7)
+6. [python-openid (2.2.5)](https://pypi.python.org/pypi/python-openid/)
+7. [requests-oauthlib (0.6.0)](https://pypi.python.org/pypi/requests-oauthlib/0.6.0)
+8. [python-social-auth (0.2.13)](https://pypi.python.org/pypi/python-social-auth/0.2.13)
+9. [mailchimp (2.0.9)](https://pypi.python.org/pypi/mailchimp/2.0.9)
 
 **Option 2** (Recommend) : Use virtualenv and pip
 
