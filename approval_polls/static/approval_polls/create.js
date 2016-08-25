@@ -8,12 +8,20 @@ $(function () {
     var formGroup, input;
 
     this.numChoiceFields++;
-    formGroup = $("<div class='form-group'></div>");
-    input = $("<div class='input-group' id='div-choice" + this.numChoiceFields + "'><input class='form-control' type='text' maxlength=200 name='choice" +
-            this.numChoiceFields + "' placeholder='Choice " +
-            this.numChoiceFields + "'><span class='input-group-addon'>"+
-            "<a href='#' id='link-choice" + this.numChoiceFields + "' title='Add link' data-toggle='tooltip' data-placement='bottom'>"+
-            "<span class='glyphicon glyphicon-link'></span></a></span>" + 
+    formGroup = $("<div id='formgroup-choice-" + this.numChoiceFields + "' class='form-group'></div>");
+    input = $("<div class='input-group' id='div-choice" + this.numChoiceFields + "'>" +
+            /* Removal icon */
+            "<span class='input-group-addon'>" +
+            "<a href='#' class='remove-choice' id='remove-choice-" + this.numChoiceFields + "' title='Remove choice' data-toggle='tooltip' data-placement='bottom'>" +
+            "<span class='glyphicon glyphicon-minus'></span>" +
+            "</a></span>" +
+            /* Choice input field */
+            "<input id='choice-input-field" + this.numChoiceFields + "' class='form-control' type='text' maxlength=200 name='choice" + this.numChoiceFields + "' placeholder='Choice " + this.numChoiceFields + "'>" +
+            /* Add link icon */
+            "<span class='input-group-addon'>"+
+            "<a href='#' class='link-choice' id='link-choice" + this.numChoiceFields + "' title='Add link' data-toggle='tooltip' data-placement='bottom'>"+
+            "<span class='glyphicon glyphicon-link'></span></a></span>" +
+            /* Link storage */
             "<input type='hidden' id='linkurl-choice" + this.numChoiceFields + "' name='linkurl-choice" + this.numChoiceFields + "' value=''></div>");
 
     formGroup.append(input);
@@ -24,11 +32,30 @@ $(function () {
 
   $('[data-toggle=tooltip]').tooltip();
   $('button#add-choice').click($.proxy(this.addChoiceField, this));
+
+  /**
+   * Allow user to remove a choice field
+   *
+   * Server expects choice1, choice2, ... and will stop reading choices once it fails to find one.
+   * In order to work around this, reset the element's text and hide it. Otherwise, deleting 'choice 1' will cause
+   * the server to emit an error.
+   */
+
+  $('.row-fluid .remove-choice').on('click', function() {
+    var id = $(this).attr('id');
+    id = id.split('-').pop();
+
+    // clearing the input text will cause the server to skip this entry.
+    $('#choice-input-field' + id).val('');
+
+    // hiding the formgroup will achieve the desired ui effect for the user.
+    $('#formgroup-choice-' + id).hide();
+  });
   
   /* Allow user to attach an external link to an option. */
 
   // Event delegation to capture dynamically added links
-  $('.row-fluid').on('click', 'a', function() {
+  $('.row-fluid').on('click', '.link-choice', function() {
     var alertDiv, alertDivId, currentUrl;
     alertDivId = $(this).attr('id');
     alertDivId = alertDivId.split('-').pop();
@@ -80,7 +107,7 @@ $(function () {
         // Remove alert box
         $('#alert-' + buttonId).remove();
         // Change color of link to show a valid insertion
-        $('#link-' + buttonId).attr('class','text-success');
+        $('#link-' + buttonId).attr('class','text-success link-choice');
       }
     });
 
@@ -105,7 +132,7 @@ $(function () {
       // Remove any error message
       $("label[for='url-" + buttonId + "']").remove();
       // Reset color of link to show no current insertion
-      $('#link-' + buttonId).removeAttr('class');
+      $('#link-' + buttonId).attr('class', 'link-choice');
     });
     // To prevent navigation
     return false;
