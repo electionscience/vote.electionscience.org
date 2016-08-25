@@ -29,15 +29,24 @@
       </div>
 
       {% for i in 5|get_range %}
-      <div class='form-group {% if i == 1 and choice_error %} has-error {% endif %}'>
+      <div id='formgroup-choice-{{ i }}' class='form-group {% if i == 1 and choice_error %} has-error {% endif %}'>
         {% if i == 1 and choice_error %}
           <label class='control-label' for='choice1'>
               {{ choice_error }}
           </label>
         {% endif %}
         <div class='input-group' id='div-choice{{ i }}'>
-          <input class='form-control' type='text' maxlength='200' name='choice{{ i }}' placeholder='Choice {{i}}'>
-          <span class='input-group-addon'><a href='#' id='link-choice{{ i }}' title='Add link' data-toggle='tooltip' data-placement='bottom'><span class='glyphicon glyphicon-link'></span></a></span>
+          <span class='input-group-addon'>
+            <a href='#' class='remove-choice' id='remove-choice-{{ i }}' title='Remove choice' data-toggle='tooltip' data-placement='bottom'>
+              <span class='glyphicon glyphicon-minus'></span>
+            </a>
+          </span>
+          <input id='choice-input-field{{ i }}' class='form-control' type='text' maxlength='200' name='choice{{ i }}' placeholder='Choice {{i}}'>
+          <span class='input-group-addon'>
+            <a href='#' class='link-choice' id='link-choice{{ i }}' title='Add link' data-toggle='tooltip' data-placement='bottom'>
+              <span class='glyphicon glyphicon-link'></span>
+            </a>
+          </span>
           <input type='hidden' id='linkurl-choice{{ i }}' name='linkurl-choice{{ i }}' value=''>
         </div>
       </div>
