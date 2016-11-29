@@ -37,7 +37,16 @@
         {% endif %}
         <div class='input-group' id='div-choice{{ i }}'>
           <input class='form-control' type='text' maxlength='200' name='choice{{ i }}' placeholder='Choice {{i}}'>
-          <span class='input-group-addon'><a href='#' id='link-choice{{ i }}' title='Add link' data-toggle='tooltip' data-placement='bottom'><span class='glyphicon glyphicon-link'></span></a></span>
+          <span class='input-group-addon'>
+            <a href='#' class='add-link' id='link-choice{{ i }}' title='Add link' data-toggle='tooltip' data-placement='bottom'>
+              <span class='glyphicon glyphicon-link'></span>
+            </a>
+          </span>
+          <span class='input-group-addon'>
+            <a href='#' class='remove-choice' id='remove-choice{{ i }}' title='Remove Choice' >
+              <span class='glyphicon glyphicon-remove'></span>
+            </a>
+          </span>
           <input type='hidden' id='linkurl-choice{{ i }}' name='linkurl-choice{{ i }}' value=''>
         </div>
       </div>

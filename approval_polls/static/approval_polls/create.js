@@ -1,4 +1,5 @@
 $(function () {
+  var that = this;
   this.numChoiceFields = 4;
   var changeDateLogic, roundMinutes, setDefaultOptions, changeDisabledOptions;
   var validateTokenField;
@@ -12,8 +13,11 @@ $(function () {
     input = $("<div class='input-group' id='div-choice" + this.numChoiceFields + "'><input class='form-control' type='text' maxlength=200 name='choice" +
             this.numChoiceFields + "' placeholder='Choice " +
             this.numChoiceFields + "'><span class='input-group-addon'>"+
-            "<a href='#' id='link-choice" + this.numChoiceFields + "' title='Add link' data-toggle='tooltip' data-placement='bottom'>"+
-            "<span class='glyphicon glyphicon-link'></span></a></span>" + 
+            "<a href='#' class='add-link' id='link-choice" + this.numChoiceFields + "' title='Add link' data-toggle='tooltip' data-placement='bottom'>"+
+            "<span class='glyphicon glyphicon-link'></span></a></span>" +
+            "<span class='input-group-addon'>"+
+            "<a href='#' class='remove-choice' id='remove-choice" + this.numChoiceFields + "' title='Remove Choice' >"+
+            "<span class='glyphicon glyphicon-remove'></span></a></span>" +
             "<input type='hidden' id='linkurl-choice" + this.numChoiceFields + "' name='linkurl-choice" + this.numChoiceFields + "' value=''></div>");
 
     formGroup.append(input);
@@ -24,11 +28,12 @@ $(function () {
 
   $('[data-toggle=tooltip]').tooltip();
   $('button#add-choice').click($.proxy(this.addChoiceField, this));
-  
+
   /* Allow user to attach an external link to an option. */
 
   // Event delegation to capture dynamically added links
-  $('.row-fluid').on('click', 'a', function() {
+  $('.row-fluid').on('click', 'a.add-link', function(e) {
+    e.preventDefault();
     var alertDiv, alertDivId, currentUrl;
     alertDivId = $(this).attr('id');
     alertDivId = alertDivId.split('-').pop();
@@ -108,6 +113,14 @@ $(function () {
       $('#link-' + buttonId).removeAttr('class');
     });
     // To prevent navigation
+    return false;
+  })
+  .on('click', 'a.remove-choice', function(e) {
+    e.preventDefault();
+    console.log(e);
+    var container = $(e.currentTarget).closest('.input-group');
+    container.remove();
+    that.numChoiceFields--;
     return false;
   });
 
