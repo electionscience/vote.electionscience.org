@@ -5,14 +5,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import generic
 from django.views.decorators.http import require_http_methods
 
-from approval_polls.models import Ballot, Poll, VoteInvitation
+from approval_polls.models import Ballot, Poll, VoteInvitation, Choice
 
 
 def index(request):
@@ -522,3 +522,26 @@ class CreateView(generic.View):
             return HttpResponseRedirect(
                 reverse('approval_polls:embed_instructions', args=(p.id,))
             )
+
+class EditView(generic.View):
+
+    @method_decorator(login_required)
+    def get(self, request, *args, **kwargs):
+        
+        #TODO surround with try for polls that don't exist.
+        poll = Poll.objects.get(id = kwargs['poll_id'])
+        choices = Choice.objects.filter(poll = kwargs['poll_id'])
+        print(poll.question)
+        
+        return render(request, 'approval_polls/edit.html', {'poll':poll, 'choices':choices})
+
+    @method_decorator(login_required)
+    def post(self, request, *args, **kwargs):
+        choices = []
+        email_list = []
+        choices_links = {}
+        return HttpResponse(repr(request.POST))
+
+#        return HttpResponseRedirect(
+#            reverse('approval_polls:embed_instructions', args=(p.id,))
+#        )
