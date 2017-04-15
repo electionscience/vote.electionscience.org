@@ -48,10 +48,10 @@ class CustomRegistrationView(RegistrationView):
 
     def form_valid(self, request, form):
         try:
-            m = get_mailchimp_api()
-            lists = m.lists.list()
-            list_id = lists['data'][0]['id']
             if 'newslettercheckbox' in request.POST:
+                m = get_mailchimp_api()
+                lists = m.lists.list()
+                list_id = lists['data'][0]['id']
                 m.lists.subscribe(list_id, {'email': request.POST['email']}, {'MMERGE3': request.POST['zipcode']})
             return super(CustomRegistrationView, self).form_valid(request, form)
         except mailchimp.ListAlreadySubscribedError:
