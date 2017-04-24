@@ -7,7 +7,7 @@ from forms import RegistrationFormCustom
 from forms import ManageSubscriptionsForm
 from registration.backends.default.views import RegistrationView
 from approval_polls.models import Subscription
-from mailchimp_api import get_mailchimp_api
+from mailchimp_api import update_subscription
 import mailchimp
 
 
@@ -52,29 +52,39 @@ def manageSubscriptions(request):
             zipcode = form.cleaned_data.get('zipcode')
             newslettercheckbox = form.cleaned_data.get('newslettercheckbox') 
             if current_user.subscription_set.count() > 0:
-                if not newslettercheckbox and not zipcode:
+                if not newslettercheckbox:
+                    subscription_errors =  update_subscription(False, request.user.email, '')
                     current_user.subscription_set.first().delete()
             else:
+                subscription_errors = update_subscription(True, request.user.email, request.POST['zipcode'])
                 subscr = Subscription(user=current_user, zipcode=zipcode)
                 subscr.save() 
+                if len(subscription_errors) > 0:
+                    form.add_error(subscription_errors[0], subscription_errors[1])
+                    return render(request, 
+                        'registration/subscription_preferences.html', 
+                        {'form': form, 'boxchecked': newslettercheckbox}
+                    )
+
             return HttpResponseRedirect(
                 '/accounts/subscription/change/done/'
                 )
+        else: 
+            newslettercheckbox = False
     else:
         if current_user.subscription_set.count() > 0:
             subscr = current_user.subscription_set.first()
             form = ManageSubscriptionsForm(initial={'user':request.user,'zipcode':subscr.zipcode}) 
-            boxchecked = True
+            newslettercheckbox = True
         else:
             form = ManageSubscriptionsForm()
-            boxchecked = False
+            newslettercheckbox = False
 
-        return render(
-            request,
-            'registration/subscription_preferences.html',
-            {'form': form,'boxchecked':boxchecked}
-        )     
-
+    return render(
+        request,
+        'registration/subscription_preferences.html',
+        {'form': form, 'boxchecked': newslettercheckbox}
+    )     
 
 @login_required
 def manageSubscriptionsDone(request):
@@ -88,16 +98,10 @@ class CustomRegistrationView(RegistrationView):
     form_class = RegistrationFormCustom
 
     def form_valid(self, request, form):
-        try:
-            if 'newslettercheckbox' in request.POST:
-                m = get_mailchimp_api()
-                lists = m.lists.list()
-                list_id = lists['data'][0]['id']
-                m.lists.subscribe(list_id, {'email': request.POST['email']}, {'MMERGE3': request.POST['zipcode']})
-            return super(CustomRegistrationView, self).form_valid(request, form)
-        except mailchimp.ListAlreadySubscribedError:
-            form.add_error('newslettercheckbox', 'That email is already subscribed to the list')
-            return render(request, 'registration/registration_form.html', {'form': form})
-        except mailchimp.Error, e:
-            form.add_error('newslettercheckbox', e)
-            return render(request, 'registration/registration_form.html', {'form': form})
+        if 'newslettercheckbox' in request.POST:
+            subscription_errors = update_subscription(True, request.POST['email'], request.POST['zipcode'])
+            if len(subscription_errors) == 0:
+                return super(CustomRegistrationView, self).form_valid(request, form)
+            else:
+                form.add_error(subscription_errors[0], subscription_errors[1])        
+                return render(request, 'registration/registration_form.html', {'form': form})
