@@ -1,4 +1,9 @@
-$(function () {  
+$(function () {
+  $("#share").jsSocials({
+    showLabel: false,
+    showCount: false,
+    shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest"]
+  });
 
   var invitation_key, invitation_email;
 
@@ -9,15 +14,15 @@ $(function () {
 
     this.numChoiceFields++;
     checkBox = $("<div class='checkbox'></div>");
-    input = $("<label id='label-choice" + this.numChoiceFields + "'>" + 
+    input = $("<label id='label-choice" + this.numChoiceFields + "'>" +
             "<input type='checkbox' name='choice" +
             this.numChoiceFields + "' id='choice" +
-            this.numChoiceFields + "'>" + 
+            this.numChoiceFields + "'>" +
             "<div class='input-group' id='div-choice" + this.numChoiceFields + "' style='width:auto'><input class='form-control' type='text' maxlength=200 name='choice" +
             this.numChoiceFields + "txt' placeholder='Choice " +
             this.numChoiceFields + "'><span class='input-group-addon' style='width:auto'>"+
             "<a href='#' id='link-choice" + this.numChoiceFields + "' title='Add link' data-toggle='tooltip' data-placement='bottom'>"+
-            "<span class='glyphicon glyphicon-link'></span></a></span>" + 
+            "<span class='glyphicon glyphicon-link'></span></a></span>" +
             "<input type='hidden' id='linkurl-choice" + this.numChoiceFields + "' name='linkurl-choice" + this.numChoiceFields + "' value=''></div></label>");
 
     checkBox.append(input);
@@ -37,10 +42,10 @@ $(function () {
     alertDivId = $(this).attr('id');
     alertDivId = alertDivId.split('-').pop();
 
-    alertDiv = "<div class='alert alert-info' id='alert-" + alertDivId + "' style='width:60%'>" + 
-      "<p><input type='text' class='form-control' id='url-" + alertDivId + "' placeholder='Link to URL' style='width:100%'></p><p>" + 
-      "<button id='confirm-link-" + alertDivId + "' type='button' class='btn btn-success btn-xs'>Insert Link</button>" + 
-      " <button id='remove-link-" + alertDivId + "' type='button' class='btn btn-danger btn-xs'>Reset Link</button>" + 
+    alertDiv = "<div class='alert alert-info' id='alert-" + alertDivId + "' style='width:60%'>" +
+      "<p><input type='text' class='form-control' id='url-" + alertDivId + "' placeholder='Link to URL' style='width:100%'></p><p>" +
+      "<button id='confirm-link-" + alertDivId + "' type='button' class='btn btn-success btn-xs'>Insert Link</button>" +
+      " <button id='remove-link-" + alertDivId + "' type='button' class='btn btn-danger btn-xs'>Reset Link</button>" +
       " <button id='cancel-link-" + alertDivId + "' type='button' class='btn btn-info btn-xs'>Cancel</button></p></div>";
 
     if ($('#alert-' + alertDivId).length === 0) {
@@ -146,7 +151,7 @@ $(function () {
       }
       else {
         clearInterval(countdown);
-        callback.call(container); 
+        callback.call(container);
       }
     }, 1000);
   };
