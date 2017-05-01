@@ -57,7 +57,7 @@
         <div class='panel panel-default'>
           <div class='panel-heading' role='tab' id='headingOne'>
             <h4 class='panel-title'>
-              <a role='button' data-toggle='collapse' data-parent='#accordion' href='#collapsePollSettings' aria-expanded='false' aria-controls='collapsePollSettings'>
+              <a role='button' data-toggle='collapse' data-parent='#accordion' href='#collapsePollSettings' aria-expanded='true' aria-controls='collapsePollSettings'>
                Poll Settings
               </a>
             </h4>
@@ -66,13 +66,13 @@
             <div class='panel-body'>
              Who should be allowed to vote in this poll ?
               <div class='radio'>
-                <label><input type='radio' name='radio-poll-type' value='1'>Anyone (No restriction on the number of ballots per user).</label>
+                <label><input type='radio' name='radio-poll-type' {% if poll.vtype == 1 %} checked='true' {% endif %} value='1'>Anyone (No restriction on the number of ballots per user).</label>
               </div>
               <div class='radio'>
-                <label><input type='radio' name='radio-poll-type' checked='true' value='2'>Only users with registered accounts (restricted to one ballot per user, requires login).</label>
+                <label><input type='radio' name='radio-poll-type' {% if poll.vtype == 2 %} checked='true' {% endif %} value='2'>Only users with registered accounts (restricted to one ballot per user, requires login).</label>
               </div>
               <div class='radio'>
-                <label class='full-width'><input type='radio' name='radio-poll-type' value='3'>Only specific Email owners (will be invited by Email).
+                <label class='full-width'><input type='radio' name='radio-poll-type' {% if poll.vtype == 3 %} checked='true' {% endif %} value='3'>Only specific Email owners (will be invited by Email).
                   <div id='email-input' hidden>
                     <h6>Enter comma-separated Email IDs:</h6>
                     <input type='text' name='token-emails' class='form-control' id='tokenEmailField' placeholder='Email IDs' />
