@@ -528,20 +528,44 @@ class EditView(generic.View):
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
         
-        #TODO surround with try for polls that don't exist.
+        #TODO handle polls that don't exist.
         poll = Poll.objects.get(id = kwargs['poll_id'])
         choices = Choice.objects.filter(poll = kwargs['poll_id'])
-        print(poll.question)
-        
-        return render(request, 'approval_polls/edit.html', {'poll':poll, 'choices':choices})
+        return render(request, 'approval_polls/edit.html', {
+            'poll':poll, 
+            'choices':choices, 
+            'closedatetime':poll.close_date.strftime("%Y/%m/%d %H:%M") if poll.close_date  else ""
+        })
 
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        choices = []
-        email_list = []
-        choices_links = {}
-        return HttpResponse(repr(request.POST))
+        poll = Poll.objects.get(id = kwargs['poll_id'])
+        print(repr(request.POST))
+        
+        
+        closedatetime = request.POST['close-datetime']
+        try:
+            closedatetime = datetime.datetime.strptime(
+                closedatetime,
+                '%Y/%m/%d %H:%M'
+            )
+            current_datetime = timezone.localtime(timezone.now())
+            current_tzinfo = current_datetime.tzinfo
+            closedatetime = closedatetime.replace(
+                tzinfo=current_tzinfo
+            )
+            poll.close_date = closedatetime
+        except ValueError:
+            poll.close_date = None
+        
+                
+        poll.show_close_date = 'show-close-date' in request.POST
+        poll.show_countdown = 'show-countdown' in request.POST
+        poll.is_private =  not 'public-poll-visibility' in request.POST
+        
+        poll.save()        
+        
 
-#        return HttpResponseRedirect(
-#            reverse('approval_polls:embed_instructions', args=(p.id,))
-#        )
+        return HttpResponseRedirect(
+            reverse('approval_polls:my_polls')
+        )

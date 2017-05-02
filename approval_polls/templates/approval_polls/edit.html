@@ -8,6 +8,7 @@
   <link rel="stylesheet" href='{% static 'vendor/bootstrap-tokenfield/css/bootstrap-tokenfield.min.css' %}'> 
   <script src='{% static 'vendor/jquery-datetimepicker/js/jquery.datetimepicker.full.min.js' %}'></script>
   <script src='{% static 'vendor/bootstrap-tokenfield/js/bootstrap-tokenfield.min.js' %}'></script>
+  <script src='{% static 'approval_polls/create.js' %}'></script>
   <script src='{% static 'approval_polls/edit.js' %}'></script>
 {% endblock %}
 
@@ -15,9 +16,10 @@
 
 <div class='row-fluid full-height'>
   <div class='col-md-12'>
-    <form action='{% url 'approval_polls:edit' poll_id=poll.id %}' method='post'>
+    <form action="{% url 'approval_polls:edit' poll_id=poll.id %}" method='post'>
       <legend> Edit: {{poll.question}}</legend>
       {% csrf_token %}
+<!--
       <div class='form-group {% if question_error %} has-error {% endif %}'>
         {% if question_error %}
           <label class='control-label' for='question'>
@@ -27,7 +29,8 @@
         <input type='text' class='form-control' maxlength='200' value='{{ poll.question }}'
                name='question' size='28' placeholder='Poll Question'>
       </div>
-
+-->
+<!--
       {% for choice in choices %}
       <div class='form-group'>
         <div class='input-group' id='div-choice{{ choice.pk }}'>
@@ -46,6 +49,7 @@
         </div>
       </div>
       {% endfor %}
+-->
       <p>
         <button type='button' class='btn btn-primary btn-sm' id='add-choice'
               title='Add choice' data-toggle='tooltip' data-placement='bottom'>
@@ -62,7 +66,8 @@
               </a>
             </h4>
           </div>
-          <div id='collapsePollSettings' class='panel-collapse collapse' role='tabpanel' aria-labelledby='headingOne'>
+<!--
+          <div id='collapsePollSettings' class='panel-collapse' role='tabpanel' aria-labelledby='headingOne'>
             <div class='panel-body'>
              Who should be allowed to vote in this poll ?
               <div class='radio'>
@@ -82,6 +87,7 @@
                 </label>
               </div>
               <hr>
+-->
               <p>Poll Visibility</p>
               <div class='checkbox'>
                 <label><input type='checkbox' id='poll-visibility' name='public-poll-visibility' value='' checked>List this poll on the home page.</label>
@@ -89,7 +95,7 @@
               <hr>
               <div class = 'datetimepicker'>
                 <p>Please select a closing date and time for this poll, if any</p>
-                <input id='datetimepicker' type='text' class='form-control' name='close-datetime' value='' placeholder='Poll Closing Date' style='background-color: white;' readonly>
+                <input id='datetimepicker' type='text' class='form-control' name='close-datetime' value='{{closedatetime}}' placeholder='Poll Closing Date' style='background-color: white;' readonly>
               </div>
               <div class='checkbox'>
                 <label><input type='checkbox' name='show-close-date' id='checkbox1' value=''>Display Poll Closing Date with this poll.</label>
@@ -97,6 +103,7 @@
               <div class='checkbox'>
                 <label><input type='checkbox' name='show-countdown' id='checkbox2' value=''>Display Poll Closing Countdown with this poll.</label>
               </div>
+<!--
               <hr>
               <p>Customize Poll</p>
               <div class='checkbox'>
@@ -105,11 +112,12 @@
               <div class='checkbox'>
                 <label><input type='checkbox' name='show-lead-color' value='' checked>Show Leading option in different color.</label>
               </div>
+-->
             </div>
           </div>
         </div>
       </div>
-      <button type='submit' class='btn btn-success pull-right'>Create</button>
+      <button type='submit' class='btn btn-success pull-right'>Save</button>
     </form>
   </div>
 </div>
