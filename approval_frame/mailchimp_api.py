@@ -1,6 +1,8 @@
 import mailchimp
 from django.conf import settings
 from approval_polls.models import Subscription
+from registration.signals import user_registered
+from django.dispatch import receiver
 
 def get_mailchimp_api():
     if settings.MAILCHIMP_API_KEY:
@@ -28,3 +30,8 @@ def update_subscription(subscription_preference, email, zipcode):
         errors.append(e)
     return errors
 
+@receiver(user_registered)
+def receive_new_user_registered(sender, user, request, **kwargs):
+    if 'newslettercheckbox' in request.POST:
+        subscr = Subscription(user=user, zipcode=request.POST['zipcode'])
+        subscr.save()

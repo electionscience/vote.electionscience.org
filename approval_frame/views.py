@@ -8,6 +8,7 @@ from forms import ManageSubscriptionsForm
 from registration.backends.default.views import RegistrationView
 from approval_polls.models import Subscription
 from mailchimp_api import update_subscription
+
 import mailchimp
 
 
@@ -105,3 +106,5 @@ class CustomRegistrationView(RegistrationView):
             else:
                 form.add_error(subscription_errors[0], subscription_errors[1])        
                 return render(request, 'registration/registration_form.html', {'form': form})
+        return super(CustomRegistrationView, self).form_valid(request, form)
+ 
