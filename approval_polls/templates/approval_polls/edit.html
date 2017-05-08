@@ -49,13 +49,14 @@
         </div>
       </div>
       {% endfor %}
--->
+
       <p>
         <button type='button' class='btn btn-primary btn-sm' id='add-choice'
               title='Add choice' data-toggle='tooltip' data-placement='bottom'>
           <i class='glyphicon glyphicon-plus'></i>
         </button>
       </p>
+-->      
       <!-- Add the collapsible poll settings panel here -->
       <div class='panel-group' id='accordion' role='tablist' aria-multiselectable='true'>
         <div class='panel panel-default'>
@@ -66,9 +67,10 @@
               </a>
             </h4>
           </div>
-<!--
+
           <div id='collapsePollSettings' class='panel-collapse' role='tabpanel' aria-labelledby='headingOne'>
             <div class='panel-body'>
+<!--
              Who should be allowed to vote in this poll ?
               <div class='radio'>
                 <label><input type='radio' name='radio-poll-type' {% if poll.vtype == 1 %} checked='true' {% endif %} value='1'>Anyone (No restriction on the number of ballots per user).</label>
@@ -90,7 +92,7 @@
 -->
               <p>Poll Visibility</p>
               <div class='checkbox'>
-                <label><input type='checkbox' id='poll-visibility' name='public-poll-visibility' value='' checked>List this poll on the home page.</label>
+                <label><input type='checkbox' id='poll-visibility' name='public-poll-visibility' value='' autocomplete='off' {% if poll.is_private %}{% else %}checked{% endif %}>List this poll on the home page.</label>
               </div>
               <hr>
               <div class = 'datetimepicker'>
@@ -98,10 +100,10 @@
                 <input id='datetimepicker' type='text' class='form-control' name='close-datetime' value='{{closedatetime}}' placeholder='Poll Closing Date' style='background-color: white;' readonly>
               </div>
               <div class='checkbox'>
-                <label><input type='checkbox' name='show-close-date' id='checkbox1' value=''>Display Poll Closing Date with this poll.</label>
+                <label><input type='checkbox' name='show-close-date' id='checkbox1' value='' autocomplete='off' {% if poll.show_close_date%}checked{% endif %}>Display Poll Closing Date with this poll.</label>
               </div>
               <div class='checkbox'>
-                <label><input type='checkbox' name='show-countdown' id='checkbox2' value=''>Display Poll Closing Countdown with this poll.</label>
+                <label><input type='checkbox' name='show-countdown' id='checkbox2' value='' autocomplete='off' {% if poll.show_countdown%}checked{% endif %}>Display Poll Closing Countdown with this poll.</label>
               </div>
 <!--
               <hr>

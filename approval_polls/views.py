@@ -532,10 +532,13 @@ class EditView(generic.View):
         # TODO handle polls that don't exist.
         poll = Poll.objects.get(id=kwargs['poll_id'])
         choices = Choice.objects.filter(poll=kwargs['poll_id'])
+        # convert closedatetime to localtime.
+        if poll.close_date:
+            closedatetime = timezone.localtime(poll.close_date)
         return render(request, 'approval_polls/edit.html', {
             'poll': poll,
             'choices': choices,
-            'closedatetime': poll.close_date.strftime("%Y/%m/%d %H:%M") if poll.close_date else ""
+            'closedatetime': closedatetime.strftime("%Y/%m/%d %H:%M") if poll.close_date else ""
         })
 
     @method_decorator(login_required)
