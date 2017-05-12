@@ -21,7 +21,7 @@
             </div>
             <a class='pull-right btn btn-danger btn-xs' id='delete-poll-{{ poll.id }}'> remove </a>
             <a class='pull-right btn btn-warning btn-xs right-buffer'> suspend </a>
-            <a class='pull-right btn btn-primary btn-xs right-buffer'> edit </a> 
+            <a class='pull-right btn btn-primary btn-xs right-buffer' href="{% url 'approval_polls:edit' poll.id %}"> edit </a> 
             <div style="display:none">
               <input type='hidden' id='csrfmiddlewaretoken' value='{{ csrf_token }}'>
             </div>

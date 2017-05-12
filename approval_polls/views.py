@@ -12,7 +12,7 @@ from django.utils.decorators import method_decorator
 from django.views import generic
 from django.views.decorators.http import require_http_methods
 
-from approval_polls.models import Ballot, Poll, VoteInvitation
+from approval_polls.models import Ballot, Poll, VoteInvitation, Choice
 
 
 def index(request):
@@ -522,3 +522,47 @@ class CreateView(generic.View):
             return HttpResponseRedirect(
                 reverse('approval_polls:embed_instructions', args=(p.id,))
             )
+
+
+class EditView(generic.View):
+
+    @method_decorator(login_required)
+    def get(self, request, *args, **kwargs):
+
+        # TODO handle polls that don't exist.
+        poll = Poll.objects.get(id=kwargs['poll_id'])
+        choices = Choice.objects.filter(poll=kwargs['poll_id'])
+        # convert closedatetime to localtime.
+        if poll.close_date:
+            closedatetime = timezone.localtime(poll.close_date)
+        return render(request, 'approval_polls/edit.html', {
+            'poll': poll,
+            'choices': choices,
+            'closedatetime': closedatetime.strftime("%Y/%m/%d %H:%M") if poll.close_date else ""
+        })
+
+    @method_decorator(login_required)
+    def post(self, request, *args, **kwargs):
+        poll = Poll.objects.get(id=kwargs['poll_id'])
+        closedatetime = request.POST['close-datetime']
+        try:
+            closedatetime = datetime.datetime.strptime(
+                closedatetime,
+                '%Y/%m/%d %H:%M'
+            )
+            current_datetime = timezone.localtime(timezone.now())
+            current_tzinfo = current_datetime.tzinfo
+            closedatetime = closedatetime.replace(
+                tzinfo=current_tzinfo
+            )
+            poll.close_date = closedatetime
+        except ValueError:
+            poll.close_date = None
+        poll.show_close_date = 'show-close-date' in request.POST
+        poll.show_countdown = 'show-countdown' in request.POST
+        poll.is_private = 'public-poll-visibility' not in request.POST
+        poll.save()
+
+        return HttpResponseRedirect(
+            reverse('approval_polls:my_polls')
+        )
