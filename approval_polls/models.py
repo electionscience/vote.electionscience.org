@@ -137,3 +137,7 @@ class VoteInvitation(models.Model):
 
     def __unicode__(self):
         return str(self.email) + " for Poll:" + str(self.poll.id)
+
+class Subscription(models.Model):
+    user = models.ForeignKey(User)
+    zipcode = models.CharField(max_length=5)
