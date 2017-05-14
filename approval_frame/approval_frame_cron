@@ -1,0 +1,1 @@
+0 0 * * * python mailchimp_api.py
