@@ -1,1 +1,1 @@
-0 0 * * * python mailchimp_api.py
+0 0 * * * python manage.py runscript approval_frame.scripts.update_user_subscriptions
