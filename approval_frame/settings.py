@@ -161,6 +161,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'approval_polls',
     'registration',
+    'django_extensions',
     'social.apps.django_app.default',
 )
 

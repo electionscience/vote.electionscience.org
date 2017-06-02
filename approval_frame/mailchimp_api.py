@@ -12,7 +12,6 @@ def get_mailchimp_api():
         key = '00000000000000000000000000000000-us1'
     return mailchimp.Mailchimp(key)
 
-
 def update_subscription(subscription_preference, email, zipcode):
     try:
         m = get_mailchimp_api()
