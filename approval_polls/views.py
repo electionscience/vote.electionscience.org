@@ -1,5 +1,7 @@
 import datetime
 import re
+import logging
+import sets
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -543,9 +545,48 @@ class EditView(generic.View):
 
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
+        logging.basicConfig(level=logging.ERROR)
+        logger = logging.getLogger(__name__)
+        logger.error(request.POST)
         poll = Poll.objects.get(id=kwargs['poll_id'])
         closedatetime = request.POST['close-datetime']
+        if poll.question != request.POST['question']: 
+           poll.question = request.POST['question'].strip() 
+        choices = Choice.objects.filter(poll=kwargs['poll_id'])
+        request_choice_ids = []
+        for k in request.POST.keys():
+            m = re.search('choice(\d+)',k)
+            if m and m.group(1):
+                id = m.group(1)
+                request_choice_ids.append(int(id))
+        poll_choice_ids = [choice.id for choice in choices]
+        request_choice_ids_set = sets.Set(request_choice_ids)
+        poll_choice_ids_set = sets.Set(poll_choice_ids)
+        logger.error("request set")
+        logger.error(request_choice_ids_set)
+        logger.error("poll set")
+        logger.error(poll_choice_ids_set)
+        choice_ids_for_create = request_choice_ids_set - poll_choice_ids_set
+        choice_ids_for_delete = poll_choice_ids_set - request_choice_ids_set
+        choice_ids_for_update = poll_choice_ids_set & request_choice_ids_set
+        if len(choice_ids_for_create) > 0:
+            for n in choice_ids_for_create:
+                poll.choice_set.create(choice_text=request.POST['choice'+str(n)], choice_link=request.POST['linkurl-choice'+str(n)])
+        if len(choice_ids_for_update) > 0:
+            for u in choice_ids_for_update:
+                c = Choice.objects.get(id=u)
+                setattr(c, 'choice_text', request.POST['choice'+str(u)])
+                if(c.choice_link == None and len(request.POST['linkurl-choice'+str(u)].strip())==0):
+                    pass
+                else:
+                    setattr(c, 'choice_link', request.POST['linkurl-choice'+str(u)])
+        if len(choice_ids_for_delete) > 0:
+            for d in choice_ids_for_delete:
+                logger.error("object to delete" + str(d))
+                cho_d = Choice.objects.get(id=d)
+                poll.choice_set.remove(cho_d) 
         try:
+            original_close_date = poll.close_date
             closedatetime = datetime.datetime.strptime(
                 closedatetime,
                 '%Y/%m/%d %H:%M'
@@ -557,7 +598,7 @@ class EditView(generic.View):
             )
             poll.close_date = closedatetime
         except ValueError:
-            poll.close_date = None
+            poll.close_date = original_close_date
         poll.show_close_date = 'show-close-date' in request.POST
         poll.show_countdown = 'show-countdown' in request.POST
         poll.is_private = 'public-poll-visibility' not in request.POST

@@ -44,6 +44,9 @@ class Poll(models.Model):
     def __unicode__(self):
         return self.question
 
+    def can_edit(self):
+        return self.total_ballots == 0
+
 
 class Choice(models.Model):
     poll = models.ForeignKey(Poll)

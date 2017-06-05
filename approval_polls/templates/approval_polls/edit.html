@@ -19,7 +19,6 @@
     <form action="{% url 'approval_polls:edit' poll_id=poll.id %}" method='post'>
       <legend> Edit: {{poll.question}}</legend>
       {% csrf_token %}
-<!--
       <div class='form-group {% if question_error %} has-error {% endif %}'>
         {% if question_error %}
           <label class='control-label' for='question'>
@@ -29,8 +28,7 @@
         <input type='text' class='form-control' maxlength='200' value='{{ poll.question }}'
                name='question' size='28' placeholder='Poll Question'>
       </div>
--->
-<!--
+
       {% for choice in choices %}
       <div class='form-group'>
         <div class='input-group' id='div-choice{{ choice.pk }}'>
@@ -56,7 +54,7 @@
           <i class='glyphicon glyphicon-plus'></i>
         </button>
       </p>
--->      
+      
       <!-- Add the collapsible poll settings panel here -->
       <div class='panel-group' id='accordion' role='tablist' aria-multiselectable='true'>
         <div class='panel panel-default'>
