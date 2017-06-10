@@ -562,29 +562,15 @@ class EditView(generic.View):
         poll_choice_ids = [choice.id for choice in choices]
         request_choice_ids_set = sets.Set(request_choice_ids)
         poll_choice_ids_set = sets.Set(poll_choice_ids)
-        logger.error("request set")
-        logger.error(request_choice_ids_set)
-        logger.error("poll set")
-        logger.error(poll_choice_ids_set)
         choice_ids_for_create = request_choice_ids_set - poll_choice_ids_set
         choice_ids_for_delete = poll_choice_ids_set - request_choice_ids_set
         choice_ids_for_update = poll_choice_ids_set & request_choice_ids_set
         if len(choice_ids_for_create) > 0:
-            for n in choice_ids_for_create:
-                poll.choice_set.create(choice_text=request.POST['choice'+str(n)], choice_link=request.POST['linkurl-choice'+str(n)])
+            poll.add_choices(choice_ids_for_create, request.POST)
         if len(choice_ids_for_update) > 0:
-            for u in choice_ids_for_update:
-                c = Choice.objects.get(id=u)
-                setattr(c, 'choice_text', request.POST['choice'+str(u)])
-                if(c.choice_link == None and len(request.POST['linkurl-choice'+str(u)].strip())==0):
-                    pass
-                else:
-                    setattr(c, 'choice_link', request.POST['linkurl-choice'+str(u)])
+            poll.update_choices(choice_ids_for_update, request.POST)
         if len(choice_ids_for_delete) > 0:
-            for d in choice_ids_for_delete:
-                logger.error("object to delete" + str(d))
-                cho_d = Choice.objects.get(id=d)
-                poll.choice_set.remove(cho_d) 
+            poll.delete_choices(choice_ids_for_delete)
         try:
             original_close_date = poll.close_date
             closedatetime = datetime.datetime.strptime(
