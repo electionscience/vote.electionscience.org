@@ -5,20 +5,22 @@ $(function () {
   var validateTokenField;
 
   /* Add an extra textfield for a poll choice on the poll creation page. */
-  this.addChoiceField = function () {
+  function addChoiceField(numChoiceFields) {
+
+    console.log('addchoicefieldinvoked with ' + Number(numChoiceFields))
     var formGroup, input;
 
-    this.numChoiceFields++;
+    numChoiceFields++;
     formGroup = $("<div class='form-group'></div>");
-    input = $("<div class='input-group' id='div-choice" + this.numChoiceFields + "'><input class='form-control' type='text' maxlength=200 name='choice" +
-            this.numChoiceFields + "' placeholder='Choice'" +
-            "'><span class='input-group-addon'>"+
-            "<a href='#' class='add-link' id='link-choice" + this.numChoiceFields + "' title='Add link' data-toggle='tooltip' data-placement='bottom'>"+
+    input = $("<div class='input-group' id='div-choice" + numChoiceFields + "'><input class='form-control' type='text' maxlength=200 name='choice" +
+            numChoiceFields + "' placeholder='Choice " +
+            numChoiceFields + "'><span class='input-group-addon'>"+
+            "<a href='#' class='add-link' id='link-choice" + numChoiceFields + "' title='Add link' data-toggle='tooltip' data-placement='bottom'>"+
             "<span class='glyphicon glyphicon-link'></span></a></span>" +
             "<span class='input-group-addon'>"+
-            "<a href='#' class='remove-choice' id='remove-choice" + this.numChoiceFields + "' title='Remove Choice' >"+
+            "<a href='#' class='remove-choice' id='remove-choice" + numChoiceFields + "' title='Remove Choice' >"+
             "<span class='glyphicon glyphicon-remove'></span></a></span>" +
-            "<input type='hidden' id='linkurl-choice" + this.numChoiceFields + "' name='linkurl-choice" + this.numChoiceFields + "' value=''></div>");
+            "<input type='hidden' id='linkurl-choice" + numChoiceFields + "' name='linkurl-choice" + numChoiceFields + "' value=''></div>");
 
     formGroup.append(input);
 
@@ -27,7 +29,8 @@ $(function () {
   };
 
   $('[data-toggle=tooltip]').tooltip();
-  $('button#add-choice').click($.proxy(this.addChoiceField, this));
+  $('button#add-choice').click(addChoiceField(this.numChoiceFields));
+  $('button#add-choice-edit').click(addChoiceField(Number($('div#choices-count').text()))
 
   /* Allow user to attach an external link to an option. */
 

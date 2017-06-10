@@ -29,6 +29,7 @@
                name='question' size='28' placeholder='Poll Question'>
       </div>
 
+      <div id='choices-count' type='hidden' value='{{ choices.count }}'></div>
       {% for choice in choices %}
       <div class='form-group'>
         <div class='input-group' id='div-choice{{ choice.pk }}'>
@@ -49,7 +50,7 @@
       {% endfor %}
 
       <p>
-        <button type='button' class='btn btn-primary btn-sm' id='add-choice'
+        <button type='button' class='btn btn-primary btn-sm' id='add-choice-edit'
               title='Add choice' data-toggle='tooltip' data-placement='bottom'>
           <i class='glyphicon glyphicon-plus'></i>
         </button>
