@@ -1,6 +1,5 @@
 import datetime
 import re
-import logging
 import sets
 
 from django.contrib.auth.decorators import login_required
@@ -545,11 +544,25 @@ class EditView(generic.View):
 
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        logging.basicConfig(level=logging.ERROR)
-        logger = logging.getLogger(__name__)
-        logger.error(request.POST)
         poll = Poll.objects.get(id=kwargs['poll_id'])
         closedatetime = request.POST['close-datetime']
+        try:
+            original_close_date = poll.close_date
+            closedatetime = datetime.datetime.strptime(
+                closedatetime,
+                '%Y/%m/%d %H:%M'
+            )
+            current_datetime = timezone.localtime(timezone.now())
+            current_tzinfo = current_datetime.tzinfo
+            closedatetime = closedatetime.replace(
+                tzinfo=current_tzinfo
+            )
+            poll.close_date = closedatetime
+        except ValueError:
+            poll.close_date = original_close_date
+        poll.show_close_date = 'show-close-date' in request.POST
+        poll.show_countdown = 'show-countdown' in request.POST
+        poll.is_private = 'public-poll-visibility' not in request.POST
         if poll.question != request.POST['question']: 
            poll.question = request.POST['question'].strip() 
         choices = Choice.objects.filter(poll=kwargs['poll_id'])
@@ -571,23 +584,6 @@ class EditView(generic.View):
             poll.update_choices(choice_ids_for_update, request.POST)
         if len(choice_ids_for_delete) > 0:
             poll.delete_choices(choice_ids_for_delete)
-        try:
-            original_close_date = poll.close_date
-            closedatetime = datetime.datetime.strptime(
-                closedatetime,
-                '%Y/%m/%d %H:%M'
-            )
-            current_datetime = timezone.localtime(timezone.now())
-            current_tzinfo = current_datetime.tzinfo
-            closedatetime = closedatetime.replace(
-                tzinfo=current_tzinfo
-            )
-            poll.close_date = closedatetime
-        except ValueError:
-            poll.close_date = original_close_date
-        poll.show_close_date = 'show-close-date' in request.POST
-        poll.show_countdown = 'show-countdown' in request.POST
-        poll.is_private = 'public-poll-visibility' not in request.POST
         poll.save()
 
         return HttpResponseRedirect(
