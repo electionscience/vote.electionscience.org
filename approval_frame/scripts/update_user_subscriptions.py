@@ -1,5 +1,4 @@
 import sets
-import logging
 
 from approval_polls.models import Subscription
 from django.contrib.auth.models import User
@@ -20,9 +19,6 @@ def run():
     for member in members:
         mailchimp_emails.append(member['email'])
     users_to_be_deleted = sets.Set(local_emails) - sets.Set(mailchimp_emails)
-    logging.basicConfig(level=logging.ERROR)
-    logger = logging.getLogger(__name__)
-    logger.error(users_to_be_deleted)
     for user_email in users_to_be_deleted:
         u = User.objects.get(email=user_email)
         if u != None:

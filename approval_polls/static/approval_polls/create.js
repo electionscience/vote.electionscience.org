@@ -2,13 +2,13 @@ $(function() {
   var that = this; 
   this.numChoiceFields = 4
   this.currentNum = undefined;
-  $('button#add-choice').on('click',function(){addChoiceField(that.currentNum || 4)});
+  var changeDateLogic, roundMinutes, setDefaultOptions, changeDisabledOptions;
+  var validateTokenField;
+  /* Add an extra textfield for a poll choice on the poll creation page. */
   function addChoiceField(numChoiceFields) {
-    that.currentNum = numChoiceFields;
     var formGroup, input;
-  
-    that.currentNum++;
-    numChoiceFields = that.currentNum;
+    numChoiceFields++;
+    that.currentNum = numChoiceFields;
     formGroup = $("<div class='form-group'></div>");
     input = $("<div class='input-group' id='div-choice" + numChoiceFields + "'><input class='form-control' type='text' maxlength=200 name='choice" +
             numChoiceFields + "' placeholder='Choice " +
@@ -25,14 +25,13 @@ $(function() {
     $('.form-group').last().after(formGroup);
     $('[data-toggle=tooltip]').tooltip();
   };
+  $('button#add-choice').on('click',function(){addChoiceField(that.currentNum || 4)});
+
   $('button#add-choice-edit').on('click', function() {
     that.currentNum = $('.input-group').size();
     addChoiceField(that.currentNum);
   });
-  var changeDateLogic, roundMinutes, setDefaultOptions, changeDisabledOptions;
-  var validateTokenField;
 
-  /* Add an extra textfield for a poll choice on the poll creation page. */
 
   $('[data-toggle=tooltip]').tooltip();
 
