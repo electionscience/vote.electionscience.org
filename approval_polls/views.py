@@ -412,21 +412,21 @@ class CreateView(generic.View):
                     {'question_error': 'The question is missing'}
                 )
 
-            c = 1
-            name = 'choice1'
-            linkname = 'linkurl-choice1'
-
-            while (name in request.POST):
-                text = request.POST[name].strip()
-                if (text):
+            for key in request.POST:
+                # this could be done using String.startswith instead of re
+                # but then it would be harder to avoid POST params
+                # that aren't choices but happen to start with choice.
+                # in case someone adds a "choiceType" option later.
+                m = re.match("choice(\d+)", key)
+                if m:
+                    text = request.POST[key].strip()
                     choices.append(text)
+                    c = m.group(1)
+                    linkname = 'linkurl-choice{}'.format(c)
                     if linkname in request.POST:
                         linktext = request.POST[linkname].strip()
                         if linktext:
                             choices_links[text] = linktext
-                c += 1
-                name = 'choice{}'.format(c)
-                linkname = 'linkurl-choice{}'.format(c)
 
             if not len(choices):
                 return render(request, 'approval_polls/create.html', {

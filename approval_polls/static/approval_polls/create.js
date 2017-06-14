@@ -117,10 +117,8 @@ $(function () {
   })
   .on('click', 'a.remove-choice', function(e) {
     e.preventDefault();
-    console.log(e);
     var container = $(e.currentTarget).closest('.input-group');
     container.remove();
-    that.numChoiceFields--;
     return false;
   });
 
