@@ -47,7 +47,7 @@ class Poll(models.Model):
         return self.question
 
     def can_edit(self):
-        return self.total_ballots == 0
+        return self.total_ballots() == 0
 
     def add_choices(self, ids, choice_data):
         for n in ids:

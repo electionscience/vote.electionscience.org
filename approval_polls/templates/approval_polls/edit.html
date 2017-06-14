@@ -16,7 +16,7 @@
 
 <div class='row-fluid full-height'>
   <div class='col-md-12'>
-    {% if poll.can_edit %}
+    {% if can_edit_poll %}
       <form action="{% url 'approval_polls:edit' poll_id=poll.id %}" method='post'>
         <legend> Edit: {{poll.question}}</legend>
         {% csrf_token %}
@@ -30,7 +30,7 @@
                  name='question' size='28' placeholder='Poll Question'>
         </div>
 
-        <div id='choices-count' type='hidden' value='{{ choices.count }}'></div>
+        <input id='choices-count' type='hidden' value='{{ choices.count }}'>
         {% for choice in choices %}
         <div class='form-group'>
           <div class='input-group' id='div-choice{{ choice.pk }}'>
@@ -51,7 +51,7 @@
         {% endfor %}
 
         <p>
-          <button type='button' class='btn btn-primary btn-sm' id='add-choice'
+          <button type='button' class='btn btn-primary btn-sm' id='add-choice-edit'
                 title='Add choice' data-toggle='tooltip' data-placement='bottom'>
             <i class='glyphicon glyphicon-plus'></i>
           </button>

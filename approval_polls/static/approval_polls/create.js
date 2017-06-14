@@ -1,16 +1,14 @@
-$(function () {
-  var that = this;
-  this.numChoiceFields = 4;
-  var changeDateLogic, roundMinutes, setDefaultOptions, changeDisabledOptions;
-  var validateTokenField;
-
-  /* Add an extra textfield for a poll choice on the poll creation page. */
+$(function() {
+  var that = this; 
+  this.numChoiceFields = 4
+  this.currentNum = undefined;
+  $('button#add-choice').on('click',function(){addChoiceField(that.currentNum || 4)});
   function addChoiceField(numChoiceFields) {
-
-    console.log('addchoicefieldinvoked with ' + Number(numChoiceFields))
+    that.currentNum = numChoiceFields;
     var formGroup, input;
-
-    numChoiceFields++;
+  
+    that.currentNum++;
+    numChoiceFields = that.currentNum;
     formGroup = $("<div class='form-group'></div>");
     input = $("<div class='input-group' id='div-choice" + numChoiceFields + "'><input class='form-control' type='text' maxlength=200 name='choice" +
             numChoiceFields + "' placeholder='Choice " +
@@ -21,16 +19,22 @@ $(function () {
             "<a href='#' class='remove-choice' id='remove-choice" + numChoiceFields + "' title='Remove Choice' >"+
             "<span class='glyphicon glyphicon-remove'></span></a></span>" +
             "<input type='hidden' id='linkurl-choice" + numChoiceFields + "' name='linkurl-choice" + numChoiceFields + "' value=''></div>");
-
+  
     formGroup.append(input);
-
+  
     $('.form-group').last().after(formGroup);
     $('[data-toggle=tooltip]').tooltip();
   };
+  $('button#add-choice-edit').on('click', function() {
+    that.currentNum = $('.input-group').size();
+    addChoiceField(that.currentNum);
+  });
+  var changeDateLogic, roundMinutes, setDefaultOptions, changeDisabledOptions;
+  var validateTokenField;
+
+  /* Add an extra textfield for a poll choice on the poll creation page. */
 
   $('[data-toggle=tooltip]').tooltip();
-  $('button#add-choice').click(addChoiceField(this.numChoiceFields));
-  $('button#add-choice-edit').click(addChoiceField(Number($('div#choices-count').text()))
 
   /* Allow user to attach an external link to an option. */
 
@@ -122,6 +126,10 @@ $(function () {
     e.preventDefault();
     var container = $(e.currentTarget).closest('.input-group');
     container.remove();
+    if(that.currentNum == undefined) { 
+      that.currentNum = 4;
+    }
+    that.currentNum--;
     return false;
   });
 

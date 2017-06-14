@@ -539,7 +539,8 @@ class EditView(generic.View):
         return render(request, 'approval_polls/edit.html', {
             'poll': poll,
             'choices': choices,
-            'closedatetime': closedatetime.strftime("%Y/%m/%d %H:%M") if poll.close_date else ""
+            'closedatetime': closedatetime.strftime("%Y/%m/%d %H:%M") if poll.close_date else "",
+            'can_edit_poll': poll.can_edit()
         })
 
     @method_decorator(login_required)
