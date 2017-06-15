@@ -420,6 +420,8 @@ class CreateView(generic.View):
                 m = re.match("choice(\d+)", key)
                 if m:
                     text = request.POST[key].strip()
+                    if text == "":
+                        continue
                     choices.append(text)
                     c = m.group(1)
                     linkname = 'linkurl-choice{}'.format(c)
