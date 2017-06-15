@@ -11,8 +11,8 @@ $(function () {
     this.numChoiceFields++;
     formGroup = $("<div class='form-group'></div>");
     input = $("<div class='input-group' id='div-choice" + this.numChoiceFields + "'><input class='form-control' type='text' maxlength=200 name='choice" +
-            this.numChoiceFields + "' placeholder='Choice " +
-            this.numChoiceFields + "'><span class='input-group-addon'>"+
+            this.numChoiceFields + "' placeholder='Choice'" +
+            "'><span class='input-group-addon'>"+
             "<a href='#' class='add-link' id='link-choice" + this.numChoiceFields + "' title='Add link' data-toggle='tooltip' data-placement='bottom'>"+
             "<span class='glyphicon glyphicon-link'></span></a></span>" +
             "<span class='input-group-addon'>"+
