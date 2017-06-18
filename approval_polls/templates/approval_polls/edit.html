@@ -16,9 +16,13 @@
 
 <div class='row-fluid full-height'>
   <div class='col-md-12'>
-    {% if can_edit_poll %}
       <form action="{% url 'approval_polls:edit' poll_id=poll.id %}" method='post'>
         <legend> Edit: {{poll.question}}</legend>
+        <p>
+          {% if not can_edit_poll %}
+            You cannot edit the questions and choices as this poll has got ballots on it!
+          {% endif %}
+        </p>
         {% csrf_token %}
         <div class='form-group {% if question_error %} has-error {% endif %}'>
           {% if question_error %}
@@ -27,33 +31,36 @@
             </label>
           {% endif %}
           <input type='text' class='form-control' maxlength='200' value='{{ poll.question }}'
-                 name='question' size='28' placeholder='Poll Question'>
+                 name='question' size='28' placeholder='Poll Question' {% if not can_edit_poll %}disabled{% endif %}>
         </div>
 
         <input id='choices-count' type='hidden' value='{{ choices.count }}'>
         {% for choice in choices %}
         <div class='form-group'>
           <div class='input-group' id='div-choice{{ choice.pk }}'>
-            <input class='form-control' type='text' maxlength='200' name='choice{{ choice.pk }}' placeholder='Choice {{choice.pk}}' value='{{choice.choice_text}}'>
-            <span class='input-group-addon'>
-              <a href='#' class='add-link' id='link-choice{{ choice.pk }}' title='Add link' data-toggle='tooltip' data-placement='bottom'>
-                <span class='glyphicon glyphicon-link'></span>
-              </a>
-            </span>
-            <span class='input-group-addon'>
-              <a href='#' class='remove-choice' id='remove-choice{{ choice.pk }}' title='Remove Choice' >
-                <span class='glyphicon glyphicon-remove'></span>
-              </a>
-            </span>
+            <input class='form-control' type='text' maxlength='200' name='choice{{ choice.pk }}' placeholder='Choice {{choice.pk}}' value='{{choice.choice_text}}' {% if not can_edit_poll %}disabled{% endif %}>
+            {% if can_edit_poll %}
+              <span class='input-group-addon'>
+                <a href='#' class='add-link' id='link-choice{{ choice.pk }}' title='Add link' data-toggle='tooltip' data-placement='bottom'>
+                  <span class='glyphicon glyphicon-link'></span>
+                </a>
+              </span>
+              <span class='input-group-addon'>
+                <a href='#' class='remove-choice' id='remove-choice{{ choice.pk }}' title='Remove Choice' >
+                  <span class='glyphicon glyphicon-remove'></span>
+                </a>
+              </span>
+            {% endif %}
             <input type='hidden' id='linkurl-choice{{ choice.pk }}' name='linkurl-choice{{ choice.pk }}' value=''>
           </div>
         </div>
         {% endfor %}
 
         <p>
-          <button type='button' class='btn btn-primary btn-sm' id='add-choice-edit'
-                title='Add choice' data-toggle='tooltip' data-placement='bottom'>
-            <i class='glyphicon glyphicon-plus'></i>
+          <button type='button' class='btn btn-primary btn-sm' 
+            id='add-choice-edit' title='Add choice' data-toggle='tooltip' 
+            data-placement='bottom'{% if not can_edit_poll %}disabled{% endif %}>
+            <i class='glyphicon glyphicon-plus'></i> 
           </button>
         </p>
         <!-- Add the collapsible poll settings panel here -->
@@ -120,9 +127,6 @@
         </div>
         <button type='submit' class='btn btn-success pull-right'>Save</button>
       </form>
-    {% else %}
-      <h3>The poll cannot be edited as it has ballots on it!</h3>
-    {% endif %}
   </div>
 </div>
 {% endblock %}
