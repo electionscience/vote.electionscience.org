@@ -4,6 +4,7 @@ from approval_polls.models import Subscription
 from django.contrib.auth.models import User
 from approval_frame.mailchimp_api import get_mailchimp_api
 
+
 def run():
     m = get_mailchimp_api()
     lists = m.lists.list()
@@ -14,12 +15,12 @@ def run():
     mailchimp_emails = []
     for sub in subscriptions_local:
         user = sub.user
-        local_email = user.email 
+        local_email = user.email
         local_emails.append(local_email)
     for member in members:
         mailchimp_emails.append(member['email'])
     users_to_be_deleted = sets.Set(local_emails) - sets.Set(mailchimp_emails)
     for user_email in users_to_be_deleted:
         u = User.objects.get(email=user_email)
-        if u != None:
+        if u is not None:
             u.subscription_set.first().delete()

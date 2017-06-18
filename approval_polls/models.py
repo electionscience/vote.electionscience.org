@@ -49,25 +49,29 @@ class Poll(models.Model):
 
     def add_choices(self, ids, choice_data):
         for n in ids:
-            self.choice_set.create(choice_text=choice_data['choice'+str(n)], choice_link=choice_data['linkurl-choice'+str(n)])
-    
+            self.choice_set.create(
+                choice_text=choice_data['choice' + (str(n))],
+                choice_link=choice_data['linkurl-choice' + (str(n))]
+            )
+
     def update_choices(self, ids, choice_data):
         for u in ids:
             c = Choice.objects.get(id=u)
-            setattr(c, 'choice_text', choice_data['choice'+str(u)])
-            if(c.choice_link == None and len(choice_data['linkurl-choice'+str(u)].strip())==0):
-                pass
-            else:
-                setattr(c, 'choice_link', choice_data['linkurl-choice'+str(u)])
+            setattr(c, 'choice_text', choice_data['choice' + (str(u))])
+            if not (c.choice_link is None and len(choice_data['linkurl-choice' + (str(u))].strip()) == 0):
+                setattr(c, 'choice_link', choice_data['linkurl-choice' + (str(u))])
             c.save()
 
     def delete_choices(self, ids):
-         for d in ids:
-             cho_d = Choice.objects.get(id=d)
-             cho_d.delete()
-             #Recommended by RelatedManager, but hasn't worked locally
-             #self.choice_set.remove(cho_d)
- 
+        for d in ids:
+            cho_d = Choice.objects.get(id=d)
+            cho_d.delete()
+            '''
+              Recommended by RelatedManager, but hasn't worked locally
+              self.choice_set.remove(cho_d)
+            '''
+
+
 class Choice(models.Model):
     poll = models.ForeignKey(Poll)
     choice_text = models.CharField(max_length=200)
@@ -160,6 +164,7 @@ class VoteInvitation(models.Model):
 
     def __unicode__(self):
         return str(self.email) + " for Poll:" + str(self.poll.id)
+
 
 class Subscription(models.Model):
     user = models.ForeignKey(User)

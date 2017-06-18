@@ -9,8 +9,6 @@ from registration.backends.default.views import RegistrationView
 from approval_polls.models import Subscription
 from mailchimp_api import update_subscription
 
-import mailchimp
-
 
 @login_required
 def changeUsername(request):
@@ -44,6 +42,7 @@ def changeUsernameDone(request):
         {'new_username': request.user}
     )
 
+
 @login_required
 def manageSubscriptions(request):
     current_user = request.user
@@ -51,31 +50,31 @@ def manageSubscriptions(request):
         form = ManageSubscriptionsForm(request.POST)
         if form.is_valid():
             zipcode = form.cleaned_data.get('zipcode')
-            newslettercheckbox = form.cleaned_data.get('newslettercheckbox') 
+            newslettercheckbox = form.cleaned_data.get('newslettercheckbox')
             if current_user.subscription_set.count() > 0:
                 if not newslettercheckbox:
-                    subscription_errors =  update_subscription(False, request.user.email, '')
+                    subscription_errors = update_subscription(False, request.user.email, '')
                     current_user.subscription_set.first().delete()
             else:
                 subscription_errors = update_subscription(True, request.user.email, request.POST['zipcode'])
                 subscr = Subscription(user=current_user, zipcode=zipcode)
-                subscr.save() 
+                subscr.save()
                 if len(subscription_errors) > 0:
                     form.add_error(subscription_errors[0], subscription_errors[1])
-                    return render(request, 
-                        'registration/subscription_preferences.html', 
+                    return render(request,
+                        'registration/subscription_preferences.html',
                         {'form': form, 'boxchecked': newslettercheckbox}
                     )
 
             return HttpResponseRedirect(
                 '/accounts/subscription/change/done/'
                 )
-        else: 
+        else:
             newslettercheckbox = False
     else:
         if current_user.subscription_set.count() > 0:
             subscr = current_user.subscription_set.first()
-            form = ManageSubscriptionsForm(initial={'user':request.user,'zipcode':subscr.zipcode}) 
+            form = ManageSubscriptionsForm(initial={'user': request.user, 'zipcode': subscr.zipcode})
             newslettercheckbox = True
         else:
             form = ManageSubscriptionsForm()
@@ -85,7 +84,8 @@ def manageSubscriptions(request):
         request,
         'registration/subscription_preferences.html',
         {'form': form, 'boxchecked': newslettercheckbox}
-    )     
+    )
+
 
 @login_required
 def manageSubscriptionsDone(request):
@@ -94,6 +94,7 @@ def manageSubscriptionsDone(request):
         'registration/subscription_change_done.html',
         {'new_username': request.user}
     )
+
 
 class CustomRegistrationView(RegistrationView):
     form_class = RegistrationFormCustom
@@ -104,7 +105,6 @@ class CustomRegistrationView(RegistrationView):
             if len(subscription_errors) == 0:
                 return super(CustomRegistrationView, self).form_valid(request, form)
             else:
-                form.add_error(subscription_errors[0], subscription_errors[1])        
+                form.add_error(subscription_errors[0], subscription_errors[1])
                 return render(request, 'registration/registration_form.html', {'form': form})
         return super(CustomRegistrationView, self).form_valid(request, form)
- 
