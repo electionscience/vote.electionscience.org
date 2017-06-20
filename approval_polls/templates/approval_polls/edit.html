@@ -38,7 +38,7 @@
         {% for choice in choices %}
         <div class='form-group'>
           <div class='input-group' id='div-choice{{ choice.pk }}'>
-            <input class='form-control' type='text' maxlength='200' name='choice{{ choice.pk }}' placeholder='Choice {{choice.pk}}' value='{{choice.choice_text}}' {% if not can_edit_poll %}disabled{% endif %}>
+            <input class='form-control' type='text' maxlength='200' name='choice{{ choice.pk }}' placeholder='Choice' value='{{choice.choice_text}}' {% if not can_edit_poll %}disabled{% endif %}>
             {% if can_edit_poll %}
               <span class='input-group-addon'>
                 <a href='#' class='add-link' id='link-choice{{ choice.pk }}' title='Add link' data-toggle='tooltip' data-placement='bottom'>

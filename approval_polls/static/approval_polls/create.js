@@ -11,8 +11,8 @@ $(function() {
     that.currentNum = numChoiceFields;
     formGroup = $("<div class='form-group'></div>");
     input = $("<div class='input-group' id='div-choice" + numChoiceFields + "'><input class='form-control' type='text' maxlength=200 name='choice" +
-            numChoiceFields + "' placeholder='Choice " +
-            numChoiceFields + "'><span class='input-group-addon'>"+
+            numChoiceFields + "' placeholder='Choice'" +
+            "'><span class='input-group-addon'>"+
             "<a href='#' class='add-link' id='link-choice" + numChoiceFields + "' title='Add link' data-toggle='tooltip' data-placement='bottom'>"+
             "<span class='glyphicon glyphicon-link'></span></a></span>" +
             "<span class='input-group-addon'>"+
@@ -28,7 +28,9 @@ $(function() {
   $('button#add-choice').on('click',function(){addChoiceField(that.currentNum || 4)});
 
   $('button#add-choice-edit').on('click', function() {
-    that.currentNum = $('.input-group').size();
+    if (that.currentNum == undefined) {
+      that.currentNum = $('.input-group').size(); 
+    }
     addChoiceField(that.currentNum);
   });
 
@@ -125,10 +127,6 @@ $(function() {
     e.preventDefault();
     var container = $(e.currentTarget).closest('.input-group');
     container.remove();
-    if(that.currentNum == undefined) { 
-      that.currentNum = 4;
-    }
-    that.currentNum--;
     return false;
   });
 
