@@ -1,6 +1,6 @@
-$(function() {
+$(function () {
   var that = this; 
-  this.numChoiceFields = 4
+  this.numChoiceFields = 4;
   this.currentNum = undefined;
   var changeDateLogic, roundMinutes, setDefaultOptions, changeDisabledOptions;
   var validateTokenField;
@@ -29,7 +29,8 @@ $(function() {
 
   $('button#add-choice-edit').on('click', function() {
     if (that.currentNum == undefined) {
-      that.currentNum = $('.input-group').size(); 
+      console.log("choicues count", parseInt($('#choices-count').val()));
+      that.currentNum = parseInt($('#choices-count').val()); 
     }
     addChoiceField(that.currentNum);
   });

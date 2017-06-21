@@ -47,19 +47,19 @@ class Poll(models.Model):
     def can_edit(self):
         return self.total_ballots() == 0
 
-    def add_choices(self, ids, choice_data):
+    def add_choices(self, ids, text_data, link_data):
         for n in ids:
             self.choice_set.create(
-                choice_text=choice_data['choice' + (str(n))],
-                choice_link=choice_data['linkurl-choice' + (str(n))]
+                choice_text=text_data[n],
+                choice_link=link_data[n]
             )
 
-    def update_choices(self, ids, choice_data):
+    def update_choices(self, ids, text_data, link_data):
         for u in ids:
             c = Choice.objects.get(id=u)
-            setattr(c, 'choice_text', choice_data['choice' + (str(u))])
-            if not (c.choice_link is None and len(choice_data['linkurl-choice' + (str(u))].strip()) == 0):
-                setattr(c, 'choice_link', choice_data['linkurl-choice' + (str(u))])
+            setattr(c, 'choice_text', text_data[u])
+            if not (c.choice_link is None and len(link_data[u]) == 0):
+                setattr(c, 'choice_link', link_data[u])
             c.save()
 
     def delete_choices(self, ids):

@@ -33,8 +33,7 @@
           <input type='text' class='form-control' maxlength='200' value='{{ poll.question }}'
                  name='question' size='28' placeholder='Poll Question' {% if not can_edit_poll %}disabled{% endif %}>
         </div>
-
-        <input id='choices-count' type='hidden' value='{{ choices.count }}'>
+        <input id='choices-count' type='hidden' value='{{ choices_count }}'>
         {% for choice in choices %}
         <div class='form-group'>
           <div class='input-group' id='div-choice{{ choice.pk }}'>

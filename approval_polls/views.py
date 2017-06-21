@@ -1,3 +1,4 @@
+import logging
 import datetime
 import re
 import sets
@@ -540,7 +541,8 @@ class EditView(generic.View):
             'poll': poll,
             'choices': choices,
             'closedatetime': closedatetime.strftime("%Y/%m/%d %H:%M") if poll.close_date else "",
-            'can_edit_poll': poll.can_edit()
+            'can_edit_poll': poll.can_edit(),
+            'choices_count': Choice.objects.last().id
         })
 
     @method_decorator(login_required)
@@ -564,28 +566,63 @@ class EditView(generic.View):
         poll.show_close_date = 'show-close-date' in request.POST
         poll.show_countdown = 'show-countdown' in request.POST
         poll.is_private = 'public-poll-visibility' not in request.POST
-        if poll.question != request.POST['question']: 
-           poll.question = request.POST['question'].strip() 
-        choices = Choice.objects.filter(poll=kwargs['poll_id'])
-        request_choice_ids = []
-        for k in request.POST.keys():
-            m = re.search('choice(\d+)',k)
-            if m and m.group(1):
-                id = m.group(1)
-                request_choice_ids.append(int(id))
-        poll_choice_ids = [choice.id for choice in choices]
-        request_choice_ids_set = sets.Set(request_choice_ids)
-        poll_choice_ids_set = sets.Set(poll_choice_ids)
-        choice_ids_for_create = request_choice_ids_set - poll_choice_ids_set
-        choice_ids_for_delete = poll_choice_ids_set - request_choice_ids_set
-        choice_ids_for_update = poll_choice_ids_set & request_choice_ids_set
-        if len(choice_ids_for_create) > 0:
-            poll.add_choices(choice_ids_for_create, request.POST)
-        if len(choice_ids_for_update) > 0:
-            poll.update_choices(choice_ids_for_update, request.POST)
-        if len(choice_ids_for_delete) > 0:
-            poll.delete_choices(choice_ids_for_delete)
-        poll.save()
+        if poll.can_edit():
+            if poll.question != request.POST['question']: 
+               poll.question = request.POST['question'].strip() 
+            choices = Choice.objects.filter(poll=kwargs['poll_id'])
+            request_choice_ids = []
+            choice_blank = False
+            for k in request.POST.keys():
+                m = re.search('choice(\d+)',k)
+                if m and m.group(1):
+                    id = m.group(1)
+                    request_choice_ids.append(int(id))
+            poll_choice_ids = [choice.id for choice in choices]
+            request_choice_ids_set = sets.Set(request_choice_ids)
+            poll_choice_ids_set = sets.Set(poll_choice_ids)
+            choice_ids_for_create = request_choice_ids_set - poll_choice_ids_set
+            choice_ids_for_delete = poll_choice_ids_set - request_choice_ids_set
+            choice_ids_for_update = poll_choice_ids_set & request_choice_ids_set
+            if len(choice_ids_for_create) > 0:
+                create_data_for_text = {}
+                create_data_for_link = {}
+                for i in choice_ids_for_create:
+                    create_text = request.POST['choice' + (str(i))]
+                    if len(create_text) == 0:
+                        choice_blank = True 
+                        break
+                    else:
+                        create_data_for_text[i] = create_text
+                        create_data_for_link[i] = request.POST['linkurl-choice' + (str(i))]
+                if not choice_blank:
+                    poll.add_choices(choice_ids_for_create, create_data_for_text, create_data_for_link)
+            if len(choice_ids_for_update) > 0:
+                update_data_for_text = {}
+                update_data_for_link = {}
+                for i in choice_ids_for_update:
+                    update_text = request.POST['choice' + (str(i))]
+                    if len(update_text) == 0:
+                        choice_blank = True 
+                        break
+                    else:
+                        update_data_for_text[i] = update_text
+                        update_data_for_link[i] = request.POST['linkurl-choice' + (str(i))]
+                if not choice_blank:
+                    poll.update_choices(choice_ids_for_update, update_data_for_text, update_data_for_link)
+            if len(choice_ids_for_delete) > 0:
+                poll.delete_choices(choice_ids_for_delete)
+            logging.basicConfig(level=logging.ERROR)
+            logger = logging.getLogger(__name__)
+            logger.error(request.POST)
+
+            if choice_blank:
+                return render(request, 'approval_polls/edit.html', {
+                    'poll': poll,
+                    'choices': choices,
+                    'choice_blank_error': True,
+                    'can_edit_poll': poll.can_edit()
+                })
+            poll.save()
 
         return HttpResponseRedirect(
             reverse('approval_polls:my_polls')
