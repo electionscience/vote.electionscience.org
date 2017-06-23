@@ -25,3 +25,7 @@ def get_range(value):
     Instead of 3 one may use the variable set in the views
     """
     return range(1, value)
+
+@register.filter
+def get_item(value, arg):
+    value.get(arg)

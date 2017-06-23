@@ -33,11 +33,16 @@
           <input type='text' class='form-control' maxlength='200' value='{{ poll.question }}'
                  name='question' size='28' placeholder='Poll Question' {% if not can_edit_poll %}disabled{% endif %}>
         </div>
-        <input id='choices-count' type='hidden' value='{{ choices_count }}'>
+        <input id='LastId' type='hidden' value='{{ choices_count }}'>
+        {% if choice_blank_error %}
+          <h3>Please ensure you've entered all choices correctly</h3>
+        {% endif %}
         {% for choice in choices %}
+        {% with choice_id=choice.id %}
+        {% with box_text=existing_choice_texts|get_item:'choice_id' %} 
         <div class='form-group'>
           <div class='input-group' id='div-choice{{ choice.pk }}'>
-            <input class='form-control' type='text' maxlength='200' name='choice{{ choice.pk }}' placeholder='Choice' value='{{choice.choice_text}}' {% if not can_edit_poll %}disabled{% endif %}>
+            <input class='form-control {% if choice.id in blank_choices %} has-error {% endif %}' type='text' maxlength='200' name='choice{{ choice.pk }}' placeholder='Choice' value={{ box_text|default:choice.choice_text }} {% if not can_edit_poll %}disabled{% endif %} >
             {% if can_edit_poll %}
               <span class='input-group-addon'>
                 <a href='#' class='add-link' id='link-choice{{ choice.pk }}' title='Add link' data-toggle='tooltip' data-placement='bottom'>
@@ -53,6 +58,8 @@
             <input type='hidden' id='linkurl-choice{{ choice.pk }}' name='linkurl-choice{{ choice.pk }}' value=''>
           </div>
         </div>
+        {% endwith %}
+        {% endwith %}
         {% endfor %}
 
         <p>
