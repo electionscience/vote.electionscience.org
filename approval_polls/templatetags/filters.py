@@ -26,6 +26,11 @@ def get_range(value):
     """
     return range(1, value)
 
+
 @register.filter
 def get_item(value, arg):
-    value.get(arg)
+    val = value.get(arg)
+    if val is not None:
+        return str(val)
+    else:
+        return val

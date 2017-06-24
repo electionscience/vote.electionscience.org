@@ -541,7 +541,11 @@ class EditView(generic.View):
             'choices': choices,
             'closedatetime': closedatetime.strftime("%Y/%m/%d %H:%M") if poll.close_date else "",
             'can_edit_poll': poll.can_edit(),
-            'choices_count': Choice.objects.last().id
+            'choices_count': Choice.objects.last().id,
+            'blank_choices': [],
+            'choice_blank_error': False,
+            'existing_choice_texts': {},
+            'existing_choice_links': {}
         })
 
     @method_decorator(login_required)
@@ -567,13 +571,13 @@ class EditView(generic.View):
         poll.is_private = 'public-poll-visibility' not in request.POST
         poll.save()
         if poll.can_edit():
-            if poll.question != request.POST['question']: 
-               poll.question = request.POST['question'].strip() 
+            if poll.question != request.POST['question']:
+                poll.question = request.POST['question'].strip()
             choices = Choice.objects.filter(poll=kwargs['poll_id'])
             request_choice_ids = []
             choice_blank = False
             for k in request.POST.keys():
-                m = re.search('choice(\d+)',k)
+                m = re.search('choice(\d+)', k)
                 if m and m.group(1):
                     id = m.group(1)
                     request_choice_ids.append(int(id))
@@ -586,7 +590,8 @@ class EditView(generic.View):
             if len(choice_ids_for_create) > 0:
                 create_data_for_text = {}
                 create_data_for_link = {}
-                for i in choice_ids_for_create:
+                choice_ids_for_create_dup = choice_ids_for_create.copy()
+                for i in choice_ids_for_create_dup:
                     create_text = request.POST['choice' + (str(i))]
                     if len(create_text) == 0:
                         choice_ids_for_create.remove(i)
