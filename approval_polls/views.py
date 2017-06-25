@@ -544,12 +544,14 @@ class EditView(generic.View):
             'choices_count': Choice.objects.last().id,
             'blank_choices': [],
             'choice_blank_error': False,
-            'existing_choice_texts': {},
-            'existing_choice_links': {}
+            'existing_choice_texts': {'new': {}, 'existing': {}},
+            'existing_choice_links': {'new': {}, 'existing': {}}
         })
 
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
+        existing_choice_texts = {}
+        existing_choice_links = {}
         poll = Poll.objects.get(id=kwargs['poll_id'])
         closedatetime = request.POST['close-datetime']
         try:
@@ -575,6 +577,10 @@ class EditView(generic.View):
                 poll.question = request.POST['question'].strip()
             choices = Choice.objects.filter(poll=kwargs['poll_id'])
             request_choice_ids = []
+            create_data_for_text = {}
+            create_data_for_link = {}
+            update_data_for_text = {}
+            update_data_for_link = {}
             choice_blank = False
             for k in request.POST.keys():
                 m = re.search('choice(\d+)', k)
@@ -587,9 +593,10 @@ class EditView(generic.View):
             choice_ids_for_create = request_choice_ids_set - poll_choice_ids_set
             choice_ids_for_delete = poll_choice_ids_set - request_choice_ids_set
             choice_ids_for_update = poll_choice_ids_set & request_choice_ids_set
-            if len(choice_ids_for_create) > 0:
-                create_data_for_text = {}
-                create_data_for_link = {}
+            new_choice_len = len(choice_ids_for_create)
+            update_choice_len = len(choice_ids_for_update)
+            delete_choice_len = len(choice_ids_for_delete)
+            if new_choice_len > 0:
                 choice_ids_for_create_dup = choice_ids_for_create.copy()
                 for i in choice_ids_for_create_dup:
                     create_text = request.POST['choice' + (str(i))]
@@ -599,10 +606,9 @@ class EditView(generic.View):
                     else:
                         create_data_for_text[i] = create_text
                         create_data_for_link[i] = request.POST['linkurl-choice' + (str(i))]
-                poll.add_choices(choice_ids_for_create, create_data_for_text, create_data_for_link)
-            if len(choice_ids_for_update) > 0:
-                update_data_for_text = {}
-                update_data_for_link = {}
+                existing_choice_texts['new'] = create_data_for_text
+                existing_choice_links['new'] = create_data_for_link
+            if update_choice_len > 0:
                 blank_choices = []
                 for i in choice_ids_for_update:
                     update_text = request.POST['choice' + (str(i))]
@@ -612,21 +618,31 @@ class EditView(generic.View):
                     else:
                         update_data_for_text[i] = update_text
                         update_data_for_link[i] = request.POST['linkurl-choice' + (str(i))]
-                if not choice_blank:
-                    poll.update_choices(choice_ids_for_update, update_data_for_text, update_data_for_link)
-            if len(choice_ids_for_delete) > 0:
-                poll.delete_choices(choice_ids_for_delete)
+                existing_choice_texts['existing'] = update_data_for_text
+                existing_choice_links['existing'] = update_data_for_link
 
+            # If any current poll choices are left blank by user
             if choice_blank:
+                ccount = Choice.objects.last().id + new_choice_len
                 return render(request, 'approval_polls/edit.html', {
                     'poll': poll,
                     'choices': choices,
                     'choice_blank_error': choice_blank,
+                    'choices_count': ccount,
                     'can_edit_poll': poll.can_edit(),
                     'blank_choices': blank_choices,
-                    'existing_choice_texts': update_data_for_text,
-                    'existing_choice_links': update_data_for_link
+                    'existing_choice_texts': existing_choice_texts,
+                    'existing_choice_links': existing_choice_links
                 })
+
+            # No current poll choices are blank, so go ahead and update, create, delete choices
+            if new_choice_len > 0:
+                poll.add_choices(choice_ids_for_create, create_data_for_text, create_data_for_link)
+            if update_choice_len > 0:
+                poll.update_choices(choice_ids_for_update, update_data_for_text, update_data_for_link)
+            if delete_choice_len > 0:
+                poll.delete_choices(choice_ids_for_delete)
+
             poll.save()
 
         return HttpResponseRedirect(
