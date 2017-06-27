@@ -25,3 +25,17 @@ def get_range(value):
     Instead of 3 one may use the variable set in the views
     """
     return range(1, value)
+
+
+@register.filter
+def get_item(value, arg):
+    val = value.get(arg)
+    if val is not None:
+        return str(val)
+    else:
+        return val
+
+@register.filter
+def get_hash_item(value, arg):
+    val = value.get(arg)
+    return val
