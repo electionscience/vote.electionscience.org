@@ -571,6 +571,8 @@ class EditView(generic.View):
         poll.show_close_date = 'show-close-date' in request.POST
         poll.show_countdown = 'show-countdown' in request.POST
         poll.is_private = 'public-poll-visibility' not in request.POST
+        poll.show_write_in = 'show-write-in' in request.POST
+        poll.show_lead_color = 'show-lead-color' in request.POST
         poll.save()
         if poll.can_edit():
             if poll.question != request.POST['question']:

@@ -143,16 +143,16 @@
               <div class='checkbox'>
                 <label><input type='checkbox' name='show-countdown' id='checkbox2' value='' autocomplete='off' {% if poll.show_countdown%}checked{% endif %}>Display Poll Closing Countdown with this poll.</label>
               </div>
-<!--
+
               <hr>
               <p>Customize Poll</p>
               <div class='checkbox'>
-                <label><input type='checkbox' name='show-write-in' value=''>Permit Write-in option with this poll.</label>
+                <label><input type='checkbox' name='show-write-in' value='' {% if poll.show_write_in%}checked{% endif %}>Permit Write-in option with this poll.</label>
               </div>
               <div class='checkbox'>
-                <label><input type='checkbox' name='show-lead-color' value='' checked>Show Leading option in different color.</label>
+                <label><input type='checkbox' name='show-lead-color' value='' {% if poll.show_lead_color%}checked{% endif %}>Show Leading option in different color.</label>
               </div>
--->
+
             </div>
           </div>
         </div>
