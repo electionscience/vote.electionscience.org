@@ -10,6 +10,7 @@ urlpatterns = patterns(
     url(r'^my-polls/$', views.myPolls, name='my_polls'),
     url(r'^(?P<poll_id>\d+)/embed_instructions/$', views.embed_instructions, name='embed_instructions'),
     url(r'^(?P<poll_id>\d+)/vote/$', views.vote, name='vote'),
+    url(r'^(?P<poll_id>\d+)/edit/$', views.EditView.as_view(), name='edit'),
     url(r'^create/$', views.CreateView.as_view(), name='create'),
     url(r'^my-info/$', views.myInfo, name='my_info'),
     url(r'^set-user-timezone/$', views.set_user_timezone, name='set-user-timezone'),

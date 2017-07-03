@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% load filters %}
+
+{% block head %}
+  {% load staticfiles %}
+  <link rel="stylesheet" href='{% static 'vendor/jquery-datetimepicker/css/jquery.datetimepicker.css' %}'>
+  <link rel="stylesheet" href='{% static 'vendor/bootstrap-tokenfield/css/bootstrap-tokenfield.min.css' %}'> 
+  <script src='{% static 'vendor/jquery-datetimepicker/js/jquery.datetimepicker.full.min.js' %}'></script>
+  <script src='{% static 'vendor/bootstrap-tokenfield/js/bootstrap-tokenfield.min.js' %}'></script>
+  <script src='{% static 'approval_polls/create.js' %}'></script>
+  <script src='{% static 'approval_polls/edit.js' %}'></script>
+{% endblock %}
+
+{% block content %}
+
+<div class='row-fluid full-height'>
+  <div class='col-md-12'>
+    <form action="{% url 'approval_polls:edit' poll_id=poll.id %}" method='post'>
+      <legend> Edit: {{poll.question}}</legend>
+      <p>
+        {% if not can_edit_poll %}
+          You cannot edit the questions and choices as this poll has got ballots on it!
+        {% endif %}
+      </p>
+      {% csrf_token %}
+      <div class='form-group {% if question_error %} has-error {% endif %}'>
+        {% if question_error %}
+          <label class='control-label' for='question'>
+              {{ question_error }}
+          </label>
+        {% endif %}
+        <input type='text' class='form-control' maxlength='200' value='{{ poll.question }}'
+               name='question' size='28' placeholder='Poll Question' {% if not can_edit_poll %}disabled{% endif %}>
+      </div>
+      <input id='LastId' type='hidden' value='{{ choices_count }}'>
+      {% if choice_blank_error %}
+        <h5 style="color:#8B0000;"><b>Please ensure you've entered all choices correctly</b></h5>
+      {% endif %}
+      {% with existing_choice_texts_existing=existing_choice_texts|get_hash_item:'existing'%}
+      {% for choice in choices %}
+        {% with choice_id=choice.id %}
+        {% with box_text=existing_choice_texts_existing|get_item:choice_id %}
+        <div class='form-group {% if choice.id in blank_choices %}has-error {% endif %}'>
+          {% if choice_blank_error and choice_id in blank_choices %}
+            <label class='control-label' for='choice{{choice_id}}'>
+              Please ensure you have a value for the choice or remove it.
+            </label>
+          {% endif %}
+          <div class='input-group' id='div-choice{{ choice.pk }}'>
+            <input class='form-control' type='text' maxlength='200' name='choice{{ choice.pk }}' placeholder='Choice' value={%if choice_id in blank_choices%}''{% else %}'{{ box_text|default:choice.choice_text }}'{% endif %} {% if not can_edit_poll %}disabled{% endif %} >
+            {% if can_edit_poll %}
+              <span class='input-group-addon'>
+                <a href='#' class='add-link' id='link-choice{{ choice.pk }}' title='Add link' data-toggle='tooltip' data-placement='bottom'>
+                  <span class='glyphicon glyphicon-link'></span>
+                </a>
+              </span>
+              <span class='input-group-addon'>
+                <a href='#' class='remove-choice' id='remove-choice{{ choice.pk }}' title='Remove Choice' >
+                  <span class='glyphicon glyphicon-remove'></span>
+                </a>
+              </span>
+            {% endif %}
+            <input type='hidden' id='linkurl-choice{{ choice.pk }}' name='linkurl-choice{{ choice.pk }}' value=''>
+          </div>
+        </div>
+        {% endwith %}
+        {% endwith %}
+      {% endfor %}
+      {% endwith %}
+      {% with existing_choice_texts_new=existing_choice_texts|get_hash_item:'new' %}
+      {% for id, text in  existing_choice_texts_new.items %}
+        <div class='form-group'>
+          <div class='input-group' id='div-choice{{ id }}'>
+            <input class='form-control' type='text' maxlength='200' name='choice{{ id }}' placeholder='Choice' value='{{ text }}'>
+              <span class='input-group-addon'>
+                <a href='#' class='add-link' id='link-choice{{ id }}' title='Add link' data-toggle='tooltip' data-placement='bottom'>
+                  <span class='glyphicon glyphicon-link'></span>
+                </a>
+              </span>
+              <span class='input-group-addon'>
+                <a href='#' class='remove-choice' id='remove-choice{{ id }}' title='Remove Choice' >
+                  <span class='glyphicon glyphicon-remove'></span>
+                </a>
+              </span>
+            <input type='hidden' id='linkurl-choice{{ id }}' name='linkurl-choice{{ id }}' value=''>
+          </div>
+        </div>
+      {% endfor %}
+      {% endwith %}
+      <p>
+        <button type='button' class='btn btn-primary btn-sm' 
+          id='add-choice-edit' title='Add choice' data-toggle='tooltip' 
+          data-placement='bottom'{% if not can_edit_poll %}disabled{% endif %}>
+          <i class='glyphicon glyphicon-plus'></i> 
+        </button>
+      </p>
+      <!-- Add the collapsible poll settings panel here -->
+      <div class='panel-group' id='accordion' role='tablist' aria-multiselectable='true'>
+        <div class='panel panel-default'>
+          <div class='panel-heading' role='tab' id='headingOne'>
+            <h4 class='panel-title'>
+              <a role='button' data-toggle='collapse' data-parent='#accordion' href='#collapsePollSettings' aria-expanded='true' aria-controls='collapsePollSettings'>
+               Poll Settings
+              </a>
+            </h4>
+          </div>
+
+          <div id='collapsePollSettings' class='panel-collapse' role='tabpanel' aria-labelledby='headingOne'>
+            <div class='panel-body'>
+<!--
+             Who should be allowed to vote in this poll ?
+              <div class='radio'>
+                <label><input type='radio' name='radio-poll-type' {% if poll.vtype == 1 %} checked='true' {% endif %} value='1'>Anyone (No restriction on the number of ballots per user).</label>
+              </div>
+              <div class='radio'>
+                <label><input type='radio' name='radio-poll-type' {% if poll.vtype == 2 %} checked='true' {% endif %} value='2'>Only users with registered accounts (restricted to one ballot per user, requires login).</label>
+              </div>
+              <div class='radio'>
+                <label class='full-width'><input type='radio' name='radio-poll-type' {% if poll.vtype == 3 %} checked='true' {% endif %} value='3'>Only specific Email owners (will be invited by Email).
+                  <div id='email-input' hidden>
+                    <h6>Enter comma-separated Email IDs:</h6>
+                    <input type='text' name='token-emails' class='form-control' id='tokenEmailField' placeholder='Email IDs' />
+                    <label id='email-error' for='token-emails' class='alert alert-danger full-width' hidden>One or more Email addresses are invalid.
+                    </label>  
+                  </div>
+                </label>
+              </div>
+              <hr>
+-->
+              <p>Poll Visibility</p>
+              <div class='checkbox'>
+                <label><input type='checkbox' id='poll-visibility' name='public-poll-visibility' value='' autocomplete='off' {% if poll.is_private %}{% else %}checked{% endif %}>List this poll on the home page.</label>
+              </div>
+              <hr>
+              <div class = 'datetimepicker'>
+                <p>Please select a closing date and time for this poll, if any</p>
+                <input id='datetimepicker' type='text' class='form-control' name='close-datetime' value='{{closedatetime}}' placeholder='Poll Closing Date' style='background-color: white;' readonly>
+              </div>
+              <div class='checkbox'>
+                <label><input type='checkbox' name='show-close-date' id='checkbox1' value='' autocomplete='off' {% if poll.show_close_date%}checked{% endif %}>Display Poll Closing Date with this poll.</label>
+              </div>
+              <div class='checkbox'>
+                <label><input type='checkbox' name='show-countdown' id='checkbox2' value='' autocomplete='off' {% if poll.show_countdown%}checked{% endif %}>Display Poll Closing Countdown with this poll.</label>
+              </div>
+<!--
+              <hr>
+              <p>Customize Poll</p>
+              <div class='checkbox'>
+                <label><input type='checkbox' name='show-write-in' value=''>Permit Write-in option with this poll.</label>
+              </div>
+              <div class='checkbox'>
+                <label><input type='checkbox' name='show-lead-color' value='' checked>Show Leading option in different color.</label>
+              </div>
+-->
+            </div>
+          </div>
+        </div>
+      </div>
+      <button type='submit' class='btn btn-success pull-right'>Save</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -48,7 +48,7 @@
       {% endif %}
       <div class='text-center'>
         {% if poll.vtype == 3 and not poll.is_closed %}
-          {% if vote_invitation %} 
+          {% if vote_invitation %}
             <input type='hidden' name='invitation_key' value={{ vote_invitation.key }}>
             <input type='hidden' name='invitation_email' value={{ vote_invitation.email }}>
           {% else %}
@@ -112,11 +112,15 @@
   <div class='col-md-12'>
     <p class='text-center'>
       This poll uses approval voting, instead of the more common plurality system.
-      <a href='http://www.electology.org/approval-voting'>Learn why it's better</a> and 
+      <a href='http://www.electology.org/approval-voting'>Learn why it's better</a> and
       <a href='{% url 'approval_polls:create' %}' target='_top'>create your own poll</a>.
     </p>
   </div>
 </div>
 
-{% endblock %}
+<div class='row-fluid top-buffer'>
+  <div id='share' align='center'>
+  </div>
+</div>
 
+{% endblock %}

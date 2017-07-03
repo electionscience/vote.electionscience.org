@@ -6,10 +6,14 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel='stylesheet' type='text/css' href='{% static 'vendor/bootstrap/css/bootstrap.min.css' %}'>
-    <link rel='stylesheet' type='text/css' href='{% static 'approval_polls/style.css' %}'>    
+    <link rel='stylesheet' type='text/css' href='{% static 'approval_polls/style.css' %}'>
+    <link rel='stylesheet' type='text/css' href='{% static 'vendor/font-awesome/css/font-awesome.css' %}'>
+    <link rel='stylesheet' type='text/css' href='{% static 'vendor/js-socials/jssocials.css' %}'>
+    <link rel='stylesheet' type='text/css' href='{% static 'vendor/js-socials/jssocials-theme-flat.css' %}'>
     <script src='{% static 'vendor/jquery-1.11.3.min.js' %}'></script>
-    <script src='{% static 'vendor/bootstrap/js/bootstrap.min.js' %}'></script>    
+    <script src='{% static 'vendor/bootstrap/js/bootstrap.min.js' %}'></script>
     <script src='{% static 'vendor/jstz/js/jstz.min.js' %}'></script>
+    <script src='{% static 'vendor/js-socials/jssocials.js' %}'></script>
     <title>Approval Polls from The Center for Election Science</title>
     {% block head %}{% endblock %}
   </head>
@@ -28,7 +32,7 @@
           .append('<input type="hidden" name="timezone" value='+timezone_name+'>')
           .append('<input type="hidden" name="current_path" value={{request.get_full_path}} >');
         $('#set_timezone').submit();
-      }  
+      }
     </script>
     <div class='container-fluid'>
       <div class='row-fluid'>
@@ -56,20 +60,20 @@
                 {% block login %}
                   {% if user.is_authenticated %}
                     <a href='{% url 'approval_polls:my_info' %}'>{{user.username}}</a> |
-                    <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a> | 
+                    <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a> |
                     <a href='{% url 'approval_polls:my_polls' %}'>Manage your polls</a>
                   {% else %}
                     {% if request.path != '/approval_polls/' %}
                       <a href="{% url 'auth_login' %}?next={{request.path}}">Login</a>
                     {% else %}
-                      <a href="{% url 'auth_login' %}">Login</a> 
+                      <a href="{% url 'auth_login' %}">Login</a>
                     {% endif %}
                   {% endif %}
                 {% endblock %}
               </p>
             </div>
           </div>
-          
+
         </div>
       </div>
     </div>

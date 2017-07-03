@@ -66,3 +66,27 @@ class NewUsernameForm(forms.Form):
         raise forms.ValidationError(
             "A user with that username already exists."
         )
+
+class ManageSubscriptionsForm(forms.Form):
+    """
+    This form is used to manage user subscriptions 
+    """
+    zipcode = forms.CharField(
+        required=False,
+        label=_("Zip Code (for newsletter)")
+        )
+
+    newslettercheckbox = forms.BooleanField(required=False)
+
+    def clean(self):
+        cleaned_data = super(ManageSubscriptionsForm, self).clean()
+        zipcode = cleaned_data.get('zipcode')
+        newslettercheckbox = cleaned_data.get('newslettercheckbox')
+        if newslettercheckbox:
+            if zipcode:
+                if len(zipcode) != 5 or not zipcode.isdigit():
+                    msg = "Please enter a zip code (5 digits, Non-U.S. : 00000)"
+                    self.add_error('zipcode', msg)
+            else:
+                msg = "This field is required."
+                self.add_error('zipcode', msg)

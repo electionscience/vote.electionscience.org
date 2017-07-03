@@ -21,6 +21,7 @@ Dependencies
 7. [requests-oauthlib (0.6.0)](https://pypi.python.org/pypi/requests-oauthlib/0.6.0)
 8. [python-social-auth (0.2.13)](https://pypi.python.org/pypi/python-social-auth/0.2.13)
 9. [mailchimp (2.0.9)](https://pypi.python.org/pypi/mailchimp/2.0.9)
+10. [django-extensions (1.7.9)](http://django-extensions.readthedocs.io/en/latest/installation_instructions.html)
 
 **Option 2** (Recommend) : Use virtualenv and pip
 

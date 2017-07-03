@@ -44,6 +44,33 @@ class Poll(models.Model):
     def __unicode__(self):
         return self.question
 
+    def can_edit(self):
+        return self.total_ballots() == 0
+
+    def add_choices(self, ids, text_data, link_data):
+        for n in ids:
+            self.choice_set.create(
+                choice_text=text_data[n],
+                choice_link=link_data[n]
+            )
+
+    def update_choices(self, ids, text_data, link_data):
+        for u in ids:
+            c = Choice.objects.get(id=u)
+            setattr(c, 'choice_text', text_data[u])
+            if not (c.choice_link is None and len(link_data[u]) == 0):
+                setattr(c, 'choice_link', link_data[u])
+            c.save()
+
+    def delete_choices(self, ids):
+        for d in ids:
+            cho_d = Choice.objects.get(id=d)
+            cho_d.delete()
+            '''
+              Recommended by RelatedManager, but hasn't worked locally
+              self.choice_set.remove(cho_d)
+            '''
+
 
 class Choice(models.Model):
     poll = models.ForeignKey(Poll)
@@ -137,3 +164,8 @@ class VoteInvitation(models.Model):
 
     def __unicode__(self):
         return str(self.email) + " for Poll:" + str(self.poll.id)
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(User)
+    zipcode = models.CharField(max_length=5)

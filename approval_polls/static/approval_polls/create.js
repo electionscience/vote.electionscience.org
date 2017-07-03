@@ -1,33 +1,40 @@
 $(function () {
-  var that = this;
-  this.numChoiceFields = 4;
+  var that = this; 
+  this.lastId = undefined;
   var changeDateLogic, roundMinutes, setDefaultOptions, changeDisabledOptions;
   var validateTokenField;
-
   /* Add an extra textfield for a poll choice on the poll creation page. */
-  this.addChoiceField = function () {
+  function addChoiceField(numChoiceFields) {
     var formGroup, input;
-
-    this.numChoiceFields++;
+    numChoiceFields++;
+    that.lastId = numChoiceFields;
     formGroup = $("<div class='form-group'></div>");
-    input = $("<div class='input-group' id='div-choice" + this.numChoiceFields + "'><input class='form-control' type='text' maxlength=200 name='choice" +
-            this.numChoiceFields + "' placeholder='Choice " +
-            this.numChoiceFields + "'><span class='input-group-addon'>"+
-            "<a href='#' class='add-link' id='link-choice" + this.numChoiceFields + "' title='Add link' data-toggle='tooltip' data-placement='bottom'>"+
+    input = $("<div class='input-group' id='div-choice" + numChoiceFields + "'><input class='form-control' type='text' maxlength=200 name='choice" +
+            numChoiceFields + "' placeholder='Choice'" +
+            "'><span class='input-group-addon'>"+
+            "<a href='#' class='add-link' id='link-choice" + numChoiceFields + "' title='Add link' data-toggle='tooltip' data-placement='bottom'>"+
             "<span class='glyphicon glyphicon-link'></span></a></span>" +
             "<span class='input-group-addon'>"+
-            "<a href='#' class='remove-choice' id='remove-choice" + this.numChoiceFields + "' title='Remove Choice' >"+
+            "<a href='#' class='remove-choice' id='remove-choice" + numChoiceFields + "' title='Remove Choice' >"+
             "<span class='glyphicon glyphicon-remove'></span></a></span>" +
-            "<input type='hidden' id='linkurl-choice" + this.numChoiceFields + "' name='linkurl-choice" + this.numChoiceFields + "' value=''></div>");
-
+            "<input type='hidden' id='linkurl-choice" + numChoiceFields + "' name='linkurl-choice" + numChoiceFields + "' value=''></div>");
+  
     formGroup.append(input);
-
+  
     $('.form-group').last().after(formGroup);
     $('[data-toggle=tooltip]').tooltip();
   };
+  $('button#add-choice').on('click',function(){addChoiceField(that.lastId || 4)});
+
+  $('button#add-choice-edit').on('click', function() {
+    if (that.lastId == undefined) {
+      that.lastId = parseInt($('#LastId').val()); 
+    }
+    addChoiceField(that.lastId);
+  });
+
 
   $('[data-toggle=tooltip]').tooltip();
-  $('button#add-choice').click($.proxy(this.addChoiceField, this));
 
   /* Allow user to attach an external link to an option. */
 
@@ -117,10 +124,8 @@ $(function () {
   })
   .on('click', 'a.remove-choice', function(e) {
     e.preventDefault();
-    console.log(e);
     var container = $(e.currentTarget).closest('.input-group');
     container.remove();
-    that.numChoiceFields--;
     return false;
   });
 
