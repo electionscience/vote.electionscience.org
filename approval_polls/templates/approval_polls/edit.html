@@ -108,7 +108,7 @@
 
           <div id='collapsePollSettings' class='panel-collapse' role='tabpanel' aria-labelledby='headingOne'>
             <div class='panel-body'>
-<!--
+
              Who should be allowed to vote in this poll ?
               <div class='radio'>
                 <label><input type='radio' name='radio-poll-type' {% if poll.vtype == 1 %} checked='true' {% endif %} value='1'>Anyone (No restriction on the number of ballots per user).</label>
@@ -119,7 +119,7 @@
               <div class='radio'>
                 <label class='full-width'><input type='radio' name='radio-poll-type' {% if poll.vtype == 3 %} checked='true' {% endif %} value='3'>Only specific Email owners (will be invited by Email).
                   <div id='email-input' hidden>
-                    <h6>Enter comma-separated Email IDs:</h6>
+                    <h6>Enter a comma after each email address:</h6>
                     <input type='text' name='token-emails' class='form-control' id='tokenEmailField' placeholder='Email IDs' />
                     <label id='email-error' for='token-emails' class='alert alert-danger full-width' hidden>One or more Email addresses are invalid.
                     </label>  
@@ -127,7 +127,7 @@
                 </label>
               </div>
               <hr>
--->
+
               <p>Poll Visibility</p>
               <div class='checkbox'>
                 <label><input type='checkbox' id='poll-visibility' name='public-poll-visibility' value='' autocomplete='off' {% if poll.is_private %}{% else %}checked{% endif %}>List this poll on the home page.</label>

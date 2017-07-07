@@ -1,3 +1,5 @@
+import re
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
@@ -70,6 +72,24 @@ class Poll(models.Model):
               Recommended by RelatedManager, but hasn't worked locally
               self.choice_set.remove(cho_d)
             '''
+    def send_vote_invitations(self, emails):
+        # Get all the email Ids to store in the DB.
+        email_list = []
+        for email in emails.split(','):
+            if (re.match("([^@|\s]+@[^@]+\.[^@|\s]+)", email.strip())):
+                email_list.append(email.strip())
+            email_list = list(set(email_list))
+
+        # Add in the vote invitation info, if any.
+        for email in email_list:
+            vi = VoteInvitation(
+                email=email,
+                sent_date=timezone.now(),
+                poll=self,
+                key=VoteInvitation.generate_key(),
+            )
+            vi.save()
+            vi.send_email()
 
 
 class Choice(models.Model):
