@@ -571,3 +571,35 @@ class PollVisibilityTests(TestCase):
             response.context['latest_poll_list'],
             [],
         )
+
+
+class PollEditTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        poll = create_poll(
+            question='Create Sample Poll.',
+            close_date=timezone.now() + datetime.timedelta(days=3),
+        )
+        poll.choice_set.create(choice_text='Choice 1.')
+
+    def test_edit_view_with_invalid_poll(self):
+        """
+        Requesting the edit page of a non-existent poll should
+        return a 404 not found error.
+        """
+        self.client.login(username='user1', password='test')
+        response = self.client.get(reverse('approval_polls:edit',
+            args=(10000,)))
+        self.assertEqual(response.status_code, 404)
+
+    def test_edit_view_visibile_to_other_user(self):
+        """
+        The edit page of a poll belonging to one user should not be
+        visible to another user. It should return a permission denied (403) error.
+        """
+        User.objects.create_user('user2', 'user2@example.com', 'test')
+        self.client.logout()
+        self.client.login(username='user2', password='test')
+        response = self.client.get(reverse('approval_polls:edit',
+            args=(1,)))
+        self.assertEqual(response.status_code, 403)
