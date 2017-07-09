@@ -16,6 +16,7 @@
 
 <div class='row-fluid full-height'>
   <div class='col-md-12'>
+    <input id='poll-vtype' type='hidden' value={{ poll.vtype }}>
     <form action="{% url 'approval_polls:edit' poll_id=poll.id %}" method='post'>
       <legend> Edit: {{poll.question}}</legend>
       <p>
