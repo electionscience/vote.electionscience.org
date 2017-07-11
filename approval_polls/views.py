@@ -4,9 +4,10 @@ import sets
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -529,9 +530,14 @@ class EditView(generic.View):
 
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
+        try:
+            poll = Poll.objects.get(id=kwargs['poll_id'])
+        except Poll.DoesNotExist:
+            raise Http404("Poll does not exist")
 
-        # TODO handle polls that don't exist.
-        poll = Poll.objects.get(id=kwargs['poll_id'])
+        if request.user != poll.user and not request.user.is_staff:
+            raise PermissionDenied
+
         choices = Choice.objects.filter(poll=kwargs['poll_id'])
         # convert closedatetime to localtime.
         if poll.close_date:

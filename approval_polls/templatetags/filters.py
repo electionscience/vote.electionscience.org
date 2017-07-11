@@ -35,6 +35,7 @@ def get_item(value, arg):
     else:
         return val
 
+
 @register.filter
 def get_hash_item(value, arg):
     val = value.get(arg)
