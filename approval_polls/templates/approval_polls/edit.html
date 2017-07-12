@@ -17,6 +17,10 @@
 <div class='row-fluid full-height'>
   <div class='col-md-12'>
     <input id='poll-vtype' type='hidden' value={{ poll.vtype }}>
+    <input id='poll-id' type='hidden' value={{ poll.id }}>
+    {% if poll.vtype == 3 %}
+      poll.invited_emails 
+    {% endif %}
     <form action="{% url 'approval_polls:edit' poll_id=poll.id %}" method='post'>
       <legend> Edit: {{poll.question}}</legend>
       <p>
@@ -119,6 +123,9 @@
               </div>
               <div class='radio'>
                 <label class='full-width'><input type='radio' name='radio-poll-type' {% if poll.vtype == 3 %} checked='true' {% endif %} value='3'>Only specific Email owners (will be invited by Email).
+                  <div id='existing-email-input' hidden>
+                    <input type='text' name='token-emails-existing' class='form-control' id='tokenEmailFieldExisting' />
+                  </div>
                   <div id='email-input' hidden>
                     <h6>Enter a comma after each email address:</h6>
                     <input type='text' name='token-emails' class='form-control' id='tokenEmailField' placeholder='Email IDs' />

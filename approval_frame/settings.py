@@ -163,6 +163,7 @@ INSTALLED_APPS = (
     'registration',
     'django_extensions',
     'social.apps.django_app.default',
+    'django_ajax'
 )
 
 ACCOUNT_ACTIVATION_DAYS = 7

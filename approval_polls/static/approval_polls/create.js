@@ -3,6 +3,7 @@ $(function () {
   this.lastId = undefined;
   var changeDateLogic, roundMinutes, setDefaultOptions, changeDisabledOptions;
   var validateTokenField;
+  var invitedEmails;
   /* Add an extra textfield for a poll choice on the poll creation page. */
   function addChoiceField(numChoiceFields) {
     var formGroup, input;
@@ -271,6 +272,25 @@ $(function () {
   // For edit page, display email text field if poll.vtype is 3
   if ($('#poll-vtype').val() == 3) {
     emailPollDisplay();
+    f1 = function() {
+      var emails;
+      $.ajax({
+        url: "/approval_polls/"+$('#poll-id').val()+"/invited_emails",
+      })
+      .done(function( data ) {
+        emails = data.content.invited_emails;
+      });
+      return emails;
+    };
+    invitedEmails = f1();
+    console.log(invitedEmails);
+    $('#tokenEmailField').tokenfield({
+      autocomplete: {
+        source: invitedEmails,
+        delay: 100
+      },
+      showAutocompleteOnFocus: true
+    });
   }
 
   // Toggle the visibility of the email input

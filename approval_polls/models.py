@@ -90,7 +90,9 @@ class Poll(models.Model):
             )
             vi.save()
             vi.send_email()
-
+  
+    def invited_emails(self):
+        return [str(vi.email) for vi in self.voteinvitation_set.all()]
 
 class Choice(models.Model):
     poll = models.ForeignKey(Poll)
