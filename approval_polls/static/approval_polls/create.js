@@ -3,7 +3,7 @@ $(function () {
   this.lastId = undefined;
   var changeDateLogic, roundMinutes, setDefaultOptions, changeDisabledOptions;
   var validateTokenField;
-  var invitedEmails;
+  var invitedEmails = [];
   /* Add an extra textfield for a poll choice on the poll creation page. */
   function addChoiceField(numChoiceFields) {
     var formGroup, input;
@@ -25,15 +25,14 @@ $(function () {
     $('.form-group').last().after(formGroup);
     $('[data-toggle=tooltip]').tooltip();
   };
+  $('#existing-email-input').show();
   $('button#add-choice').on('click',function(){addChoiceField(that.lastId || 4)});
-
   $('button#add-choice-edit').on('click', function() {
     if (that.lastId == undefined) {
       that.lastId = parseInt($('#LastId').val()); 
     }
     addChoiceField(that.lastId);
   });
-
 
   $('[data-toggle=tooltip]').tooltip();
 
@@ -271,8 +270,7 @@ $(function () {
 
   // For edit page, display email text field if poll.vtype is 3
   if ($('#poll-vtype').val() == 3) {
-    emailPollDisplay();
-    f1 = function() {
+    get_existing_emails = function() {
       var emails;
       $.ajax({
         url: "/approval_polls/"+$('#poll-id').val()+"/invited_emails",
@@ -282,11 +280,17 @@ $(function () {
       });
       return emails;
     };
-    invitedEmails = f1();
+    invitedEmails = get_existing_emails();
     console.log(invitedEmails);
-    $('#tokenEmailField').tokenfield({
+    emailPollDisplay();
+    $('#existing-email-input').show();
+    $('#tokenEmailFieldExisting').
+      tokenfield().
+      tokenfield('readonly').
+      tokenfield('setTokens', ['a@a.com','b@b.com']);
+    $('#tokenEmailFieldExisting').tokenfield().tokenfield({
       autocomplete: {
-        source: invitedEmails,
+        source: ['a@a.com','b@b.com'],
         delay: 100
       },
       showAutocompleteOnFocus: true
@@ -301,6 +305,7 @@ $(function () {
     else {
       $('#email-input').hide();
       $('#poll-visibility').prop('checked', true);
+      $('#existing-email-input').show();
     }
   });
 

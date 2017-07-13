@@ -6,6 +6,9 @@
   {% load staticfiles %}
   <link rel="stylesheet" href='{% static 'vendor/jquery-datetimepicker/css/jquery.datetimepicker.css' %}'>
   <link rel="stylesheet" href='{% static 'vendor/bootstrap-tokenfield/css/bootstrap-tokenfield.min.css' %}'> 
+  <!--link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css"--!>
+  <!--script src="//code.jquery.com/jquery-1.12.4.js"></script--!>
+  <!--script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script--!>
   <script src='{% static 'vendor/jquery-datetimepicker/js/jquery.datetimepicker.full.min.js' %}'></script>
   <script src='{% static 'vendor/bootstrap-tokenfield/js/bootstrap-tokenfield.min.js' %}'></script>
   <script src='{% static 'approval_polls/create.js' %}'></script>
@@ -79,7 +82,7 @@
               <div class='radio'>
                 <label class='full-width'><input type='radio' name='radio-poll-type' value='3'>Only specific Email owners (will be invited by Email).
                   <div id='email-input' hidden>
-                    <h6>Enter a comma after each email address:</h6>
+                    <h6>(Enter a comma after each email ID:)</h6>
                     <input type='text' name='token-emails' class='form-control' id='tokenEmailField' placeholder='Email IDs' />
                     <label id='email-error' for='token-emails' class='alert alert-danger full-width' hidden>One or more Email addresses are invalid.
                     </label>  

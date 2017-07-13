@@ -124,10 +124,11 @@
               <div class='radio'>
                 <label class='full-width'><input type='radio' name='radio-poll-type' {% if poll.vtype == 3 %} checked='true' {% endif %} value='3'>Only specific Email owners (will be invited by Email).
                   <div id='existing-email-input' hidden>
+                    <h6>List of current email invitees:</h6>
                     <input type='text' name='token-emails-existing' class='form-control' id='tokenEmailFieldExisting' />
                   </div>
                   <div id='email-input' hidden>
-                    <h6>Enter a comma after each email address:</h6>
+                    <h6>(Enter a comma after each email ID:)</h6>
                     <input type='text' name='token-emails' class='form-control' id='tokenEmailField' placeholder='Email IDs' />
                     <label id='email-error' for='token-emails' class='alert alert-danger full-width' hidden>One or more Email addresses are invalid.
                     </label>  
