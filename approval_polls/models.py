@@ -94,6 +94,7 @@ class Poll(models.Model):
     def invited_emails(self):
         return [str(vi.email) for vi in self.voteinvitation_set.all()]
 
+
 class Choice(models.Model):
     poll = models.ForeignKey(Poll)
     choice_text = models.CharField(max_length=200)

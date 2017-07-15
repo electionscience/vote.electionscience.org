@@ -3,7 +3,6 @@ $(function () {
   this.lastId = undefined;
   var changeDateLogic, roundMinutes, setDefaultOptions, changeDisabledOptions;
   var validateTokenField;
-  var invitedEmails = [];
   /* Add an extra textfield for a poll choice on the poll creation page. */
   function addChoiceField(numChoiceFields) {
     var formGroup, input;

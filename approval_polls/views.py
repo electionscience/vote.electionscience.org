@@ -1,6 +1,7 @@
 import datetime
 import re
 import sets
+import logging
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -591,6 +592,9 @@ class EditView(generic.View):
             poll_choice_ids = [choice.id for choice in choices]
             request_choice_ids_set = sets.Set(request_choice_ids)
             poll_choice_ids_set = sets.Set(poll_choice_ids)
+            logging.basicConfig(level=logging.ERROR)
+            logger = logging.getLogger(__name__)
+            #logger.error(request.POST)
             choice_ids_for_create = request_choice_ids_set - poll_choice_ids_set
             choice_ids_for_delete = poll_choice_ids_set - request_choice_ids_set
             choice_ids_for_update = poll_choice_ids_set & request_choice_ids_set

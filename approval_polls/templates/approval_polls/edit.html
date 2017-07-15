@@ -18,9 +18,6 @@
   <div class='col-md-12'>
     <input id='poll-vtype' type='hidden' value={{ poll.vtype }}>
     <input id='poll-id' type='hidden' value={{ poll.id }}>
-    {% if poll.vtype == 3 %}
-      poll.invited_emails 
-    {% endif %}
     <form action="{% url 'approval_polls:edit' poll_id=poll.id %}" method='post'>
       <legend> Edit: {{poll.question}}</legend>
       <p>
