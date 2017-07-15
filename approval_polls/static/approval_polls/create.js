@@ -25,7 +25,6 @@ $(function () {
     $('.form-group').last().after(formGroup);
     $('[data-toggle=tooltip]').tooltip();
   };
-  $('#existing-email-input').show();
   $('button#add-choice').on('click',function(){addChoiceField(that.lastId || 4)});
   $('button#add-choice-edit').on('click', function() {
     if (that.lastId == undefined) {
@@ -270,31 +269,7 @@ $(function () {
 
   // For edit page, display email text field if poll.vtype is 3
   if ($('#poll-vtype').val() == 3) {
-    get_existing_emails = function() {
-      var emails;
-      $.ajax({
-        url: "/approval_polls/"+$('#poll-id').val()+"/invited_emails",
-      })
-      .done(function( data ) {
-        emails = data.content.invited_emails;
-      });
-      return emails;
-    };
-    invitedEmails = get_existing_emails();
-    console.log(invitedEmails);
     emailPollDisplay();
-    $('#existing-email-input').show();
-    $('#tokenEmailFieldExisting').
-      tokenfield().
-      tokenfield('readonly').
-      tokenfield('setTokens', ['a@a.com','b@b.com']);
-    $('#tokenEmailFieldExisting').tokenfield().tokenfield({
-      autocomplete: {
-        source: ['a@a.com','b@b.com'],
-        delay: 100
-      },
-      showAutocompleteOnFocus: true
-    });
   }
 
   // Toggle the visibility of the email input
@@ -305,13 +280,14 @@ $(function () {
     else {
       $('#email-input').hide();
       $('#poll-visibility').prop('checked', true);
-      $('#existing-email-input').show();
+      $('#existing-emails').hide();
     }
   });
 
   function emailPollDisplay() {
     $('#email-input').show();
     $('#poll-visibility').prop('checked', false);
+    $('#existing-emails').show();
   }     
 });
 
