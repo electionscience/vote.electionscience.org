@@ -629,15 +629,14 @@ class PollEditTests(TestCase):
         New choices should be added in the poll and
         existing should be updated
         '''
-        self.client.post(reverse('approval_polls:edit',
-                         args=(1,)), {
-                           'choice1': 'xxx',
-                           'linkurl-choice1': 'xxx',
-                           'choice1000': u'BBBBB',
-                           'linkurl-choice1000': u'BBBBBBBB',
-                           'close-datetime': 'bb',
-                           'question': 'q'}
-        )
+        self.client.post(reverse('approval_polls:edit', args=(1,)), {
+            'choice1': 'xxx',
+            'linkurl-choice1': 'xxx',
+            'choice1000': u'BBBBB',
+            'linkurl-choice1000': u'BBBBBBBB',
+            'close-datetime': 'bb',
+            'question': 'q'
+        })
         self.assertEqual(Poll.objects.get(id=self.poll.id).choice_set.count(), 2)
         self.assertEqual(Choice.objects.get(id=self.choice.id).choice_text, 'xxx')
 
@@ -652,7 +651,13 @@ class PollEditTests(TestCase):
         self.assertEqual(
             response.context['can_edit_poll'], False
         )
-        self.client.post(reverse('approval_polls:edit',
-            args=(1,)), {'choice1':'xxx', 'linkurl-choice1':'xxx', 'choice1000': u'BBBBB', 'linkurl-choice1000': u'BBBBBBBB', 'close-datetime': 'bb', 'question': 'q'})
+        self.client.post(reverse('approval_polls:edit', args=(1,)), {
+            'choice1': 'xxx',
+            'linkurl-choice1': 'xxx',
+            'choice1000': u'BBBBB',
+            'linkurl-choice1000': u'BBBBBBBB',
+            'close-datetime': 'bb',
+            'question': 'q'
+        })
         self.assertEqual(Poll.objects.get(id=self.poll.id).choice_set.count(), 1)
         self.assertEqual(Choice.objects.get(id=self.choice.id).choice_text, 'Choice 1.')

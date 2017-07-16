@@ -121,8 +121,8 @@
               <div class='radio'>
                 <label class='full-width'><input type='radio' name='radio-poll-type' {% if poll.vtype == 3 %} checked='true' {% endif %} value='3'>Only specific Email owners (will be invited by Email).
                   <div id='existing-emails' hidden>
-                    <h6>List of current email invitees:</h6>
-                    <h6>{{ invited_emails }}</h6>
+                    <h6>List of current email invitees(You can copy either of these and paste into the field below):</h6>
+                    <h6>{{ invited_emails|default:'No current invitees' }}</h6>
                   </div>
                   <div id='email-input' hidden>
                     <h6>(Enter a comma after each email ID:)</h6>
