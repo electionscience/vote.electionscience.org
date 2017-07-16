@@ -651,6 +651,7 @@ class PollEditTests(TestCase):
         self.assertEqual(
             response.context['can_edit_poll'], False
         )
+        self.assertContains(response, 'You cannot edit the questions and choices as this poll has got ballots on it!')
         self.client.post(reverse('approval_polls:edit', args=(1,)), {
             'choice1': 'xxx',
             'linkurl-choice1': 'xxx',
