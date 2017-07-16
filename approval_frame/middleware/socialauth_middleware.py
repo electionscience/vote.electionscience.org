@@ -1,3 +1,5 @@
+import sys
+
 from social.apps.django_app.middleware import SocialAuthExceptionMiddleware
 from social import exceptions as social_exceptions
 from django.http import HttpResponseRedirect
