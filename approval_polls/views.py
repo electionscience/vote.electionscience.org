@@ -13,7 +13,6 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import generic
 from django.views.decorators.http import require_http_methods
-from django_ajax.decorators import ajax
 
 from approval_polls.models import Ballot, Poll, VoteInvitation, Choice
 
@@ -42,12 +41,6 @@ def myInfo(request):
         'approval_polls/my_info.html',
         {'current_user': request.user}
     )
-
-
-@ajax
-def invitedEmails(request, poll_id):
-    p = Poll.objects.get(id=poll_id)
-    return {'invited_emails': p.invited_emails()}
 
 
 def set_user_timezone(request):

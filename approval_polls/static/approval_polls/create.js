@@ -25,6 +25,7 @@ $(function () {
     $('[data-toggle=tooltip]').tooltip();
   };
   $('button#add-choice').on('click',function(){addChoiceField(that.lastId || 4)});
+
   $('button#add-choice-edit').on('click', function() {
     if (that.lastId == undefined) {
       that.lastId = parseInt($('#LastId').val()); 
