@@ -67,9 +67,10 @@ class NewUsernameForm(forms.Form):
             "A user with that username already exists."
         )
 
+
 class ManageSubscriptionsForm(forms.Form):
     """
-    This form is used to manage user subscriptions 
+    This form is used to manage user subscriptions
     """
     zipcode = forms.CharField(
         required=False,

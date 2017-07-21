@@ -4,12 +4,14 @@ from approval_polls.models import Subscription
 from registration.signals import user_registered
 from django.dispatch import receiver
 
+
 def get_mailchimp_api():
     if settings.MAILCHIMP_API_KEY:
         key = settings.MAILCHIMP_API_KEY
     else:
         key = '00000000000000000000000000000000-us1'
     return mailchimp.Mailchimp(key)
+
 
 def update_subscription(subscription_preference, email, zipcode):
     try:
@@ -21,13 +23,14 @@ def update_subscription(subscription_preference, email, zipcode):
             m.lists.subscribe(list_id, {'email': email}, {'MMERGE3': zipcode})
         else:
             m.lists.unsubscribe(list_id, {'email': email}, {'MMERGE3': zipcode})
-    except mailchimp.ListAlreadySubscribedError: 
+    except mailchimp.ListAlreadySubscribedError:
         errors.append('newslettercheckbox')
         errors.append('That email is already subscribed to the list')
-    except mailchimp.Error, e:
-        errors.append('newslettercheckbox') 
+    except mailchimp.Error as e:
+        errors.append('newslettercheckbox')
         errors.append(e)
     return errors
+
 
 @receiver(user_registered)
 def receive_new_user_registered(sender, user, request, **kwargs):
