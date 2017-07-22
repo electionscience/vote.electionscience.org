@@ -11,4 +11,4 @@ class SocialAuthExceptionMiddleware(SocialAuthExceptionMiddleware):
         if isinstance(exception, social_exceptions.AuthCanceled):
             return HttpResponseRedirect(reverse('auth_login'))
         else:
-            raise exception, None, sys.exc_info()[2]
+            raise exception, None, sys.exc_info()[2]  # noqa:W602
