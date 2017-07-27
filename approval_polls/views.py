@@ -535,7 +535,7 @@ class EditView(generic.View):
             'choice_blank_error': False,
             'existing_choice_texts': {'new': {}, 'existing': {}},
             'existing_choice_links': {'new': {}, 'existing': {}},
-            'invited_emails': re.compile(r"\[(.*)\]").sub(r'\1', str(poll.invited_emails()))
+            'invited_emails': ','.join([str(r) for r in poll.invited_emails()])
         })
 
     @method_decorator(login_required)
@@ -629,7 +629,7 @@ class EditView(generic.View):
                     'blank_choices': blank_choices,
                     'existing_choice_texts': existing_choice_texts,
                     'existing_choice_links': existing_choice_links,
-                    'invited_emails': re.compile(r"\[(.*)\]").sub(r'\1', str(poll.invited_emails()))
+                    'invited_emails': ','.join([str(r) for r in poll.invited_emails()])
                 })
 
             # No current poll choices are blank, so go ahead and update, create, delete choices

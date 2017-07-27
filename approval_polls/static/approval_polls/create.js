@@ -286,8 +286,10 @@ $(function () {
 
   function emailPollDisplay() {
     $('#email-input').show();
-    $('#poll-visibility').prop('checked', false);
+    if ($('#poll-id') == undefined) {
+      $('#poll-visibility').prop('checked', false);
+    }
     $('#existing-emails').show();
-  }     
+  }
 });
 

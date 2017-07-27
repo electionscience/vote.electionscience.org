@@ -621,7 +621,7 @@ class PollEditTests(TestCase):
         response = self.client.get(reverse('approval_polls:edit',
             args=(1,)))
         self.assertEqual(
-            response.context['invited_emails'], "'test1@test1.com'"
+            response.context['invited_emails'], "test1@test1.com"
         )
 
     def test_new_choices_are_added(self):
