@@ -6,7 +6,7 @@ from django.dispatch import receiver
 
 
 def get_mailchimp_api():
-    if settings.MAILCHIMP_API_KEY:
+    if hasattr(settings, 'MAILCHIMP_API_KEY'):
         key = settings.MAILCHIMP_API_KEY
     else:
         key = '00000000000000000000000000000000-us1'
@@ -14,11 +14,11 @@ def get_mailchimp_api():
 
 
 def update_subscription(subscription_preference, email, zipcode):
+    errors = []
     try:
         m = get_mailchimp_api()
         lists = m.lists.list()
         list_id = lists['data'][0]['id']
-        errors = []
         if subscription_preference:
             m.lists.subscribe(list_id, {'email': email}, {'MMERGE3': zipcode})
         else:
