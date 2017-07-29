@@ -1,6 +1,6 @@
 About
 =====
-[![Build Status](https://api.travis-ci.org/Electology/approval_frame.svg?branch=master)](https://api.travis-ci.org/Electology/approval_frame.svg?branch=master)
+[![Build Status](https://api.travis-ci.org/electology/approval_frame.svg?branch=master)](https://api.travis-ci.org/electology/approval_frame.svg?branch=master)
 
 Lots of websites have polls, usually as a little side bar.
 But most of those polls are based on plurality voting, an inferior voting method.
