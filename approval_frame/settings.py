@@ -162,7 +162,7 @@ INSTALLED_APPS = (
     'approval_polls',
     'registration',
     'django_extensions',
-    'social.apps.django_app.default',
+    'social.apps.django_app.default'
 )
 
 ACCOUNT_ACTIVATION_DAYS = 7

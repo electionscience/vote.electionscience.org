@@ -395,7 +395,6 @@ class CreateView(generic.View):
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
         choices = []
-        email_list = []
 
         if 'question' not in request.POST:
             return render(
@@ -485,14 +484,6 @@ class CreateView(generic.View):
             else:
                 is_private = True
 
-            if vtype == '3':
-                # Get all the email Ids to store in the DB.
-                emails = request.POST['token-emails']
-                for email in emails.split(','):
-                    if (re.match("([^@|\s]+@[^@]+\.[^@|\s]+)", email.strip())):
-                        email_list.append(email.strip())
-                    email_list = list(set(email_list))
-
             p = Poll(
                 question=question,
                 pub_date=timezone.now(),
@@ -510,16 +501,8 @@ class CreateView(generic.View):
             for choice in choices:
                 p.choice_set.create(choice_text=choice[1], choice_link=choice[2])
 
-            # Add in the vote invitation info, if any.
-            for email in email_list:
-                vi = VoteInvitation(
-                    email=email,
-                    sent_date=timezone.now(),
-                    poll=p,
-                    key=VoteInvitation.generate_key(),
-                )
-                vi.save()
-                vi.send_email()
+            if vtype == '3':
+                p.send_vote_invitations(request.POST['token-emails'])
 
             return HttpResponseRedirect(
                 reverse('approval_polls:embed_instructions', args=(p.id,))
@@ -551,7 +534,8 @@ class EditView(generic.View):
             'blank_choices': [],
             'choice_blank_error': False,
             'existing_choice_texts': {'new': {}, 'existing': {}},
-            'existing_choice_links': {'new': {}, 'existing': {}}
+            'existing_choice_links': {'new': {}, 'existing': {}},
+            'invited_emails': ','.join([str(r) for r in poll.invited_emails()])
         })
 
     @method_decorator(login_required)
@@ -579,7 +563,11 @@ class EditView(generic.View):
         poll.is_private = 'public-poll-visibility' not in request.POST
         poll.show_write_in = 'show-write-in' in request.POST
         poll.show_lead_color = 'show-lead-color' in request.POST
+        if 'radio-poll-type' in request.POST:
+            poll.vtype = int(request.POST['radio-poll-type'])
         poll.save()
+        if 'token-emails' in request.POST:
+            poll.send_vote_invitations(request.POST['token-emails'])
         if poll.can_edit():
             if poll.question != request.POST['question']:
                 poll.question = request.POST['question'].strip()
@@ -640,7 +628,8 @@ class EditView(generic.View):
                     'can_edit_poll': poll.can_edit(),
                     'blank_choices': blank_choices,
                     'existing_choice_texts': existing_choice_texts,
-                    'existing_choice_links': existing_choice_links
+                    'existing_choice_links': existing_choice_links,
+                    'invited_emails': ','.join([str(r) for r in poll.invited_emails()])
                 })
 
             # No current poll choices are blank, so go ahead and update, create, delete choices

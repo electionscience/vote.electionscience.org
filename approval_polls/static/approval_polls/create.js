@@ -33,7 +33,6 @@ $(function () {
     addChoiceField(that.lastId);
   });
 
-
   $('[data-toggle=tooltip]').tooltip();
 
   /* Allow user to attach an external link to an option. */
@@ -268,15 +267,29 @@ $(function () {
   })
   .tokenfield();
 
-  // Toggle the visibility of the email input 
+  // For edit page, display email text field if poll.vtype is 3
+  if ($('#poll-vtype').val() == 3) {
+    emailPollDisplay();
+  }
+
+  // Toggle the visibility of the email input
   $('input[name=radio-poll-type]:radio').click(function() {
     if ($(this).attr('value') == 3) {
-      $('#email-input').show();
-      $('#poll-visibility').prop('checked', false);
+      emailPollDisplay();
     }
     else {
       $('#email-input').hide();
       $('#poll-visibility').prop('checked', true);
+      $('#existing-emails').hide();
     }
   });
+
+  function emailPollDisplay() {
+    $('#email-input').show();
+    if ($('#poll-id') == undefined) {
+      $('#poll-visibility').prop('checked', false);
+    }
+    $('#existing-emails').show();
+  }
 });
+

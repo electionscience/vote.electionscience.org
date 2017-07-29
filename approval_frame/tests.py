@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.test.client import Client
 
 from approval_frame.forms import RegistrationFormCustom
+from approval_polls.models import Subscription
 
 
 class UserLoginTests(TestCase):
@@ -282,3 +283,45 @@ class ChangePasswordTests(TestCase):
             )
         html_string = 'Your Password was changed.'
         self.assertContains(response, html_string)
+
+
+class UserSubscriptions(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user('user1', 'test1@gmail.com', 'user1')
+        self.user.save()
+        self.client.login(username='user1', password='user1')
+
+    def test_user_unsubscribed_by_default(self):
+        '''
+        User is unsubscribed by default
+        '''
+        response = self.client.get('/accounts/subscription/change/')
+        self.assertContains(response,
+            "<input type='checkbox' id='id_newslettercheckbox' name='newslettercheckbox' >",
+            html=True)
+
+    def test_user_subcribed(self):
+        '''
+        User subscribes to newsletter
+        '''
+        self.client.post('/accounts/subscription/change/', {u'newslettercheckbox': [u'on'], u'zipcode': [u'60660']})
+        response = self.client.get('/accounts/subscription/change/')
+        self.assertContains(response,
+            "<input type='checkbox' id='id_newslettercheckbox' name='newslettercheckbox' checked>",
+            html=True)
+        sub = Subscription.objects.filter(user=self.user)
+        self.assertEqual(sub.count(), 1)
+
+    def test_subscribed_user_unsubscribed(self):
+        '''
+        User unsubscribes from newsletter
+        '''
+        Subscription(user=self.user, zipcode='60660').save()
+        self.client.post('/accounts/subscription/change/', {})
+        response = self.client.get('/accounts/subscription/change/')
+        self.assertContains(response,
+            "<input type='checkbox' id='id_newslettercheckbox' name='newslettercheckbox' >",
+            html=True)
+        sub = Subscription.objects.filter(user=self.user)
+        self.assertEqual(sub.count(), 0)

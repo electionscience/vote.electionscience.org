@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.test.client import Client
 from django.utils import timezone
 
-from approval_polls.models import Poll
+from approval_polls.models import Poll, Choice
 
 
 def create_poll(question, username="user1", days=0, ballots=0, vtype=2, close_date=None, is_private=False):
@@ -38,6 +38,13 @@ def create_ballot(poll, timestamp=timezone.now(), ip='127.0.0.1'):
     Creates a ballot for the given `poll`, submitted at `timestamp` by `ip`.
     """
     return poll.ballot_set.create(timestamp=timestamp)
+
+
+def create_vote_invitation(poll, email):
+    """
+    Creates a vote invitation for the given `poll`, with specified `email`
+    """
+    return poll.voteinvitation_set.create(email=email, key='xxx')
 
 
 class PollIndexTests(TestCase):
@@ -576,23 +583,26 @@ class PollVisibilityTests(TestCase):
 class PollEditTests(TestCase):
     def setUp(self):
         self.client = Client()
-        poll = create_poll(
+        self.poll = create_poll(
             question='Create Sample Poll.',
             close_date=timezone.now() + datetime.timedelta(days=3),
+            vtype=3
         )
-        poll.choice_set.create(choice_text='Choice 1.')
+        create_vote_invitation(self.poll, email='test1@test1.com')
+        self.poll.choice_set.create(choice_text='Choice 1.')
+        self.choice = Choice.objects.get(poll_id=self.poll.id)
+        self.client.login(username='user1', password='test')
 
     def test_edit_view_with_invalid_poll(self):
         """
         Requesting the edit page of a non-existent poll should
         return a 404 not found error.
         """
-        self.client.login(username='user1', password='test')
         response = self.client.get(reverse('approval_polls:edit',
             args=(10000,)))
         self.assertEqual(response.status_code, 404)
 
-    def test_edit_view_visibile_to_other_user(self):
+    def test_edit_view_visible_to_other_user(self):
         """
         The edit page of a poll belonging to one user should not be
         visible to another user. It should return a permission denied (403) error.
@@ -603,3 +613,52 @@ class PollEditTests(TestCase):
         response = self.client.get(reverse('approval_polls:edit',
             args=(1,)))
         self.assertEqual(response.status_code, 403)
+
+    def test_email_invitees_are_returned(self):
+        """
+        The poll's edit page should list email invitees if poll.vtype is 3
+        """
+        response = self.client.get(reverse('approval_polls:edit',
+            args=(1,)))
+        self.assertEqual(
+            response.context['invited_emails'], "test1@test1.com"
+        )
+
+    def test_new_choices_are_added(self):
+        '''
+        New choices should be added in the poll and
+        existing should be updated
+        '''
+        self.client.post(reverse('approval_polls:edit', args=(1,)), {
+            'choice1': 'xxx',
+            'linkurl-choice1': 'xxx',
+            'choice1000': u'BBBBB',
+            'linkurl-choice1000': u'BBBBBBBB',
+            'close-datetime': 'bb',
+            'question': 'q'
+        })
+        self.assertEqual(Poll.objects.get(id=self.poll.id).choice_set.count(), 2)
+        self.assertEqual(Choice.objects.get(id=self.choice.id).choice_text, 'xxx')
+
+    def test_can_not_edit_poll(self):
+        '''
+        If ballots are on the poll, editing should not happen
+        '''
+        create_ballot(self.poll)
+        response = self.client.get(reverse('approval_polls:edit',
+           args=(1,)))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context['can_edit_poll'], False
+        )
+        self.assertContains(response, 'You cannot edit the questions and choices as this poll has got ballots on it!')
+        self.client.post(reverse('approval_polls:edit', args=(1,)), {
+            'choice1': 'xxx',
+            'linkurl-choice1': 'xxx',
+            'choice1000': u'BBBBB',
+            'linkurl-choice1000': u'BBBBBBBB',
+            'close-datetime': 'bb',
+            'question': 'q'
+        })
+        self.assertEqual(Poll.objects.get(id=self.poll.id).choice_set.count(), 1)
+        self.assertEqual(Choice.objects.get(id=self.choice.id).choice_text, 'Choice 1.')
