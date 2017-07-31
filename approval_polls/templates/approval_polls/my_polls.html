@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load filters %}
+
 {% block head %}
   {% load staticfiles %}
   <script src='{% static 'approval_polls/my_polls.js' %}'></script>
@@ -20,7 +22,9 @@
               <a href="{% url 'approval_polls:detail' poll.id %}">{{ poll.question }}</a>
             </div>
             <a class='pull-right btn btn-danger btn-xs' id='delete-poll-{{ poll.id }}'> remove </a>
-            <a class='pull-right btn btn-warning btn-xs right-buffer'> suspend </a>
+            {%with suspend_text=poll.is_suspended|get_suspend_text%}
+            <a class='pull-right btn btn-warning btn-xs right-buffer' id='{{suspend_text}}-poll-{{ poll.id }}'> {{ suspend_text }} </a>
+            {%endwith%}
             <a class='pull-right btn btn-primary btn-xs right-buffer' href="{% url 'approval_polls:edit' poll.id %}"> edit </a> 
             <div style="display:none">
               <input type='hidden' id='csrfmiddlewaretoken' value='{{ csrf_token }}'>
