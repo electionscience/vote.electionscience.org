@@ -9,7 +9,8 @@ from django.utils import timezone
 from approval_polls.models import Poll, Choice
 
 
-def create_poll(question, username="user1", days=0, ballots=0, vtype=2, close_date=None, is_private=False):
+def create_poll(question, username="user1", days=0, ballots=0,
+        vtype=2, close_date=None, is_private=False, is_suspended=False):
     """
     Creates a poll with the given `question` published the given number of
     `days` offset to now (negative for polls published in the past,
@@ -25,6 +26,7 @@ def create_poll(question, username="user1", days=0, ballots=0, vtype=2, close_da
         vtype=vtype,
         close_date=close_date,
         is_private=is_private,
+        is_suspended=is_suspended
     )
 
     for _ in range(ballots):
@@ -662,3 +664,32 @@ class PollEditTests(TestCase):
         })
         self.assertEqual(Poll.objects.get(id=self.poll.id).choice_set.count(), 1)
         self.assertEqual(Choice.objects.get(id=self.choice.id).choice_text, 'Choice 1.')
+
+
+class SuspendPollTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.poll = create_poll(
+            question='Create Sample Poll.',
+            close_date=timezone.now() + datetime.timedelta(days=3),
+            vtype=3,
+            is_suspended=True
+        )
+        self.poll.choice_set.create(choice_text='Choice 1.')
+        self.choice = Choice.objects.get(poll_id=self.poll.id)
+        self.client.login(username='user1', password='test')
+
+    def test_suspend_tests(self):
+        response = self.client.get(reverse('approval_polls:my_polls'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "id='unsuspend-poll-1'> unsuspend </a>")
+        self.poll.is_suspended = False
+        self.poll.save()
+        response = self.client.get(reverse('approval_polls:my_polls'))
+        self.assertContains(response, "id='suspend-poll-1'> suspend </a>")
+
+    def test_suspended_tests_cannot_vote(self):
+        response = self.client.get(reverse('approval_polls:detail',
+          args=(1,)))
+        self.assertContains(response, "Sorry! This poll has been temporarily suspended.")
+        self.assertContains(response, "<button class='btn btn-success' type='submit'  disabled >Vote</button>")
