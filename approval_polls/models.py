@@ -22,6 +22,7 @@ class Poll(models.Model):
     show_write_in = models.BooleanField(default=False)
     show_lead_color = models.BooleanField(default=False)
     is_private = models.BooleanField(default=False)
+    is_suspended = models.BooleanField(default=False)
 
     def is_closed(self):
         if self.close_date:

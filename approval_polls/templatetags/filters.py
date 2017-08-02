@@ -40,3 +40,11 @@ def get_item(value, arg):
 def get_hash_item(value, arg):
     val = value.get(arg)
     return val
+
+
+@register.filter
+def get_suspend_text(value):
+    if value is True:
+        return "unsuspend"
+    else:
+        return "suspend"

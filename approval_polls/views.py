@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import generic
 from django.views.decorators.http import require_http_methods
+from django_ajax.decorators import ajax
 
 from approval_polls.models import Ballot, Poll, VoteInvitation, Choice
 
@@ -60,6 +61,13 @@ def getPolls(request, poll_list, render_page):
     except EmptyPage:
         polls = paginator.page(paginator.num_pages)
     return render(request, render_page, {'latest_poll_list': polls})
+
+
+@ajax
+def change_suspension(request, poll_id):
+    p = Poll.objects.get(id=poll_id)
+    p.is_suspended = not p.is_suspended
+    p.save()
 
 
 class DetailView(generic.DetailView):
