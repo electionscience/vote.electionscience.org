@@ -15,7 +15,7 @@ from django.views import generic
 from django.views.decorators.http import require_http_methods
 from django_ajax.decorators import ajax
 
-from approval_polls.models import Ballot, Poll, VoteInvitation, Choice
+from approval_polls.models import Ballot, Poll, VoteInvitation, Choice, PollTag
 
 
 def index(request):
@@ -34,6 +34,13 @@ def myPolls(request):
     ).order_by('-pub_date')
     return getPolls(request, poll_list, 'approval_polls/my_polls.html')
 
+
+@login_required
+def taggedPolls(request, tag):
+    t = PollTag.objects.get(tag_text=tag)
+    poll_list = t.polls.all()
+    return getPolls(request, poll_list, 'approval_polls/index.html')
+    
 
 @login_required
 def myInfo(request):
@@ -119,6 +126,9 @@ class DetailView(generic.DetailView):
                             checked_choices.append(option.choice)
         context['allowed_emails'] = allowed_emails
         context['checked_choices'] = checked_choices
+        context['num_tags'] = len(poll.polltag_set.all())
+        if context['num_tags'] > 0:
+            context['tags'] = [t.tag_text for t in poll.polltag_set.all()] 
         if not poll.is_closed() and poll.close_date is not None:
             time_diff = poll.close_date - timezone.now()
             context['time_difference'] = time_diff.total_seconds()
@@ -509,6 +519,7 @@ class CreateView(generic.View):
             for choice in choices:
                 p.choice_set.create(choice_text=choice[1], choice_link=choice[2])
 
+            p.add_tags(request.POST['token-tags'])
             if vtype == '3':
                 p.send_vote_invitations(request.POST['token-emails'])
 

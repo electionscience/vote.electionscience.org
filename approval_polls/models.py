@@ -95,6 +95,13 @@ class Poll(models.Model):
     def invited_emails(self):
         return [str(vi.email) for vi in self.voteinvitation_set.all()]
 
+    def add_tags(self, tags):
+        for tagtext in tags.split(','):
+            if tagtext is not None:
+                tag = PollTag(tag_text=str(tagtext))
+                tag.save()
+                self.polltag_set.add(tag)
+
 
 class Choice(models.Model):
     poll = models.ForeignKey(Poll)
@@ -193,3 +200,8 @@ class VoteInvitation(models.Model):
 class Subscription(models.Model):
     user = models.ForeignKey(User)
     zipcode = models.CharField(max_length=5)
+
+
+class PollTag(models.Model):
+    tag_text = models.CharField(max_length=100)
+    polls = models.ManyToManyField(Poll)
