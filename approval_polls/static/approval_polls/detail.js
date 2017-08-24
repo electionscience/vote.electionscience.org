@@ -160,7 +160,7 @@ $(function () {
     window.location.reload();
   };
 
-  time_difference = document.getElementById('time_difference').value;
+  time_difference = document.getElementById('time_difference') && document.getElementById('time_difference').value;
 
   $('#timer').countdown(onZero, Math.ceil(time_difference));
 
