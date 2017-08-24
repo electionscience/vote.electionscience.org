@@ -40,7 +40,7 @@ def taggedPolls(request, tag):
     t = PollTag.objects.get(tag_text=tag)
     poll_list = t.polls.all()
     return getPolls(request, poll_list, 'approval_polls/index.html')
-    
+
 
 @login_required
 def myInfo(request):
@@ -128,7 +128,7 @@ class DetailView(generic.DetailView):
         context['checked_choices'] = checked_choices
         context['num_tags'] = len(poll.polltag_set.all())
         if context['num_tags'] > 0:
-            context['tags'] = [t.tag_text for t in poll.polltag_set.all()] 
+            context['tags'] = [t.tag_text for t in poll.polltag_set.all()]
         if not poll.is_closed() and poll.close_date is not None:
             time_diff = poll.close_date - timezone.now()
             context['time_difference'] = time_diff.total_seconds()
@@ -587,6 +587,8 @@ class EditView(generic.View):
         poll.save()
         if 'token-emails' in request.POST:
             poll.send_vote_invitations(request.POST['token-emails'])
+        if 'token-tags' in request.POST:
+            poll.add_tags(request.POST['token-tags'])
         if poll.can_edit():
             if poll.question != request.POST['question']:
                 poll.question = request.POST['question'].strip()
