@@ -98,12 +98,15 @@ class Poll(models.Model):
     def add_tags(self, tags):
         for tagtext in tags.split(','):
             text = tagtext.strip()
-            if text is not None:
+            if text is not None or text is not '':
                 tag = PollTag.objects.filter(tag_text=text).first()
                 if tag is None:
                     tag = PollTag(tag_text=str(tagtext.strip()))
                     tag.save()
                 self.polltag_set.add(tag)
+
+    def all_tags(self):
+        return (',').join([str(t.tag_text) for t in self.polltag_set.all()])
 
 
 class Choice(models.Model):

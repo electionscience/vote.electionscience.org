@@ -264,11 +264,18 @@ $(function () {
       validateTokenField();
     })
     .tokenfield();
+
+  var allTags = []
+  if ($("#allTags").length) {
+    allTags = $("#allTags").val().split(',')
+  }
+
   $('#tokenTagField')
     .on('tokenfield:createtoken', function (e) {
       tokenize(e)
      })
     .tokenfield();
+  $('#tokenTagField').tokenfield('setTokens', allTags)
 
   // For edit page, display email text field if poll.vtype is 3
   if ($('#poll-vtype').val() == 3) {

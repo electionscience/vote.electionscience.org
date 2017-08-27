@@ -127,6 +127,7 @@ class DetailView(generic.DetailView):
         context['allowed_emails'] = allowed_emails
         context['checked_choices'] = checked_choices
         context['num_tags'] = len(poll.polltag_set.all())
+        context['tags'] = []
         if context['num_tags'] > 0:
             context['tags'] = [t.tag_text for t in poll.polltag_set.all()]
         if not poll.is_closed() and poll.close_date is not None:
@@ -519,7 +520,8 @@ class CreateView(generic.View):
             for choice in choices:
                 p.choice_set.create(choice_text=choice[1], choice_link=choice[2])
 
-            p.add_tags(request.POST['token-tags'])
+            if len(str(request.POST['token-tags'])):
+                p.add_tags(request.POST['token-tags'])
             if vtype == '3':
                 p.send_vote_invitations(request.POST['token-emails'])
 
@@ -554,7 +556,8 @@ class EditView(generic.View):
             'choice_blank_error': False,
             'existing_choice_texts': {'new': {}, 'existing': {}},
             'existing_choice_links': {'new': {}, 'existing': {}},
-            'invited_emails': ','.join([str(r) for r in poll.invited_emails()])
+            'invited_emails': ','.join([str(r) for r in poll.invited_emails()]),
+            'all_tags': poll.all_tags()
         })
 
     @method_decorator(login_required)
@@ -587,8 +590,11 @@ class EditView(generic.View):
         poll.save()
         if 'token-emails' in request.POST:
             poll.send_vote_invitations(request.POST['token-emails'])
-        if 'token-tags' in request.POST:
+        if len(str(request.POST['token-tags'])):
             poll.add_tags(request.POST['token-tags'])
+        else:
+            if len(poll.all_tags()) > 0:
+                poll.polltag_set.clear()
         if poll.can_edit():
             if poll.question != request.POST['question']:
                 poll.question = request.POST['question'].strip()
@@ -650,7 +656,8 @@ class EditView(generic.View):
                     'blank_choices': blank_choices,
                     'existing_choice_texts': existing_choice_texts,
                     'existing_choice_links': existing_choice_links,
-                    'invited_emails': ','.join([str(r) for r in poll.invited_emails()])
+                    'invited_emails': ','.join([str(r) for r in poll.invited_emails()]),
+                    'all_tags': poll.all_tags()
                 })
 
             # No current poll choices are blank, so go ahead and update, create, delete choices

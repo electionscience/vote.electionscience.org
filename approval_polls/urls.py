@@ -5,7 +5,6 @@ from approval_polls import views
 urlpatterns = patterns(
     '',
     url(r'^$', views.index, name='index'),
-    url(r'^tag/(?P<tag>\w+)/$', views.taggedPolls, name='tagged_polls'),
     url(r'^(?P<pk>\d+)/$', views.DetailView.as_view(), name='detail'),
     url(r'^(?P<pk>\d+)/results/$', views.ResultsView.as_view(), name='results'),
     url(r'^my-polls/$', views.myPolls, name='my_polls'),
@@ -17,4 +16,5 @@ urlpatterns = patterns(
     url(r'^my-info/$', views.myInfo, name='my_info'),
     url(r'^set-user-timezone/$', views.set_user_timezone, name='set-user-timezone'),
     url(r'^invitation/(?P<pk>\d+)/$', views.DetailView.as_view(), name='invitation'),
+    url(r'^tag/(?P<tag>\w+)/$', views.taggedPolls, name='tagged_polls')
 )
