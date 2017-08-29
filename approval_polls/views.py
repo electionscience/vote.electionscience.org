@@ -26,6 +26,14 @@ def index(request):
     return getPolls(request, poll_list, 'approval_polls/index.html')
 
 
+def tagCloud(request):
+    return render(
+        request,
+        'approval_polls/tag_cloud.html',
+        {'topTags': PollTag.topTagsPercent(15)}
+    )
+ 
+    
 @login_required
 def myPolls(request):
     poll_list = Poll.objects.filter(
@@ -75,6 +83,11 @@ def change_suspension(request, poll_id):
     p = Poll.objects.get(id=poll_id)
     p.is_suspended = not p.is_suspended
     p.save()
+
+
+@ajax
+def allTags(request):
+    return { 'allTags' : [t.tag_text for t in PollTag.objects.all()] }
 
 
 class DetailView(generic.DetailView):

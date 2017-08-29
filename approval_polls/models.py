@@ -211,3 +211,13 @@ class Subscription(models.Model):
 class PollTag(models.Model):
     tag_text = models.CharField(max_length=100)
     polls = models.ManyToManyField(Poll)
+  
+    @classmethod
+    def topTagsPercent(cls, count):
+      pollTags = cls.objects.all()
+      topTags = sorted(pollTags,key=lambda x: x.polls.count(), reverse=True)[:count]
+      sumTotalPolls = sum([t.polls.count() for t in topTags])
+      topTagsDict = {}
+      for t in topTags:
+          topTagsDict[t.tag_text] = float(t.polls.count())/sumTotalPolls * 100
+      return topTagsDict
