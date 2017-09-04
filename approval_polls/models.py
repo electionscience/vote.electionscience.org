@@ -97,7 +97,7 @@ class Poll(models.Model):
 
     def add_tags(self, tags):
         for tagtext in tags.split(','):
-            text = tagtext.strip()
+            text = tagtext.strip().lower()
             if text is not None or text is not '':
                 tag = PollTag.objects.filter(tag_text=text).first()
                 if tag is None:
@@ -211,13 +211,13 @@ class Subscription(models.Model):
 class PollTag(models.Model):
     tag_text = models.CharField(max_length=100)
     polls = models.ManyToManyField(Poll)
-  
+
     @classmethod
     def topTagsPercent(cls, count):
-      pollTags = cls.objects.all()
-      topTags = sorted(pollTags,key=lambda x: x.polls.count(), reverse=True)[:count]
-      sumTotalPolls = sum([t.polls.count() for t in topTags])
-      topTagsDict = {}
-      for t in topTags:
-          topTagsDict[t.tag_text] = float(t.polls.count())/sumTotalPolls * 100
-      return topTagsDict
+        pollTags = cls.objects.all()
+        topTags = sorted(pollTags, key=lambda x: x.polls.count(), reverse=True)[:count]
+        sumTotalPolls = sum([t.polls.count() for t in topTags])
+        topTagsDict = {}
+        for t in topTags:
+            topTagsDict[t.tag_text] = float(t.polls.count()) / sumTotalPolls * 100
+        return topTagsDict
