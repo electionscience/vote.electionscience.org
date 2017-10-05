@@ -43,7 +43,6 @@ def myPolls(request):
     return getPolls(request, poll_list, 'approval_polls/my_polls.html')
 
 
-@login_required
 def taggedPolls(request, tag):
     t = PollTag.objects.get(tag_text=tag)
     poll_list = t.polls.all()

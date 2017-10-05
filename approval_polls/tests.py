@@ -708,7 +708,7 @@ class TagCloudTests(TestCase):
             vtype=1
         )
         self.poll.choice_set.create(choice_text='Choice 1.')
-        self.poll.add_tags('sample')
+        self.poll.add_tags('New York')
         self.choice = Choice.objects.get(poll_id=self.poll.id)
         self.client.login(username='user1', password='test')
 
@@ -716,13 +716,12 @@ class TagCloudTests(TestCase):
         response = self.client.get(reverse('approval_polls:detail',
            args=(1,)))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "<a href='/approval_polls/tag/sample/'>sample</a>")
+        self.assertContains(response, "<a href='/approval_polls/tag/New%20York/'>New York</a>")
 
     def test_poll_tags_index(self):
         response = self.client.get(reverse('approval_polls:tagged_polls',
-           args=('sample',)))
+           args=('New York',)))
         self.assertEqual(response.status_code, 200)
-        print response
         self.assertContains(response, '<a href="/approval_polls/1/">Create Sample Poll.</a>')
 
     def test_poll_delete(self):
@@ -730,4 +729,4 @@ class TagCloudTests(TestCase):
         response = self.client.get(reverse('approval_polls:detail',
            args=(1,)))
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "<a href='/approval_polls/tag/sample/'>sample</a>")
+        self.assertNotContains(response, "<a href='/approval_polls/tag/New%20York/'>New York</a>")

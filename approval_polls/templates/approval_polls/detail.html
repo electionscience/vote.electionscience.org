@@ -94,10 +94,8 @@
 
 <div class='row-fluid top-buffer'>
   <div class='col-md-12'>
-    <p>Poll Tags:
-    {% if num_tags == 0 %}
-      None for this poll
-    {% else %}
+    {% if num_tags > 0 %}
+    <p>Tags:
       {% for tag in tags %}
          <a href='{% url 'approval_polls:tagged_polls' tag %}'>{{ tag }}</a>
       {% endfor %}
