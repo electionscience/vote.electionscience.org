@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block head %}
+  {% load staticfiles %}
+  <script src='{% static 'vendor/jqcloud/jqcloud-1.0.4.min.js' %}'></script>
+  <link rel="stylesheet" type="text/css" href='{% static 'vendor/jqcloud/jqcloud.css' %}'>
+{% endblock %}
+
+{% block content %}
+<div class='row-fluid full-height'>
+  <div class='col-md-12'>
+    <div id='tagcloud' style="height:25em;width:100%;"></div>
+  </div>
+</div>
+<script text="text/javascript">
+var words = []
+{% for k, v in topTags.items %}
+  words.push({text: '{{ k }}', weight: {{ v }}, link: '{% url 'approval_polls:tagged_polls' k %}'})
+{% endfor %}
+$('#tagcloud').jQCloud(words);
+</script>
+{% endblock %}
+

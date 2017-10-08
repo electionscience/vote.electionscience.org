@@ -94,6 +94,18 @@
 
 <div class='row-fluid top-buffer'>
   <div class='col-md-12'>
+    {% if num_tags > 0 %}
+    <p>Tags:
+      {% for tag in tags %}
+         <a href='{% url 'approval_polls:tagged_polls' tag %}'>{{ tag }}</a>
+      {% endfor %}
+    {% endif %}
+    </p>
+  </div>
+</div>
+
+<div class='row-fluid top-buffer'>
+  <div class='col-md-12'>
     {% if poll.show_close_date %}
       <div class='text-center'>
         <p class='label label-info'>Closing Date: {{ poll.close_date|date:"N j, Y, P e" }}</p>
@@ -111,7 +123,6 @@
     <p class='text-center'>
       <a href='{% url 'approval_polls:results' poll.id %}'>See Results</a>
     </p>
-
   </div>
 </div>
 
@@ -129,5 +140,6 @@
   <div id='share' align='center'>
   </div>
 </div>
+
 
 {% endblock %}

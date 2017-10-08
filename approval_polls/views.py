@@ -15,7 +15,7 @@ from django.views import generic
 from django.views.decorators.http import require_http_methods
 from django_ajax.decorators import ajax
 
-from approval_polls.models import Ballot, Poll, VoteInvitation, Choice
+from approval_polls.models import Ballot, Poll, VoteInvitation, Choice, PollTag
 
 
 def index(request):
@@ -26,6 +26,14 @@ def index(request):
     return getPolls(request, poll_list, 'approval_polls/index.html')
 
 
+def tagCloud(request):
+    return render(
+        request,
+        'approval_polls/tag_cloud.html',
+        {'topTags': PollTag.topTagsPercent(15)}
+    )
+
+
 @login_required
 def myPolls(request):
     poll_list = Poll.objects.filter(
@@ -33,6 +41,12 @@ def myPolls(request):
         user_id=request.user
     ).order_by('-pub_date')
     return getPolls(request, poll_list, 'approval_polls/my_polls.html')
+
+
+def taggedPolls(request, tag):
+    t = PollTag.objects.get(tag_text=tag)
+    poll_list = t.polls.all()
+    return getPolls(request, poll_list, 'approval_polls/index.html')
 
 
 @login_required
@@ -68,6 +82,11 @@ def change_suspension(request, poll_id):
     p = Poll.objects.get(id=poll_id)
     p.is_suspended = not p.is_suspended
     p.save()
+
+
+@ajax
+def allTags(request):
+    return {'allTags': [t.tag_text for t in PollTag.objects.all()]}
 
 
 class DetailView(generic.DetailView):
@@ -119,6 +138,10 @@ class DetailView(generic.DetailView):
                             checked_choices.append(option.choice)
         context['allowed_emails'] = allowed_emails
         context['checked_choices'] = checked_choices
+        context['num_tags'] = len(poll.polltag_set.all())
+        context['tags'] = []
+        if context['num_tags'] > 0:
+            context['tags'] = [t.tag_text for t in poll.polltag_set.all()]
         if not poll.is_closed() and poll.close_date is not None:
             time_diff = poll.close_date - timezone.now()
             context['time_difference'] = time_diff.total_seconds()
@@ -509,6 +532,8 @@ class CreateView(generic.View):
             for choice in choices:
                 p.choice_set.create(choice_text=choice[1], choice_link=choice[2])
 
+            if len(str(request.POST['token-tags'])):
+                p.add_tags(request.POST['token-tags'])
             if vtype == '3':
                 p.send_vote_invitations(request.POST['token-emails'])
 
@@ -543,7 +568,8 @@ class EditView(generic.View):
             'choice_blank_error': False,
             'existing_choice_texts': {'new': {}, 'existing': {}},
             'existing_choice_links': {'new': {}, 'existing': {}},
-            'invited_emails': ','.join([str(r) for r in poll.invited_emails()])
+            'invited_emails': ','.join([str(r) for r in poll.invited_emails()]),
+            'all_tags': poll.all_tags()
         })
 
     @method_decorator(login_required)
@@ -576,6 +602,11 @@ class EditView(generic.View):
         poll.save()
         if 'token-emails' in request.POST:
             poll.send_vote_invitations(request.POST['token-emails'])
+        if len(str(request.POST['token-tags'])):
+            poll.add_tags(request.POST['token-tags'])
+        else:
+            if len(poll.all_tags()) > 0:
+                poll.polltag_set.clear()
         if poll.can_edit():
             if poll.question != request.POST['question']:
                 poll.question = request.POST['question'].strip()
@@ -637,7 +668,8 @@ class EditView(generic.View):
                     'blank_choices': blank_choices,
                     'existing_choice_texts': existing_choice_texts,
                     'existing_choice_links': existing_choice_links,
-                    'invited_emails': ','.join([str(r) for r in poll.invited_emails()])
+                    'invited_emails': ','.join([str(r) for r in poll.invited_emails()]),
+                    'all_tags': poll.all_tags()
                 })
 
             # No current poll choices are blank, so go ahead and update, create, delete choices

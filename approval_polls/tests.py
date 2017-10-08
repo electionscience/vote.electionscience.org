@@ -247,6 +247,7 @@ class PollCreateTests(TestCase):
             'question': 'Create poll.',
             'choice1': 'Choice 1.',
             'radio-poll-type': '1',
+            'token-tags': ''
         }
         response = self.client.post(
             '/approval_polls/create/',
@@ -299,6 +300,7 @@ class PollCreateTests(TestCase):
             'choice1': '',
             'choice2': 'Choice 2.',
             'radio-poll-type': '1',
+            'token-tags': ''
             }
         self.client.post('/approval_polls/create/', poll_data, follow=True)
         response = self.client.get('/approval_polls/1/', follow=True)
@@ -637,7 +639,8 @@ class PollEditTests(TestCase):
             'choice1000': u'BBBBB',
             'linkurl-choice1000': u'BBBBBBBB',
             'close-datetime': 'bb',
-            'question': 'q'
+            'question': 'q',
+            'token-tags': ''
         })
         self.assertEqual(Poll.objects.get(id=self.poll.id).choice_set.count(), 2)
         self.assertEqual(Choice.objects.get(id=self.choice.id).choice_text, 'xxx')
@@ -660,7 +663,8 @@ class PollEditTests(TestCase):
             'choice1000': u'BBBBB',
             'linkurl-choice1000': u'BBBBBBBB',
             'close-datetime': 'bb',
-            'question': 'q'
+            'question': 'q',
+            'token-tags': ''
         })
         self.assertEqual(Poll.objects.get(id=self.poll.id).choice_set.count(), 1)
         self.assertEqual(Choice.objects.get(id=self.choice.id).choice_text, 'Choice 1.')
@@ -693,3 +697,36 @@ class SuspendPollTests(TestCase):
           args=(1,)))
         self.assertContains(response, "Sorry! This poll has been temporarily suspended.")
         self.assertContains(response, "<button class='btn btn-success' type='submit'  disabled >Vote</button>")
+
+
+class TagCloudTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.poll = create_poll(
+            question='Create Sample Poll.',
+            close_date=timezone.now() + datetime.timedelta(days=3),
+            vtype=1
+        )
+        self.poll.choice_set.create(choice_text='Choice 1.')
+        self.poll.add_tags('New York')
+        self.choice = Choice.objects.get(poll_id=self.poll.id)
+        self.client.login(username='user1', password='test')
+
+    def test_poll_tag_exists(self):
+        response = self.client.get(reverse('approval_polls:detail',
+           args=(1,)))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<a href='/approval_polls/tag/New%20York/'>New York</a>")
+
+    def test_poll_tags_index(self):
+        response = self.client.get(reverse('approval_polls:tagged_polls',
+           args=('New York',)))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<a href="/approval_polls/1/">Create Sample Poll.</a>')
+
+    def test_poll_delete(self):
+        self.poll.polltag_set.clear()
+        response = self.client.get(reverse('approval_polls:detail',
+           args=(1,)))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "<a href='/approval_polls/tag/New%20York/'>New York</a>")

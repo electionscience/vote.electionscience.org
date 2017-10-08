@@ -248,24 +248,34 @@ $(function () {
     }
   };
   $('#tokenEmailField')
+    .on('tokenfield:createtoken', function(e) {
+      tokenize(e)
+    })
+    .on('tokenfield:createdtoken', function (e) {
+      // Simple E-mail validation
+      var re = /\S+@\S+\.\S+/;
+      var valid = re.test(e.attrs.value);
+      if (!valid) {
+        $(e.relatedTarget).addClass('invalid');
+      }
+      validateTokenField();
+    })
+    .on('tokenfield:removedtoken', function (e) {
+      validateTokenField();
+    })
+    .tokenfield();
+
+  var allTags = []
+  if ($("#allTags").length) {
+    allTags = $("#allTags").val().split(',')
+  }
+
+  $('#tokenTagField')
     .on('tokenfield:createtoken', function (e) {
-    var data = e.attrs.value.split('|');
-    e.attrs.value = data[1] || data[0];
-    e.attrs.label = data[1] ? data[0] + ' (' + data[1] + ')' : data[0];
-  })
-  .on('tokenfield:createdtoken', function (e) {
-    // Simple E-mail validation
-    var re = /\S+@\S+\.\S+/;
-    var valid = re.test(e.attrs.value);
-    if (!valid) {
-      $(e.relatedTarget).addClass('invalid');
-    }
-    validateTokenField();
-  })
-  .on('tokenfield:removedtoken', function (e) {
-    validateTokenField();
-  })
-  .tokenfield();
+      tokenize(e)
+     })
+    .tokenfield();
+  $('#tokenTagField').tokenfield('setTokens', allTags)
 
   // For edit page, display email text field if poll.vtype is 3
   if ($('#poll-vtype').val() == 3) {
@@ -290,6 +300,12 @@ $(function () {
       $('#poll-visibility').prop('checked', false);
     }
     $('#existing-emails').show();
+  }
+
+  function tokenize(e) {
+    var data = e.attrs.value.split('|');
+    e.attrs.value = data[1] || data[0];
+    e.attrs.label = data[1] ? data[0] + ' (' + data[1] + ')' : data[0];
   }
 });
 

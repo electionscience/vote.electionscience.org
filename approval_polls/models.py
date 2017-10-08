@@ -95,6 +95,19 @@ class Poll(models.Model):
     def invited_emails(self):
         return [str(vi.email) for vi in self.voteinvitation_set.all()]
 
+    def add_tags(self, tags):
+        for tagtext in tags.split(','):
+            text = tagtext.strip().lower()
+            if text is not None or text is not '':
+                tag = PollTag.objects.filter(tag_text=text).first()
+                if tag is None:
+                    tag = PollTag(tag_text=str(tagtext.strip()))
+                    tag.save()
+                self.polltag_set.add(tag)
+
+    def all_tags(self):
+        return (',').join([str(t.tag_text) for t in self.polltag_set.all()])
+
 
 class Choice(models.Model):
     poll = models.ForeignKey(Poll)
@@ -193,3 +206,18 @@ class VoteInvitation(models.Model):
 class Subscription(models.Model):
     user = models.ForeignKey(User)
     zipcode = models.CharField(max_length=5)
+
+
+class PollTag(models.Model):
+    tag_text = models.CharField(max_length=100)
+    polls = models.ManyToManyField(Poll)
+
+    @classmethod
+    def topTagsPercent(cls, count):
+        pollTags = cls.objects.all()
+        topTags = sorted(pollTags, key=lambda x: x.polls.count(), reverse=True)[:count]
+        sumTotalPolls = sum([t.polls.count() for t in topTags])
+        topTagsDict = {}
+        for t in topTags:
+            topTagsDict[t.tag_text] = float(t.polls.count()) / sumTotalPolls * 100
+        return topTagsDict
