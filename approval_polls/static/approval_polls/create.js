@@ -91,7 +91,7 @@ $(function () {
         // Remove alert box
         $('#alert-' + buttonId).remove();
         // Change color of link to show a valid insertion
-        $('#link-' + buttonId).attr('class','text-success');
+        $('#link-' + buttonId).addClass('text-success');
       }
     });
 
