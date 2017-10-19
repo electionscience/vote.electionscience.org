@@ -708,7 +708,7 @@ class TagCloudTests(TestCase):
             vtype=1
         )
         self.poll.choice_set.create(choice_text='Choice 1.')
-        self.poll.add_tags('New York')
+        self.poll.add_tags(['New York'])
         self.choice = Choice.objects.get(poll_id=self.poll.id)
         self.client.login(username='user1', password='test')
 

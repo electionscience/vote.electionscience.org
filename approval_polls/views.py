@@ -533,7 +533,7 @@ class CreateView(generic.View):
                 p.choice_set.create(choice_text=choice[1], choice_link=choice[2])
 
             if len(str(request.POST['token-tags'])):
-                p.add_tags(request.POST['token-tags'])
+                p.add_tags(request.POST['token-tags'].split(','))
             if vtype == '3':
                 p.send_vote_invitations(request.POST['token-emails'])
 
@@ -576,6 +576,8 @@ class EditView(generic.View):
     def post(self, request, *args, **kwargs):
         existing_choice_texts = {}
         existing_choice_links = {}
+        tags_to_add = []
+        tags_to_delete = []
         poll = Poll.objects.get(id=kwargs['poll_id'])
         closedatetime = request.POST['close-datetime']
         try:
@@ -602,11 +604,17 @@ class EditView(generic.View):
         poll.save()
         if 'token-emails' in request.POST:
             poll.send_vote_invitations(request.POST['token-emails'])
-        if len(str(request.POST['token-tags'])):
-            poll.add_tags(request.POST['token-tags'])
+        existing_tags_set = sets.Set(poll.all_tags().split(','))
+        if len(request.POST['token-tags']) > 0:
+            request_tags_set = sets.Set([tag.strip() for tag in request.POST['token-tags'].split(',')])
         else:
-            if len(poll.all_tags()) > 0:
-                poll.polltag_set.clear()
+            request_tags_set = sets.Set([])
+        tags_to_add = list(request_tags_set - existing_tags_set)
+        tags_to_delete = list(existing_tags_set - request_tags_set)
+        if len(tags_to_add) > 0:
+            poll.add_tags(tags_to_add)
+        if len(tags_to_delete) > 0:
+            poll.delete_tags(tags_to_delete)
         if poll.can_edit():
             if poll.question != request.POST['question']:
                 poll.question = request.POST['question'].strip()
@@ -655,7 +663,6 @@ class EditView(generic.View):
                         update_data_for_link[i] = request.POST['linkurl-choice' + (str(i))]
                 existing_choice_texts['existing'] = update_data_for_text
                 existing_choice_links['existing'] = update_data_for_link
-
             # If any current poll choices are left blank by user
             if choice_blank:
                 ccount = Choice.objects.last().id + new_choice_len

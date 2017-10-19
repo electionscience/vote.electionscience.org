@@ -96,7 +96,7 @@ class Poll(models.Model):
         return [str(vi.email) for vi in self.voteinvitation_set.all()]
 
     def add_tags(self, tags):
-        for tagtext in tags.split(','):
+        for tagtext in tags:
             text = tagtext.strip().lower()
             if text is not None or text is not '':
                 tag = PollTag.objects.filter(tag_text=text).first()
@@ -104,6 +104,11 @@ class Poll(models.Model):
                     tag = PollTag(tag_text=str(tagtext.strip()))
                     tag.save()
                 self.polltag_set.add(tag)
+
+    def delete_tags(self, tags):
+        for tagtext in tags:
+            tag = PollTag.objects.filter(tag_text=tagtext.strip()).first()
+            self.polltag_set.remove(tag)
 
     def all_tags(self):
         return (',').join([str(t.tag_text) for t in self.polltag_set.all()])
