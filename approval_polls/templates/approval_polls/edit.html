@@ -56,7 +56,7 @@
             {% if can_edit_poll %}
               <span class='input-group-addon'>
                 <a href='#' class='add-link' id='link-choice{{ choice.pk }}' title='Add link' data-toggle='tooltip' data-placement='bottom'>
-                  <span class='glyphicon glyphicon-link'></span>
+                  <span class='glyphicon glyphicon-link {% if link_text or choice.choice_link %}text-success' {%else%} ' {% endif %}></span>
                 </a>
               </span>
               <span class='input-group-addon'>
@@ -109,6 +109,7 @@
 
       <p>
         <div id='tag-input'>
+          <label>
           <h6>(Enter a comma after each tag)</h6>
           <input id='allTags' value='{{all_tags}}' type="hidden">
           <input type='text' name='token-tags' class='form-control' id='tokenTagField' placeholder='Enter tags' />

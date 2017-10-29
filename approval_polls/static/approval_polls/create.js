@@ -116,7 +116,7 @@ $(function () {
       // Remove any error message
       $("label[for='url-" + buttonId + "']").remove();
       // Reset color of link to show no current insertion
-      $('#link-' + buttonId).removeAttr('class');
+      $('#link-' + buttonId).removeClass('text-success');
     });
     // To prevent navigation
     return false;

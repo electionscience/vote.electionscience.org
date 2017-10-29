@@ -644,6 +644,11 @@ class PollEditTests(TestCase):
         })
         self.assertEqual(Poll.objects.get(id=self.poll.id).choice_set.count(), 2)
         self.assertEqual(Choice.objects.get(id=self.choice.id).choice_text, 'xxx')
+        response = self.client.get(reverse('approval_polls:edit',
+            args=(1,)))
+        self.assertContains(response, "<a href='#' class='add-link' id='link-choice1' \
+            title='Add link' data-toggle='tooltip' data-placement='bottom'> \
+            <span class='glyphicon glyphicon-link text-success' ></span> </a>", None, 200, '', True)
 
     def test_can_not_edit_poll(self):
         '''
@@ -651,7 +656,7 @@ class PollEditTests(TestCase):
         '''
         create_ballot(self.poll)
         response = self.client.get(reverse('approval_polls:edit',
-           args=(1,)))
+            args=(1,)))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.context['can_edit_poll'], False
