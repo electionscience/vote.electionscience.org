@@ -14,7 +14,7 @@
 <script text="text/javascript">
 var words = []
 {% for k, v in topTags.items %}
-  words.push({text: '{{ k }}', weight: {{ v }}, link: '{% url 'approval_polls:tagged_polls' k %}'})
+  words.push({text: '{{ k }}', weight: {{ v }}, link: '/approval_polls/tag/{{k}}'})
 {% endfor %}
 $('#tagcloud').jQCloud(words);
 </script>

@@ -716,9 +716,10 @@ class TagCloudTests(TestCase):
         response = self.client.get(reverse('approval_polls:detail',
            args=(1,)))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "<a href='/approval_polls/tag/New%20York/'>New York</a>")
+        self.assertContains(response, "<a href='/approval_polls/tag/new%20york/'>new york</a>")
 
     def test_poll_tags_index(self):
+        print [pt.tag_text for pt in self.poll.polltag_set.all()]
         response = self.client.get(reverse('approval_polls:tagged_polls',
            args=('New York',)))
         self.assertEqual(response.status_code, 200)
@@ -729,4 +730,4 @@ class TagCloudTests(TestCase):
         response = self.client.get(reverse('approval_polls:detail',
            args=(1,)))
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "<a href='/approval_polls/tag/New%20York/'>New York</a>")
+        self.assertNotContains(response, "<a href='/approval_polls/tag/new%20york/'>new york</a>")

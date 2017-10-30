@@ -44,7 +44,7 @@ def myPolls(request):
 
 
 def taggedPolls(request, tag):
-    t = PollTag.objects.get(tag_text=tag)
+    t = PollTag.objects.get(tag_text=tag.lower())
     poll_list = t.polls.all()
     return getPolls(request, poll_list, 'approval_polls/index.html')
 
