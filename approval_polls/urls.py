@@ -16,7 +16,7 @@ urlpatterns = patterns(
     url(r'^my-info/$', views.myInfo, name='my_info'),
     url(r'^set-user-timezone/$', views.set_user_timezone, name='set-user-timezone'),
     url(r'^invitation/(?P<pk>\d+)/$', views.DetailView.as_view(), name='invitation'),
-    url(r'^tag/(?P<tag>[\s\w]+)/$', views.taggedPolls, name='tagged_polls'),
+    url(r'^tag/(?P<tag>.+)/$', views.taggedPolls, name='tagged_polls'),
     url(r'^all_tags/$', views.allTags, name='all_tags'),
     url(r'^tag_cloud/$', views.tagCloud, name='tag_cloud')
 )
