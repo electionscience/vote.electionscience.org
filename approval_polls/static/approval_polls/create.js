@@ -91,7 +91,7 @@ $(function () {
         // Remove alert box
         $('#alert-' + buttonId).remove();
         // Change color of link to show a valid insertion
-        $('#link-' + buttonId).attr('class','text-success');
+        $('#link-' + buttonId).addClass('text-success');
       }
     });
 
@@ -116,7 +116,7 @@ $(function () {
       // Remove any error message
       $("label[for='url-" + buttonId + "']").remove();
       // Reset color of link to show no current insertion
-      $('#link-' + buttonId).removeAttr('class');
+      $('#link-' + buttonId).removeClass('text-success');
     });
     // To prevent navigation
     return false;

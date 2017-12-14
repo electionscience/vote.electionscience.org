@@ -40,9 +40,11 @@
         <h5 style="color:#8B0000;"><b>Please ensure you've entered all choices correctly</b></h5>
       {% endif %}
       {% with existing_choice_texts_existing=existing_choice_texts|get_hash_item:'existing'%}
+      {% with existing_choice_links_existing=existing_choice_links|get_hash_item:'existing'%}
       {% for choice in choices %}
         {% with choice_id=choice.id %}
         {% with box_text=existing_choice_texts_existing|get_item:choice_id %}
+        {% with link_text=existing_choice_links_existing|get_item:choice_id %}
         <div class='form-group {% if choice.id in blank_choices %}has-error {% endif %}'>
           {% if choice_blank_error and choice_id in blank_choices %}
             <label class='control-label' for='choice{{choice_id}}'>
@@ -54,7 +56,7 @@
             {% if can_edit_poll %}
               <span class='input-group-addon'>
                 <a href='#' class='add-link' id='link-choice{{ choice.pk }}' title='Add link' data-toggle='tooltip' data-placement='bottom'>
-                  <span class='glyphicon glyphicon-link'></span>
+                  <span class='glyphicon glyphicon-link {% if link_text or choice.choice_link %}text-success' {%else%} ' {% endif %}></span>
                 </a>
               </span>
               <span class='input-group-addon'>
@@ -63,16 +65,20 @@
                 </a>
               </span>
             {% endif %}
-            <input type='hidden' id='linkurl-choice{{ choice.pk }}' name='linkurl-choice{{ choice.pk }}' value=''>
+            <input type='hidden' id='linkurl-choice{{ choice.pk }}' name='linkurl-choice{{ choice.pk }}' value='{{link_text|default:choice.choice_link}}'>
           </div>
         </div>
 
         {% endwith %}
         {% endwith %}
+        {% endwith %}
       {% endfor %}
       {% endwith %}
+      {% endwith %}
       {% with existing_choice_texts_new=existing_choice_texts|get_hash_item:'new' %}
+      {% with existing_choice_links_new=existing_choice_links|get_hash_item:'new' %}
       {% for id, text in  existing_choice_texts_new.items %}
+        {% with link_text=existing_choice_links_new|get_item:id %}
         <div class='form-group'>
           <div class='input-group' id='div-choice{{ id }}'>
             <input class='form-control' type='text' maxlength='200' name='choice{{ id }}' placeholder='Choice' value='{{ text }}'>
@@ -86,10 +92,12 @@
                   <span class='glyphicon glyphicon-remove'></span>
                 </a>
               </span>
-            <input type='hidden' id='linkurl-choice{{ id }}' name='linkurl-choice{{ id }}' value=''>
+            <input type='hidden' id='linkurl-choice{{ id }}' name='linkurl-choice{{ id }}' value='{{link_text}}'>
           </div>
         </div>
+        {% endwith %}
       {% endfor %}
+      {% endwith %}
       {% endwith %}
       <p>
         <button type='button' class='btn btn-primary btn-sm' 
@@ -101,6 +109,7 @@
 
       <p>
         <div id='tag-input'>
+          <label>
           <h6>(Enter a comma after each tag)</h6>
           <input id='allTags' value='{{all_tags}}' type="hidden">
           <input type='text' name='token-tags' class='form-control' id='tokenTagField' placeholder='Enter tags' />
