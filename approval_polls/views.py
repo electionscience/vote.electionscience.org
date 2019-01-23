@@ -309,8 +309,10 @@ def vote(request, poll_id):
                     )
         else:
             return HttpResponseRedirect(
-                reverse('auth_login') + '?next=' +
-                reverse('approval_polls:detail', args=(poll.id,))
+                reverse('auth_login') + '?next=' + reverse(
+                    'approval_polls:detail',
+                    args=(poll.id,)
+                )
             )
     elif poll_vtype == 3:
         # Type 3 - Vote through the email invitation link.
