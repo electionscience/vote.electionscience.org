@@ -14,7 +14,7 @@
       iframeHeight + "px'></iframe>");
   };
 
-  $(window).load(function() {
+  $(window).on('load', function() {
     setIframeHeightAndCode('#iframePreview', '#textAreaCode');
   });
 
