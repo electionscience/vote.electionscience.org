@@ -21,7 +21,7 @@
 
 <div class='row-fluid top-buffer'>
   <div class='col-md-12'>
-    {% for choice in poll.choice_set.all %}
+    {% for choice in poll.choice_set.all|dictsortreversed:"votes" %}
       <h4>{{ choice }}
       {% if poll.is_closed and choice in leading_choices %}
       <p class='small label-inline'>
