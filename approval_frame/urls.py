@@ -5,7 +5,6 @@ from django.views.generic import RedirectView
 from approval_frame import views
 from views import CustomRegistrationView
 
-
 # autodiscover is required only for older versions of Django
 admin.autodiscover()
 
