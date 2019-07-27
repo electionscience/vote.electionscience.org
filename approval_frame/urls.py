@@ -1,14 +1,17 @@
 from django.conf.urls import include, patterns, url
 from django.contrib import admin
+from django.views.generic import RedirectView
 
 from approval_frame import views
 from views import CustomRegistrationView
+
 
 # autodiscover is required only for older versions of Django
 admin.autodiscover()
 
 urlpatterns = patterns(
     '',
+    url(r'^$', RedirectView.as_view(url='/approval_polls/', permanent=False)),
     url(r'^approval_polls/', include('approval_polls.urls', namespace="approval_polls")),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^accounts/register/$', CustomRegistrationView.as_view(),
