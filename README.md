@@ -1,6 +1,6 @@
 About
 =====
-[![Build Status](https://api.travis-ci.org/electology/approval_frame.svg?branch=master)](https://api.travis-ci.org/electology/approval_frame.svg?branch=master)
+[![Build Status](https://api.travis-ci.org/electionscience/approval_frame.svg?branch=master)](https://api.travis-ci.org/electionscience/approval_frame.svg?branch=master)
 
 Lots of websites have polls, usually as a little side bar.
 But most of those polls are based on plurality voting, an inferior voting method.
@@ -42,7 +42,7 @@ Steps (assumes a linux system)
 
 1. [Install git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git). If you're new to git then the [Pro Git](http://git-scm.com/book/en/v2) book is useful.
 
-2. Clone this repository. `git clone https://github.com/electology/approval_frame.git`.
+2. Clone this repository. `git clone https://github.com/electionscience/approval_frame.git`.
 
 3. Go into the approval\_frame directory. `cd approval_frame`.
 

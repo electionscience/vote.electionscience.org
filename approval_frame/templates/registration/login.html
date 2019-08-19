@@ -1,53 +1,63 @@
 {% extends 'base.html' %}
 
 {% block head %}
-  {% load staticfiles %}
-  <link rel='stylesheet' type='text/css' href='{% static 'vendor/bootstrap-social/css/bootstrap-social.css' %}'> 
-  <link rel='stylesheet' type='text/css' href='{% static 'vendor/font-awesome/css/font-awesome.css' %}'>
+{% load staticfiles %}
+<link rel='stylesheet' type='text/css' href='{% static 'vendor/bootstrap-social/css/bootstrap-social.css' %}'>
+<link rel='stylesheet' type='text/css' href='{% static 'vendor/font-awesome/css/font-awesome.css' %}'>
 {% endblock %}
 
 {% block content %}
 
-  {% if form.errors %}
-    <div class='row-fluid top-buffer'>
-      <div class='col-md-12 text-danger'>
-        Invalid credentials. Please try again.  
-      </div>
-    </div>
-  {% endif %}
+{% if form.errors %}
+<div class='row-fluid top-buffer'>
+  <div class='col-md-12 text-danger'>
+    Invalid credentials. Please try again.
+  </div>
+</div>
+{% endif %}
 
-  <div class='row-fluid top-buffer'>
-    <div class='col-md-6 col-md-offset-3'>
-      {% if next %}
-      <form method='post' action='/accounts/login/?next={{next}}'>
+<div class='row-fluid top-buffer'>
+  <div class='col-md-6 col-md-offset-3'>
+    <p class='pull-left'>
+      <a href='{% url 'approval_polls:index' %}'>Home</a>
+    </p>
+    <p class='pull-right'>
+      <a href="{% url 'registration_register' %}"> Register </a>
+    </p>
+    {% if next %}
+    <form method='post' action='/accounts/login/?next={{next}}'>
       {% else %}
       <form method='post' action='/accounts/login/'>
-      {% endif %}
+        {% endif %}
         {% csrf_token %}
         <legend>Login</legend>
-        <div class='form-group'>
+        {% comment %} <div class='form-group'>
           <a href='{% url 'social:begin' 'facebook' %}?next={{ next }}' class='btn btn-block btn-social btn-facebook'>
             <span class='fa fa-facebook'></span> Login with Facebook
           </a>
-          <a href='{% url 'social:begin' 'google-oauth2' %}?next={{ next }}' class='btn btn-block btn-social btn-google'>
+          <a href='{% url 'social:begin' 'google-oauth2' %}?next={{ next }}'
+            class='btn btn-block btn-social btn-google'>
             <span class='fa fa-google'></span> Login with Google
           </a>
         </div>
         <table width='100%'>
           <tr>
-            <td><hr /></td>
+            <td>
+              <hr />
+            </td>
             <td id='socialAuthSep'>or</td>
-            <td><hr /></td>
+            <td>
+              <hr />
+            </td>
           </tr>
         </table>
         <div class='form-group'>
-          <input type='text' class='form-control' id='{{ form.username.id_for_label }}'
-                 name='{{ form.username.name }}' placeholder='Username or Email ID'
-                 maxlength={{ form.username.field.max_length }}>
-        </div>
+          <input type='text' class='form-control' id='{{ form.username.id_for_label }}' name='{{ form.username.name }}'
+            placeholder='Username or Email ID' maxlength={{ form.username.field.max_length }}>
+        </div> {% endcomment %}
         <div class='form-group'>
           <input type='password' class='form-control' id='{{ form.password.id_for_label }}'
-          name='{{ form.password.name }}' placeholder='{{ form.password.label }}'>
+            name='{{ form.password.name }}' placeholder='{{ form.password.label }}'>
         </div>
         <div class='form-group small'>
           <p align='right'>
@@ -56,22 +66,10 @@
         </div>
         <button type='submit' class='btn btn-success'>Login</button>
       </form>
-    </div>
   </div>
-  
-  <div class='row-fluid top-buffer'>
-    <div class='col-md-6 col-md-offset-3'>
-      <div id="7730334d-e75b-46f5-bc51-d043e59aebb2">
-        <script type="text/javascript" src="https://default.salsalabs.org/api/widget/template/4c9789ac-6d7f-4065-86e8-676d991e0bbf/?tId=7730334d-e75b-46f5-bc51-d043e59aebb2" ></script>
-      </div>
-      <p class='pull-left'>
-        <a href='{% url 'approval_polls:index' %}'>Home</a>
-      </p>
-      <p class='pull-right'>
-        <a href="{% url 'registration_register' %}"> Register </a>
-      </p>
-    </div>
-  </div>
+</div>
+
+
 {% endblock %}
 
 {% block login %}{% endblock %}

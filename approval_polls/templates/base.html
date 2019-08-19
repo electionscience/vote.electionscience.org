@@ -1,91 +1,94 @@
 <!DOCTYPE html>
 <html lang='en'>
-  <head>
-    {% load staticfiles %}
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' href='{% static 'vendor/bootstrap/css/bootstrap.min.css' %}'>
-    <link rel='stylesheet' type='text/css' href='{% static 'approval_polls/style.css' %}'>
-    <link rel='stylesheet' type='text/css' href='{% static 'vendor/font-awesome/css/font-awesome.css' %}'>
-    <link rel='stylesheet' type='text/css' href='{% static 'vendor/js-socials/jssocials.css' %}'>
-    <link rel='stylesheet' type='text/css' href='{% static 'vendor/js-socials/jssocials-theme-flat.css' %}'>
-    <link rel = "stylesheet" type='text/css' href='{% static 'vendor/ui/1.12.1/jquery-ui.min.css' %}'>
 
-    <script src='{% static 'vendor/jquery-3.2.1.min.js' %}'></script>
-    <script src='{% static 'vendor/ui/1.12.1/jquery-ui.min.js' %}'></script>
-    <script src='{% static 'vendor/bootstrap/js/bootstrap.min.js' %}'></script>
-    <script src='{% static 'vendor/jstz/js/jstz.min.js' %}'></script>
-    <script src='{% static 'vendor/js-socials/jssocials.js' %}'></script>
-    <title>Approval Polls from The Center for Election Science</title>
-    {% block head %}{% endblock %}
-  </head>
-  <body>
-    {% load tz %}
-    {% get_current_timezone as TIME_ZONE %}
-    <script>
-      /* Using inline JavaScript allows us to access a Django template variable ("TIME_ZONE") in the JS code */
-      var timezone = jstz.determine();
-      var timezone_name = timezone.name();
-      if (timezone_name != "{{ TIME_ZONE }}") {
-        $('body').append('<form id="set_timezone"></form>');
-        $('#set_timezone')
-          .attr("action","/approval_polls/set-user-timezone/")
-          .attr("method","get")
-          .append('<input type="hidden" name="timezone" value='+timezone_name+'>')
-          .append('<input type="hidden" name="current_path" value={{request.get_full_path}} >');
-        $('#set_timezone').submit();
-      }
-    </script>
-    <div class='container-fluid'>
-      <div class='row-fluid'>
-        <div class='col-md-5 col-md-offset-3'>
+<head>
+  {% load staticfiles %}
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <link rel='stylesheet' type='text/css' href='{% static 'vendor/bootstrap/css/bootstrap.min.css' %}'>
+  <link rel='stylesheet' type='text/css' href='{% static 'approval_polls/style.css' %}'>
+  <link rel='stylesheet' type='text/css' href='{% static 'vendor/font-awesome/css/font-awesome.css' %}'>
+  <link rel='stylesheet' type='text/css' href='{% static 'vendor/js-socials/jssocials.css' %}'>
+  <link rel='stylesheet' type='text/css' href='{% static 'vendor/js-socials/jssocials-theme-flat.css' %}'>
+  <link rel="stylesheet" type='text/css' href='{% static 'vendor/ui/1.12.1/jquery-ui.min.css' %}'>
+  <script src='{% static 'vendor/jquery-3.2.1.min.js' %}'></script>
+  <script src='{% static 'vendor/ui/1.12.1/jquery-ui.min.js' %}'></script>
+  <script src='{% static 'vendor/bootstrap/js/bootstrap.min.js' %}'></script>
+  <script src='{% static 'vendor/jstz/js/jstz.min.js' %}'></script>
+  <script src='{% static 'vendor/js-socials/jssocials.js' %}'></script>
+  <title>Approval Polls from The Center for Election Science</title>
+  {% block head %}{% endblock %}
+</head>
 
-          <div class='row-fluid'>
-            <div class='col-md-9 col-md-offset-1'>
-              <a href='http://www.electology.org' target='_blank'>
-                <img src='{% static 'approval_polls/images/ES-logo.png' %}' width='100%' border='0'>
-              </a>
-            </div>
-          </div>
-          <p>
-            <div class='row-fluid'>
-              <div class='col-md-8 col-md-offset-4'>
-                <a href='{% url 'approval_polls:tag_cloud' %}'><p width='100%'>View trending polls!</p></a>
-              </div>
-            </div>
+<body>
+  {% load tz %}
+  {% get_current_timezone as TIME_ZONE %}
+  <script>
+    /* Using inline JavaScript allows us to access a Django template variable ("TIME_ZONE") in the JS code */
+    var timezone = jstz.determine();
+    var timezone_name = timezone.name();
+    if (timezone_name != "{{ TIME_ZONE }}") {
+      $('body').append('<form id="set_timezone"></form>');
+      $('#set_timezone')
+        .attr("action", "/approval_polls/set-user-timezone/")
+        .attr("method", "get")
+        .append('<input type="hidden" name="timezone" value=' + timezone_name + '>')
+        .append('<input type="hidden" name="current_path" value={{request.get_full_path}} >');
+      $('#set_timezone').submit();
+    }
+  </script>
+  <div class='container-fluid'>
+    <div class='col-md-5 col-md-offset-3'>
+      <div class='row'>
+        <div class='col-md-9 col-md-offset-1'>
+          <a href='http://www.electionscience.org' target='_blank'>
+            <img src='{% static 'approval_polls/images/ES-logo.png' %}' width='100%' border='0'>
+          </a>
+        </div>
+      </div>
+      <div class='row top-buffer'>
+        <div class='col-md-12'>
+          <p class='pull-left'>
+            {% block footer %}
+            <a href='{% url 'approval_polls:index' %}'>Home</a>
+            {% endblock %}
           </p>
+          <p class='pull-right'>
+            {% block login %}
+            {% if user.is_authenticated %}
+            <a href='{% url 'approval_polls:my_info' %}'>{{user.username}}</a> |
+            <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a> |
+            <a href='{% url 'approval_polls:my_polls' %}'>Manage your polls</a>
+            {% else %}
+            {% if request.path != '/approval_polls/' %}
+            <a href="{% url 'auth_login' %}?next={{request.path}}">Login</a>
+            {% else %}
+            <a href="{% url 'auth_login' %}">Login</a>
+            {% endif %}
+            {% endif %}
+            {% endblock %}
+          </p>
+        </div>
+      </div>
+      <div class='row'>
+        {% block content %}{% endblock %}
+      </div>
+      <div class='row'>
+        <a href='{% url 'approval_polls:tag_cloud' %}'>
+          <p width='100%'>View trending polls!</p>
+        </a>
+      </div>
+      <div class='row'>
 
-          {% block content %}{% endblock %}
-
-          <div class='row-fluid top-buffer'>
-            <div class='col-md-12'>
-              <p class='pull-left'>
-                {% block footer %}
-                  <a href='{% url 'approval_polls:index' %}'>Home</a>
-                {% endblock %}
-              </p>
-
-              <p class='pull-right'>
-                {% block login %}
-                  {% if user.is_authenticated %}
-                    <a href='{% url 'approval_polls:my_info' %}'>{{user.username}}</a> |
-                    <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a> |
-                    <a href='{% url 'approval_polls:my_polls' %}'>Manage your polls</a>
-                  {% else %}
-                    {% if request.path != '/approval_polls/' %}
-                      <a href="{% url 'auth_login' %}?next={{request.path}}">Login</a>
-                    {% else %}
-                      <a href="{% url 'auth_login' %}">Login</a>
-                    {% endif %}
-                  {% endif %}
-                {% endblock %}
-              </p>
-            </div>
-          </div>
-
+        <div class='row' id="7730334d-e75b-46f5-bc51-d043e59aebb2">
+          <script type="text/javascript"
+            src="https://default.salsalabs.org/api/widget/template/4c9789ac-6d7f-4065-86e8-676d991e0bbf/?tId=7730334d-e75b-46f5-bc51-d043e59aebb2">
+          </script>
         </div>
       </div>
     </div>
-  </body>
+  </div>
+</body>
+
 </html>
