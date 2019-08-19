@@ -54,6 +54,11 @@
             <a href='{% url 'approval_polls:index' %}'>Home</a>
             {% endblock %}
           </p>
+          <p class='text-center'>
+            <a href='{% url 'approval_polls:tag_cloud' %}'>
+              <p width='100%'>View trending polls!</p>
+            </a>
+          </p>
           <p class='pull-right'>
             {% block login %}
             {% if user.is_authenticated %}
@@ -75,9 +80,7 @@
         {% block content %}{% endblock %}
       </div>
       <div class='row'>
-        <a href='{% url 'approval_polls:tag_cloud' %}'>
-          <p width='100%'>View trending polls!</p>
-        </a>
+
       </div>
       <div class='row'>
 

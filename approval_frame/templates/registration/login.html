@@ -8,6 +8,10 @@
 
 {% block content %}
 
+<p class='pull-right'>
+  <a href="{% url 'registration_register' %}"> Register </a>
+</p>
+
 {% if form.errors %}
 <div class='row-fluid top-buffer'>
   <div class='col-md-12 text-danger'>
@@ -16,56 +20,53 @@
 </div>
 {% endif %}
 
-<div class='row-fluid top-buffer'>
+<div class='row top-buffer'>
   <div class='col-md-6 col-md-offset-3'>
-    <p class='pull-left'>
-      <a href='{% url 'approval_polls:index' %}'>Home</a>
-    </p>
-    <p class='pull-right'>
-      <a href="{% url 'registration_register' %}"> Register </a>
-    </p>
-    {% if next %}
-    <form method='post' action='/accounts/login/?next={{next}}'>
-      {% else %}
-      <form method='post' action='/accounts/login/'>
-        {% endif %}
-        {% csrf_token %}
-        <legend>Login</legend>
-        {% comment %} <div class='form-group'>
-          <a href='{% url 'social:begin' 'facebook' %}?next={{ next }}' class='btn btn-block btn-social btn-facebook'>
-            <span class='fa fa-facebook'></span> Login with Facebook
-          </a>
-          <a href='{% url 'social:begin' 'google-oauth2' %}?next={{ next }}'
-            class='btn btn-block btn-social btn-google'>
-            <span class='fa fa-google'></span> Login with Google
-          </a>
-        </div>
-        <table width='100%'>
-          <tr>
-            <td>
-              <hr />
-            </td>
-            <td id='socialAuthSep'>or</td>
-            <td>
-              <hr />
-            </td>
-          </tr>
-        </table>
-        <div class='form-group'>
-          <input type='text' class='form-control' id='{{ form.username.id_for_label }}' name='{{ form.username.name }}'
-            placeholder='Username or Email ID' maxlength={{ form.username.field.max_length }}>
-        </div> {% endcomment %}
-        <div class='form-group'>
-          <input type='password' class='form-control' id='{{ form.password.id_for_label }}'
-            name='{{ form.password.name }}' placeholder='{{ form.password.label }}'>
-        </div>
-        <div class='form-group small'>
-          <p align='right'>
-            <a href='{% url 'auth_password_reset' %}'>Forgot Password?</a>
-          </p>
-        </div>
-        <button type='submit' class='btn btn-success'>Login</button>
-      </form>
+    <div class='row'>
+      {% if next %}
+      <form method='post' action='/accounts/login/?next={{next}}'>
+        {% else %}
+        <form method='post' action='/accounts/login/'>
+          {% endif %}
+          {% csrf_token %}
+          <legend>Login</legend>
+          <div class='form-group'> {% comment %}
+            <a href='{% url 'social:begin' 'facebook' %}?next={{ next }}' class='btn btn-block btn-social btn-facebook'>
+              <span class='fa fa-facebook'></span> Login with Facebook
+            </a>
+            <a href='{% url 'social:begin' 'google-oauth2' %}?next={{ next }}'
+              class='btn btn-block btn-social btn-google'>
+              <span class='fa fa-google'></span> Login with Google
+            </a>
+          </div>
+          <table width='100%'>
+            <tr>
+              <td>
+                <hr />
+              </td>
+              <td id='socialAuthSep'>or</td>
+              <td>
+                <hr />
+              </td>
+            </tr>
+          </table>{% endcomment %}
+          <div class='form-group'>
+            <input type='text' class='form-control' id='{{ form.username.id_for_label }}'
+              name='{{ form.username.name }}' placeholder='Username or Email ID'
+              maxlength={{ form.username.field.max_length }}>
+          </div>
+          <div class='form-group'>
+            <input type='password' class='form-control' id='{{ form.password.id_for_label }}'
+              name='{{ form.password.name }}' placeholder='{{ form.password.label }}'>
+          </div>
+          <div class='form-group small'>
+            <p align='right'>
+              <a href='{% url 'auth_password_reset' %}'>Forgot Password?</a>
+            </p>
+          </div>
+          <button type='submit' class='btn btn-success'>Login</button>
+        </form>
+    </div>
   </div>
 </div>
 
@@ -73,4 +74,3 @@
 {% endblock %}
 
 {% block login %}{% endblock %}
-{% block footer %}{% endblock %}
