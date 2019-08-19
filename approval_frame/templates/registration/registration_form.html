@@ -75,7 +75,7 @@
                name='{{ form.zipcode.name }}' placeholder='{{ form.zipcode.label }}'
                value='{{ form.zipcode.value|default_if_none:'' }}' maxlength={{ form.zipcode.field.max_length }}>
       </div>
-      <div class='form-group {% if form.errors.newslettercheckbox %} has-error {% endif %}'>
+      <!-- <div class='form-group {% if form.errors.newslettercheckbox %} has-error {% endif %}'>
         {% for error in form.errors.newslettercheckbox %}
           <label class='control-label' for='{{ form.newslettercheckbox.id_for_label }}'>
             {{ error }}
@@ -88,7 +88,7 @@
               Subscribe to our Newsletter
           </label>
         </div>
-      </div>
+      </div> -->
       <button class='btn btn-success' type='submit'>Register</button>
     </form>
   </div>
