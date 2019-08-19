@@ -9,6 +9,16 @@
 
 <div class='row-fluid top-buffer'>
   <div class='col-md-6 col-md-offset-3'>
+    <p class='pull-left'>
+      <a href='{% url 'approval_polls:index' %}'>Home</a>
+    </p>
+    <p class='pull-right'>
+      <a href="{% url 'auth_login' %}">Login</a>
+    </p>
+  </div>
+</div>
+<div class='row-fluid top-buffer'>
+  <div class='col-md-6 col-md-offset-3'>
     <form action='/accounts/register/' method='post'>
       {% csrf_token %}
       <legend>Register</legend>
@@ -84,16 +94,6 @@
   </div>
 </div>
 
-<div class='row-fluid top-buffer'>
-  <div class='col-md-6 col-md-offset-3'>
-    <p class='pull-left'>
-      <a href='{% url 'approval_polls:index' %}'>Home</a>
-    </p>
-    <p class='pull-right'>
-      <a href="{% url 'auth_login' %}">Login</a>
-    </p>
-  </div>
-</div>
 {% endblock %}
 
 {% block login %}{% endblock %}
