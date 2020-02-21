@@ -137,7 +137,7 @@ class Ballot(models.Model):
     user = models.ForeignKey(User, null=True, blank=True)
     timestamp = models.DateTimeField('time voted')
     permit_email = models.BooleanField(default=False)
-    email = models.EmailField(null=True, blank=True, unique=True)
+    email = models.EmailField(null=True, blank=True)
 
     def __unicode__(self):
         return str(self.id) + " at " + str(self.timestamp)
