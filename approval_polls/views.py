@@ -191,6 +191,14 @@ def vote(request, poll_id):
     if poll_vtype == 1:
         if not poll.is_closed():
             ballot = poll.ballot_set.create(timestamp=timezone.now())
+
+            if 'email_opt_in' and 'email_address' in request.POST:
+                permit_email = True
+                email_address = request.POST['email_address']
+                ballot.permit_email = permit_email
+                ballot.email = email_address
+                ballot.save()
+
             for counter, choice in enumerate(poll.choice_set.all()):
                 if 'choice' + str(counter + 1) in request.POST:
                     ballot.vote_set.create(choice=choice)
