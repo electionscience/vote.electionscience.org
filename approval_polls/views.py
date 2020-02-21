@@ -102,11 +102,13 @@ class DetailView(generic.DetailView):
         user = self.request.user
         checked_choices = []
         allowed_emails = []
+        permit_email = False
         if poll.vtype == 2 and user.is_authenticated():
             for ballot in poll.ballot_set.all():
                 if ballot.user == user:
                     for option in ballot.vote_set.all():
                         checked_choices.append(option.choice)
+                    permit_email = ballot.permit_email
         elif poll.vtype == 3:
             # The user can either be authenticated, or redirected through a link.
             invitations = VoteInvitation.objects.filter(poll_id=poll.id)
@@ -140,6 +142,7 @@ class DetailView(generic.DetailView):
         context['checked_choices'] = checked_choices
         context['num_tags'] = len(poll.polltag_set.all())
         context['tags'] = []
+        context['permit_email'] = permit_email
         if context['num_tags'] > 0:
             context['tags'] = [t.tag_text for t in poll.polltag_set.all()]
         if not poll.is_closed() and poll.close_date is not None:
@@ -271,6 +274,17 @@ def vote(request, poll_id):
                     )
                 else:
                     ballot = poll.ballot_set.get(user=request.user)
+
+                    # Ensure that email opt in is updated as required.
+                    permit_email = False
+                    if 'email_opt_in' in request.POST:
+                        permit_email = True
+
+                    if ballot.permit_email != permit_email:
+                        ballot.permit_email = permit_email
+                        ballot.save()
+
+                    # Ensure that votes are updated if required.
                     for counter, choice in enumerate(poll.choice_set.all()):
                         if 'choice' + str(counter + 1) in request.POST:
                             ballot_exist = ballot.vote_set.filter(
@@ -286,6 +300,7 @@ def vote(request, poll_id):
                             if ballot_exist:
                                 ballot_exist.delete()
                                 ballot.save()
+                    # Ensure that choice options are updated if required.
                     for key, value in request.POST.items():
                         if key + 'txt' in request.POST:
                             choice_txt = request.POST[key + 'txt'].strip()
