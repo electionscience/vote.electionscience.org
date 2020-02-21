@@ -83,28 +83,28 @@
           {% endif %}
           {% if poll.vtype == 3 %}
               {% if poll.show_email_opt_in %}
-                  <div class='checkbox'>
-                      <input type='checkbox' name='email_opt_in' {% if permit_email %} checked {% endif %}>
-                      I don't mind participating in email discussions.
+                  <div>
+                      <input type='checkbox' name='email_opt_in' {% if permit_email %} checked {% endif %} />
+                      I don't mind receiving occasional email communication.
                   </div>
               {% endif %}
             <button class='btn btn-success' type='submit' {% if poll.is_closed or not vote_authorized or poll.is_suspended %} disabled {% endif %}>{% if checked_choices %}Update Vote{% else %}Vote{% endif %}</button>
 
           {% elif poll.vtype == 2 %}
               {% if poll.show_email_opt_in %}
-                  <div class='checkbox'>
-                      <input type='checkbox' name='email_opt_in' {% if permit_email %} checked {% endif %}>
-                      I don't mind participating in email discussions.
+                  <div>
+                      <input type='checkbox' name='email_opt_in' {% if permit_email %} checked {% endif %} />
+                      I don't mind receiving occasional email communication.
                   </div>
               {% endif %}
             <button class='btn btn-success' type='submit' {% if poll.is_closed or poll.is_suspended%} disabled {% endif %}>{% if checked_choices %}Update Vote{% else %}Vote{% endif %}</button>
 
           {% elif poll.vtype == 1 %}
               {% if poll.show_email_opt_in %}
-                  <div class='checkbox'>
+                  <div>
                       <input type='checkbox' name='email_opt_in' {% if permit_email %} checked {% endif %}>
-                      I don't mind participating in email discussions. My email addres is
-                      <input type='email' name='email_address' placeholder='<Enter your email here>'>
+                      I don't mind receiving occasional email communication. My email addres is
+                      <input type='email' name='email_address' placeholder='<Enter your email here>'/>
                   </div>
               {% endif %}
             <button class='btn btn-success' type='submit' {% if poll.is_closed or poll.is_suspended%} disabled {% endif %}>{% if checked_choices %}Update Vote{% else %}Vote{% endif %}</button>
