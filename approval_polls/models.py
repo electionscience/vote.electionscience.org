@@ -140,7 +140,7 @@ class Ballot(models.Model):
     email = models.EmailField(null=True, blank=True, unique=True)
 
     def __unicode__(self):
-        return self.ip + " at " + str(self.timestamp)
+        return str(self.id) + " at " + str(self.timestamp)
 
 
 class Vote(models.Model):
