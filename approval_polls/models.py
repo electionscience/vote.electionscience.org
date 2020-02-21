@@ -23,6 +23,7 @@ class Poll(models.Model):
     show_lead_color = models.BooleanField(default=False)
     is_private = models.BooleanField(default=False)
     is_suspended = models.BooleanField(default=False)
+    show_email_opt_in = models.BooleanField(default=False)
 
     def is_closed(self):
         if self.close_date:
@@ -135,6 +136,8 @@ class Ballot(models.Model):
     poll = models.ForeignKey(Poll, null=True, blank=True)
     user = models.ForeignKey(User, null=True, blank=True)
     timestamp = models.DateTimeField('time voted')
+    permit_email = models.BooleanField(default=False)
+    email = models.EmailField(null=True, blank=True, unique=True)
 
     def __unicode__(self):
         return self.ip + " at " + str(self.timestamp)
