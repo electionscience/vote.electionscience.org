@@ -230,10 +230,16 @@ def vote(request, poll_id):
                     user_id=request.user
                 )
                 if not existing_ballots:
+                    # Check if email_opt_in is permitted.
+                    permit_email = False
+                    if 'email_opt_in' in request.POST:
+                        permit_email = True
+
                     # Add the user as the foreign key
                     ballot = poll.ballot_set.create(
                         timestamp=timezone.now(),
-                        user=request.user
+                        user=request.user,
+                        permit_email=permit_email,
                     )
 
                     for counter, choice in enumerate(poll.choice_set.all()):
@@ -512,6 +518,11 @@ class CreateView(generic.View):
             else:
                 show_lead_color = False
 
+            if 'show-email-opt-in' in request.POST:
+                show_email_opt_in = True
+            else:
+                show_email_opt_in = False
+
             if 'public-poll-visibility' in request.POST:
                 is_private = False
             else:
@@ -527,6 +538,7 @@ class CreateView(generic.View):
                 show_countdown=show_countdown,
                 show_write_in=show_write_in,
                 show_lead_color=show_lead_color,
+                show_email_opt_in=show_email_opt_in,
                 is_private=is_private,
             )
             p.save()
