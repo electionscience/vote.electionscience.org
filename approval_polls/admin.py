@@ -25,7 +25,7 @@ class PollAdmin(admin.ModelAdmin):
         ('Date information', {'fields': ['pub_date'], 'classes':['collapse']}),
     ]
     inlines = [ChoiceInline]
-    list_display = ('question', 'pub_date')
+    list_display = ('id', 'question', 'pub_date')
     list_filter = ['pub_date']
     search_fields = ['question']
     actions = ["export_voters_as_csv"]
@@ -48,19 +48,21 @@ class PollAdmin(admin.ModelAdmin):
                 [getattr(poll, field) for field in poll_field_names]
             )
             writer.writerow([])
+            ballot_field_names = [
+                'username', 'first_name', 'last_name', 'email'
+            ]
+            writer.writerow(ballot_field_names)
+
             for ballot in poll.ballot_set.all():
-                ballot_field_names = [
-                    'username', 'first_name', 'last_name', 'email'
-                ]
-                writer.writerow(ballot_field_names)
-                if ballot.user:
-                    writer.writerow(
-                        [getattr(
-                            ballot.user, field
-                        ) for field in ballot_field_names]
-                    )
-                else:
-                    writer.writerow(['', '', '', ballot.email])
+                if ballot.permit_email:
+                    if ballot.user:
+                        writer.writerow(
+                            [getattr(
+                                ballot.user, field
+                            ) for field in ballot_field_names]
+                        )
+                    else:
+                        writer.writerow(['', '', '', ballot.email])
 
         return response
 
