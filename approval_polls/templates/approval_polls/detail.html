@@ -104,8 +104,8 @@
           {% elif poll.vtype == 1 %}
               {% if poll.show_email_opt_in %}
                   <div>
-                      <input type='checkbox' name='email_opt_in' {% if permit_email %} checked {% endif %} />
-                      <small> I don't mind receiving occasional email communication. My email addres is
+                      <input type='checkbox' name='email_opt_in' checked />
+                      <small> I don't mind receiving occasional email communication. My email address is
                           <input type='email' name='email_address' placeholder='<Enter your email here>'/>
                       </small>
                   </div>
