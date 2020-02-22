@@ -636,6 +636,7 @@ class EditView(generic.View):
         poll.is_private = 'public-poll-visibility' not in request.POST
         poll.show_write_in = 'show-write-in' in request.POST
         poll.show_lead_color = 'show-lead-color' in request.POST
+        poll.show_email_opt_in = 'show-email-opt-in' in request.POST
         if 'radio-poll-type' in request.POST:
             poll.vtype = int(request.POST['radio-poll-type'])
         poll.save()
