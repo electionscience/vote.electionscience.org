@@ -81,11 +81,40 @@
               </div>
             </div>
           {% endif %}
+          {% with message="Sign me up to receive email communication about efforts to create fairer, more representative <br> elections through approval voting." %}
           {% if poll.vtype == 3 %}
+              {% if poll.show_email_opt_in %}
+                  <div>
+                      <input type='checkbox' name='email_opt_in' {% if permit_email %} checked {% endif %} />
+                      <small>{{message}}</small>
+                  </div>
+                <br>
+              {% endif %}
             <button class='btn btn-success' type='submit' {% if poll.is_closed or not vote_authorized or poll.is_suspended %} disabled {% endif %}>{% if checked_choices %}Update Vote{% else %}Vote{% endif %}</button>
-          {% else %}
+
+          {% elif poll.vtype == 2 %}
+              {% if poll.show_email_opt_in %}
+                  <div>
+                      <input type='checkbox' name='email_opt_in' {% if permit_email %} checked {% endif %} />
+                      <small>{{message}}</small>
+                  </div>
+                <br>
+              {% endif %}
+            <button class='btn btn-success' type='submit' {% if poll.is_closed or poll.is_suspended%} disabled {% endif %}>{% if checked_choices %}Update Vote{% else %}Vote{% endif %}</button>
+
+          {% elif poll.vtype == 1 %}
+              {% if poll.show_email_opt_in %}
+                  <div>
+                      <input type='checkbox' name='email_opt_in' checked />
+                      <small> {{message}} My email address is
+                          <input class='text-align-center' type='email' size=25 name='email_address' placeholder='<Enter your email here>' />
+                      </small>
+                  </div>
+                <br>
+              {% endif %}
             <button class='btn btn-success' type='submit' {% if poll.is_closed or poll.is_suspended%} disabled {% endif %}>{% if checked_choices %}Update Vote{% else %}Vote{% endif %}</button>
           {% endif %}
+          {% endwith %}
         {% endif %}
       </div>
     </form>

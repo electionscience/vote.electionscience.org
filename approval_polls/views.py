@@ -102,11 +102,17 @@ class DetailView(generic.DetailView):
         user = self.request.user
         checked_choices = []
         allowed_emails = []
+
+        # Default to setting this if the poll has been configured for it. Thus
+        # the user has to opt-out of email communication if required.
+        permit_email = True if poll.show_email_opt_in else False
+
         if poll.vtype == 2 and user.is_authenticated():
             for ballot in poll.ballot_set.all():
                 if ballot.user == user:
                     for option in ballot.vote_set.all():
                         checked_choices.append(option.choice)
+                    permit_email = ballot.permit_email
         elif poll.vtype == 3:
             # The user can either be authenticated, or redirected through a link.
             invitations = VoteInvitation.objects.filter(poll_id=poll.id)
@@ -123,6 +129,7 @@ class DetailView(generic.DetailView):
                         if ballot.user == user:
                             for option in ballot.vote_set.all():
                                 checked_choices.append(option.choice)
+                            permit_email = ballot.permit_email
             if 'key' in self.request.GET and 'email' in self.request.GET:
                 invitations = VoteInvitation.objects.filter(
                     key=self.request.GET['key'],
@@ -136,10 +143,12 @@ class DetailView(generic.DetailView):
                     if ballot is not None:
                         for option in ballot.vote_set.all():
                             checked_choices.append(option.choice)
+                        permit_email = ballot.permit_email
         context['allowed_emails'] = allowed_emails
         context['checked_choices'] = checked_choices
         context['num_tags'] = len(poll.polltag_set.all())
         context['tags'] = []
+        context['permit_email'] = permit_email
         if context['num_tags'] > 0:
             context['tags'] = [t.tag_text for t in poll.polltag_set.all()]
         if not poll.is_closed() and poll.close_date is not None:
@@ -188,6 +197,14 @@ def vote(request, poll_id):
     if poll_vtype == 1:
         if not poll.is_closed():
             ballot = poll.ballot_set.create(timestamp=timezone.now())
+
+            if 'email_opt_in' and 'email_address' in request.POST:
+                permit_email = True
+                email_address = request.POST['email_address']
+                ballot.permit_email = permit_email
+                ballot.email = email_address
+                ballot.save()
+
             for counter, choice in enumerate(poll.choice_set.all()):
                 if 'choice' + str(counter + 1) in request.POST:
                     ballot.vote_set.create(choice=choice)
@@ -230,10 +247,16 @@ def vote(request, poll_id):
                     user_id=request.user
                 )
                 if not existing_ballots:
+                    # Check if email_opt_in is permitted.
+                    permit_email = False
+                    if 'email_opt_in' in request.POST:
+                        permit_email = True
+
                     # Add the user as the foreign key
                     ballot = poll.ballot_set.create(
                         timestamp=timezone.now(),
-                        user=request.user
+                        user=request.user,
+                        permit_email=permit_email,
                     )
 
                     for counter, choice in enumerate(poll.choice_set.all()):
@@ -265,6 +288,17 @@ def vote(request, poll_id):
                     )
                 else:
                     ballot = poll.ballot_set.get(user=request.user)
+
+                    # Ensure that email opt in is updated as required.
+                    permit_email = False
+                    if 'email_opt_in' in request.POST:
+                        permit_email = True
+
+                    if ballot.permit_email != permit_email:
+                        ballot.permit_email = permit_email
+                        ballot.save()
+
+                    # Ensure that votes are updated if required.
                     for counter, choice in enumerate(poll.choice_set.all()):
                         if 'choice' + str(counter + 1) in request.POST:
                             ballot_exist = ballot.vote_set.filter(
@@ -280,6 +314,7 @@ def vote(request, poll_id):
                             if ballot_exist:
                                 ballot_exist.delete()
                                 ballot.save()
+                    # Ensure that choice options are updated if required.
                     for key, value in request.POST.items():
                         if key + 'txt' in request.POST:
                             choice_txt = request.POST[key + 'txt'].strip()
@@ -352,12 +387,28 @@ def vote(request, poll_id):
         if invitations or request.user == poll.user:
             if not poll.is_closed():
                 if ballot is None:
-                    ballot = poll.ballot_set.create(timestamp=timezone.now(), user=auth_user)
+                    # Check if email_opt_in is permitted.
+                    permit_email = False
+                    if 'email_opt_in' in request.POST:
+                        permit_email = True
+
+                    ballot = poll.ballot_set.create(
+                        timestamp=timezone.now(), user=auth_user, permit_email=permit_email
+                    )
                     for counter, choice in enumerate(poll.choice_set.all()):
                         if 'choice' + str(counter + 1) in request.POST:
                             ballot.vote_set.create(choice=choice)
                             ballot.save()
                 else:
+                    # Ensure that email opt in is updated as required.
+                    permit_email = False
+                    if 'email_opt_in' in request.POST:
+                        permit_email = True
+
+                    if ballot.permit_email != permit_email:
+                        ballot.permit_email = permit_email
+                        ballot.save()
+
                     for counter, choice in enumerate(poll.choice_set.all()):
                         if 'choice' + str(counter + 1) in request.POST:
                             ballot_exist = ballot.vote_set.filter(
@@ -512,6 +563,11 @@ class CreateView(generic.View):
             else:
                 show_lead_color = False
 
+            if 'show-email-opt-in' in request.POST:
+                show_email_opt_in = True
+            else:
+                show_email_opt_in = False
+
             if 'public-poll-visibility' in request.POST:
                 is_private = False
             else:
@@ -527,6 +583,7 @@ class CreateView(generic.View):
                 show_countdown=show_countdown,
                 show_write_in=show_write_in,
                 show_lead_color=show_lead_color,
+                show_email_opt_in=show_email_opt_in,
                 is_private=is_private,
             )
             p.save()
@@ -601,6 +658,7 @@ class EditView(generic.View):
         poll.is_private = 'public-poll-visibility' not in request.POST
         poll.show_write_in = 'show-write-in' in request.POST
         poll.show_lead_color = 'show-lead-color' in request.POST
+        poll.show_email_opt_in = 'show-email-opt-in' in request.POST
         if 'radio-poll-type' in request.POST:
             poll.vtype = int(request.POST['radio-poll-type'])
         poll.save()
