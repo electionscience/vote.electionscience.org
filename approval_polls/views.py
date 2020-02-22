@@ -129,6 +129,7 @@ class DetailView(generic.DetailView):
                         if ballot.user == user:
                             for option in ballot.vote_set.all():
                                 checked_choices.append(option.choice)
+                            permit_email = ballot.permit_email
             if 'key' in self.request.GET and 'email' in self.request.GET:
                 invitations = VoteInvitation.objects.filter(
                     key=self.request.GET['key'],
@@ -142,6 +143,7 @@ class DetailView(generic.DetailView):
                     if ballot is not None:
                         for option in ballot.vote_set.all():
                             checked_choices.append(option.choice)
+                        permit_email = ballot.permit_email
         context['allowed_emails'] = allowed_emails
         context['checked_choices'] = checked_choices
         context['num_tags'] = len(poll.polltag_set.all())
@@ -385,12 +387,28 @@ def vote(request, poll_id):
         if invitations or request.user == poll.user:
             if not poll.is_closed():
                 if ballot is None:
-                    ballot = poll.ballot_set.create(timestamp=timezone.now(), user=auth_user)
+                    # Check if email_opt_in is permitted.
+                    permit_email = False
+                    if 'email_opt_in' in request.POST:
+                        permit_email = True
+
+                    ballot = poll.ballot_set.create(
+                        timestamp=timezone.now(), user=auth_user, permit_email=permit_email
+                    )
                     for counter, choice in enumerate(poll.choice_set.all()):
                         if 'choice' + str(counter + 1) in request.POST:
                             ballot.vote_set.create(choice=choice)
                             ballot.save()
                 else:
+                    # Ensure that email opt in is updated as required.
+                    permit_email = False
+                    if 'email_opt_in' in request.POST:
+                        permit_email = True
+
+                    if ballot.permit_email != permit_email:
+                        ballot.permit_email = permit_email
+                        ballot.save()
+
                     for counter, choice in enumerate(poll.choice_set.all()):
                         if 'choice' + str(counter + 1) in request.POST:
                             ballot_exist = ballot.vote_set.filter(
