@@ -102,7 +102,11 @@ class DetailView(generic.DetailView):
         user = self.request.user
         checked_choices = []
         allowed_emails = []
-        permit_email = False
+
+        # Default to setting this if the poll has been configured for it. Thus
+        # the user has to opt-out of email communication if required.
+        permit_email = True if poll.show_email_opt_in else False
+
         if poll.vtype == 2 and user.is_authenticated():
             for ballot in poll.ballot_set.all():
                 if ballot.user == user:
