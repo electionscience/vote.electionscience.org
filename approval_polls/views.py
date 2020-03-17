@@ -1,6 +1,7 @@
 import datetime
 import re
 import sets
+import json
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -107,6 +108,19 @@ class DetailView(generic.DetailView):
         # the user has to opt-out of email communication if required.
         permit_email = True if poll.show_email_opt_in else False
 
+        if poll.vtype == 1:
+            context['already_voted'] = False
+            # Check if cookie is already set.
+            value = self.request.COOKIES.get('polls_voted')
+            if value:
+                try:
+                    polls_voted_list = json.loads(value)
+                except ValueError:
+                    # Ignore if the cookie content cannot be parsed.
+                    pass
+                else:
+                    if poll.id in polls_voted_list:
+                        context['already_voted'] = True
         if poll.vtype == 2 and user.is_authenticated():
             for ballot in poll.ballot_set.all():
                 if ballot.user == user:
@@ -229,13 +243,25 @@ def vote(request, poll_id):
                                 ballot.vote_set.create(choice=choice)
                                 ballot.save()
             poll.save()
-            return HttpResponseRedirect(
+            response = HttpResponseRedirect(
                 reverse('approval_polls:results', args=(poll.id,))
             )
+            value = request.COOKIES.get('polls_voted')
+            if value:
+                try:
+                    polls_voted_list = json.loads(value)
+                    polls_voted_list.append(poll.id)
+                except ValueError:
+                    polls_voted_list = [poll.id]
+            else:
+                polls_voted_list = [poll.id]
+
+            response.set_cookie('polls_voted', json.dumps(polls_voted_list))
+            return response
         else:
             return HttpResponseRedirect(
                 reverse('approval_polls:detail', args=(poll.id,))
-                )
+            )
     elif poll_vtype == 2:
         # Type 2 poll - the user is required to login to vote.
         if request.user.is_authenticated():
