@@ -1,4 +1,4 @@
-django==1.8.1
+django==1.11.29
 django-registration-redux==1.1
 dj-static==0.0.6
 pytz==2015.7
