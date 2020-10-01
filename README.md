@@ -1,5 +1,6 @@
 About
 =====
+this project is amazing
 [![Build Status](https://api.travis-ci.org/electionscience/approval_frame.svg?branch=master)](https://api.travis-ci.org/electionscience/approval_frame.svg?branch=master)
 
 Lots of websites have polls, usually as a little side bar.
