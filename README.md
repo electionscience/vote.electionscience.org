@@ -8,6 +8,8 @@ Approval\_frame is a replacement for those polls, using approval voting,
 which is suitable for embedding in other webpages via an iframe tag.
 The project, taken as a whole, will serve these approval-based webpolls, or the approval\_polls package contained within it can be added to other Django-based servers to be used locally.
 
+For an example of this code in action, see [this page](https://vote.electionscience.org/approval_polls/) from the Center for Election Science website.
+
 Dependencies
 ------------
 **Option 1** : Manually install the following
@@ -28,7 +30,7 @@ Dependencies
 To learn more about why virtualenv and pip should be used, refer - [A non-magical introduction to Pip and Virtualenv for Python beginners](http://www.dabapps.com/blog/introduction-to-pip-and-virtualenv-python/)
 
 1. Install Python 2.7 from the link in step 1 above.
-2. Install [pip](https://pip.pypa.io/en/latest/installing.html) globally `sudo apt-get install python-pip`.
+2. Install [pip](https://pip.pypa.io/en/latest/installing.html) globally.
 3. Install [virtualenv](https://virtualenv.pypa.io/en/latest/) globally `sudo pip install virtualenv`.
 4. Enter the directory that contains this readme file.
 5. Create a new virtual environment `virtualenv env`.
