@@ -24,11 +24,15 @@ def update_subscription(subscription_preference, email, zipcode):
         else:
             m.lists.unsubscribe(list_id, {'email': email}, {'MMERGE3': zipcode})
     except mailchimp.ListAlreadySubscribedError:
-        errors.append('newslettercheckbox')
-        errors.append('That email is already subscribed to the list')
+        errors.extend(
+            (
+                'newslettercheckbox',
+                'That email is already subscribed to the list',
+            )
+        )
+
     except mailchimp.Error as e:
-        errors.append('newslettercheckbox')
-        errors.append(e)
+        errors.extend(('newslettercheckbox', e))
     return errors
 
 

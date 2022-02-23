@@ -8,13 +8,13 @@
 {% block content %}
 <div class='row-fluid top-buffer'>
   <div class='col-md-12'>
+    <h4>Preview</h4>
+    <iframe id="iframePreview" class="border" src='{{ link }}' width='720px'>Sorry, your browser doesn't support iframes.</iframe>
     <h4>Put this code in your site</h4>
     <div class = 'form-group'>
       <textarea id='textAreaCode' class = 'form-control' readonly></textarea>
     </div>
-    <button id= "copyText" class="btn btn-primary btn-xs">Copy to Clipboard</button>
-    <h4>Preview</h4>
-    <iframe id="iframePreview" src='{{ link }}' width='720px'>Sorry, your browser doesn't support iframes.</iframe>
+    <button id= "copyText" class="btn mt-2 btn-primary btn-xs">Copy to Clipboard</button>
   </div>
 </div>
 {% endblock %}

@@ -1,29 +1,88 @@
 {% extends 'base.html' %}
 
+
+{% block head %}
+{% load staticfiles %}
+<script src='{% static 'approval_polls/my_polls.js' %}'></script>
+{% endblock %}
+
 {% block content %}
 
-  <div  class='row-fluid top-buffer'>
-    <div class='col-md-12'>
-      <h3> My User Profile ({{current_user.username}})</h3>
-    </div>
-  </div>  
-  <div class='row-fluid top-buffer'>
-    <div class='col-md-12'>
-      <div class='well well-sm'>
-        <p> Member since: {{current_user.date_joined|date:"F j, Y e"}}</p>
-        <p> Last Login: {{current_user.last_login|date:"F j, Y e"}}</p>
-        <p><a href='{% url 'approval_polls:my_polls' %}'> Polls I created</a>:
-          {{current_user.poll_set.all.count}}</p>
-        <p><a href = '/accounts/username/change'>Change Username</a></p>
-        <p><a href = '/accounts/password/change'>Change Password</a></p>
-        <p><a href = '/accounts/subscription/change/'>Manage Subscriptions</a></p>
-      </div>
+<div class='row-fluid top-buffer'>
+  <div class='col-md-12'>
+    <h3> My User Profile ({{current_user.username}})</h3>
+  </div>
+</div>
+<div class='row-fluid top-buffer'>
+  <div class='col-md-12'>
+    <div class='well well-sm'>
+      <p> Member since: {{current_user.date_joined|date:"F j, Y e"}}</p>
+      <p> Last Login: {{current_user.last_login|date:"F j, Y e"}}</p>
+      <p><a href='{% url 'approval_polls:my_polls' %}'> Polls I created</a>:
+        {{current_user.poll_set.all.count}}</p>
+      <p><a href='/accounts/username/change'>Change Username</a></p>
+      <p><a href='/accounts/password/change'>Change Password</a></p>
+      <p><a href='/accounts/subscription/change/'>Manage Subscriptions</a></p>
     </div>
   </div>
+</div>
+
+<div class='row-fluid top-buffer'>
+  <div class='col-md-12'>
+    <h3> My Polls </h3>
+  </div>
+</div>
+{% if latest_poll_list %}
+<div class='row-fluid top-buffer full-height'>
+  <div class='col-md-13'>
+    {% for poll in latest_poll_list %}
+    <div class='well well-sm' id='well{{ poll.id }}'>
+      <div id='pollQuestion'>
+        <a href="{% url 'approval_polls:detail' poll.id %}">{{ poll.question }}</a>
+      </div>
+      <div class="pull-right">
+        <a class=' btn btn-danger btn-xs' id='delete-poll-{{ poll.id }}'> remove </a>
+        {% comment %} {%with suspend_text=poll.is_suspended|get_suspend_text%} {% endcomment %}
+        {% comment %} <a class='btn btn-warning btn-xs right-buffer' id='{{suspend_text}}-poll-{{ poll.id }}'> {% endcomment %}
+          {% comment %} {{ suspend_text }} </a> {% endcomment %}
+        {% comment %} {%endwith%} {% endcomment %}
+        <a class='btn btn-primary btn-xs right-buffer' href="{% url 'approval_polls:edit' poll.id %}"> edit
+        </a>
+      </div>
+      <div style="display:none">
+        <input type='hidden' id='csrfmiddlewaretoken' value='{{ csrf_token }}'>
+      </div>
+      <p>
+        Published on {{ poll.pub_date|date:"N j, Y, P e" }}
+      </p>
+
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class='row-fluid top-buffer'>
+  <div class='col-md-12'>
+    <div class='text-center'>
+      {% if latest_poll_list.has_previous %}
+      <a href='?page={{ latest_poll_list.previous_page_number}}'>&laquo;Previous</a>
+      {% endif %}
+      (page {{ latest_poll_list.number }} of {{ latest_poll_list.paginator.num_pages }})
+      {% if latest_poll_list.has_next %}
+      <a href='?page={{ latest_poll_list.next_page_number}}'>Next&raquo;</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% else %}
+
+<div class='row-fluid top-buffer'>
+  <div class='col-md-12'>
+    <p>No polls are available.</p>
+  </div>
+</div>
+
+{% endif %}
 
 {% endblock content %}
-
-{% block login %}
-  <a href='{% url 'approval_polls:my_info' %}'>{{current_user.username}}</a> |
-  <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a>
-{% endblock %}

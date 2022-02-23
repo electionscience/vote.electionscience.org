@@ -8,9 +8,6 @@
 
 {% block content %}
 
-<p class='pull-right'>
-  <a href="{% url 'registration_register' %}"> Register </a>
-</p>
 
 {% if form.errors %}
 <div class='row-fluid top-buffer'>
@@ -20,8 +17,8 @@
 </div>
 {% endif %}
 
-<div class='row top-buffer'>
-  <div class='col-md-6 col-md-offset-3'>
+<div class='row top-buffer  align-self-center'>
+  <div class='col-md-6'>
     <div class='row'>
       {% if next %}
       <form method='post' action='/accounts/login/?next={{next}}'>
@@ -29,8 +26,10 @@
         <form method='post' action='/accounts/login/'>
           {% endif %}
           {% csrf_token %}
+          <a href="{% url 'registration_register' %}"> Register </a>
           <legend>Login</legend>
-          <div class='form-group'> {% comment %}
+
+           {% comment %}<div class='form-group'>
             <a href='{% url 'social:begin' 'facebook' %}?next={{ next }}' class='btn btn-block btn-social btn-facebook'>
               <span class='fa fa-facebook'></span> Login with Facebook
             </a>
