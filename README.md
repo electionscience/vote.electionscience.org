@@ -13,6 +13,7 @@ The project, taken as a whole, will serve these approval-based webpolls, or the 
 ### Option 3 : (Recommend) Docker
 
 `docker-compose run web python manage.py syncdb`
+`docker-compose run web python manage.py test`
 `docker-compose up`
 
 ### Option 2 : Use virtualenv and pip
