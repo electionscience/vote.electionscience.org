@@ -154,7 +154,7 @@ class PollResultsTests(TestCase):
         response = self.client.get(reverse('approval_polls:results',
                                    args=(poll.id,)))
         self.assertContains(response, '0 votes (0%)', status_code=200)
-        self.assertContains(response, '0 votes on 0', status_code=200)
+        self.assertContains(response, '0 votes on 0\n      ballots', status_code=200)
 
     def test_results_view_with_ballots(self):
         """
@@ -167,7 +167,7 @@ class PollResultsTests(TestCase):
         response = self.client.get(reverse('approval_polls:results',
                                    args=(poll.id,)))
         self.assertContains(response, '1 vote (50%)', status_code=200)
-        self.assertContains(response, '1 vote on 2', status_code=200)
+        self.assertContains(response, '1 vote on 2\n      ballots', status_code=200)
 
 
 class PollVoteTests(TestCase):
@@ -191,7 +191,7 @@ class PollVoteTests(TestCase):
                                     follow=True)
         self.assertContains(response, '10 votes')
         self.assertContains(response, '21 votes')
-        self.assertContains(response, '101', status_code=200)
+        self.assertContains(response, '101\n      ballots', status_code=200)
 
 
 class MyPollTests(TestCase):
@@ -724,7 +724,7 @@ class TagCloudTests(TestCase):
         self.assertContains(response, "<a href='/approval_polls/tag/new%20york/'>new york</a>")
 
     def test_poll_tags_index(self):
-        # print [pt.tag_text for pt in self.poll.polltag_set.all()]
+        print [pt.tag_text for pt in self.poll.polltag_set.all()]
         response = self.client.get(reverse('approval_polls:tagged_polls',
            args=('New York',)))
         self.assertEqual(response.status_code, 200)

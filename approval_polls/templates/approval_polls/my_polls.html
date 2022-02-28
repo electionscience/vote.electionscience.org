@@ -21,13 +21,11 @@
             <div id='pollQuestion'>
               <a href="{% url 'approval_polls:detail' poll.id %}">{{ poll.question }}</a>
             </div>
-            <div class="pull-right">
             <a class='pull-right btn btn-danger btn-xs' id='delete-poll-{{ poll.id }}'> remove </a>
             {%with suspend_text=poll.is_suspended|get_suspend_text%}
             <a class='pull-right btn btn-warning btn-xs right-buffer' id='{{suspend_text}}-poll-{{ poll.id }}'> {{ suspend_text }} </a>
             {%endwith%}
             <a class='pull-right btn btn-primary btn-xs right-buffer' href="{% url 'approval_polls:edit' poll.id %}"> edit </a> 
-            </div>
             <div style="display:none">
               <input type='hidden' id='csrfmiddlewaretoken' value='{{ csrf_token }}'>
             </div>
@@ -64,3 +62,8 @@
 
   {% endif %}
 {% endblock content %}
+
+{% block login %}
+  <a href='{% url 'approval_polls:my_info' %}'>{{user.username}}</a> |
+  <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a>
+{% endblock %}
