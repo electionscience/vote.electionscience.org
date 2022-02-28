@@ -189,8 +189,10 @@ LOGGING = {
 
 # Any other variables local to the development environment should be
 # declared in the local_settings.py file and are imported here.
-from .local_settings import *
-
+try:
+    from .local_settings import *
+except ImportError:
+    pass
 
 SOCIAL_AUTH_PIPELINE = (
     "social.pipeline.social_auth.social_details",
