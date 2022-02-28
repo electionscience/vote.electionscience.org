@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
 {% block head %}
-{% load staticfiles %}
-<script src='{% static 'approval_polls/registration_form.js' %}'></script>
+  {% load staticfiles %}
+  <script src='{% static 'approval_polls/registration_form.js' %}'></script>
 {% endblock %}
 
 {% block content %}
@@ -12,32 +12,31 @@
     <form action='/accounts/subscription/change/' method='post'>
       {% csrf_token %}
       <legend>Your Subscription Preferences</legend>
-      <div class='checkbox'>
-        <label>
-          <input type='checkbox' id='{{ form.newslettercheckbox.id_for_label }}'
-            name='{{ form.newslettercheckbox.name }}' {% if boxchecked %} checked {% endif %}>
-          Subscribe to our Newsletter
-        </label>
-      </div>
-
       <div class='form-group {% if form.errors.zipcode %} has-error {% endif %}'>
         {% for error in form.errors.zipcode %}
-        <label class='control-label' for='{{ form.zipcode.id_for_label }}'>
-          {{ error }}
-        </label>
+          <label class='control-label' for='{{ form.zipcode.id_for_label }}'>
+              {{ error }}
+          </label>
         {% endfor %}
-        <input type='text' class='form-control' id='{{ form.zipcode.id_for_label }}' name='{{ form.zipcode.name }}'
-          placeholder='{{ form.zipcode.label }}' value='{{ form.zipcode.value|default_if_none:'' }}'
-          maxlength={{ form.zipcode.field.max_length }}>
+        <input type='text' class='form-control' id='{{ form.zipcode.id_for_label }}'
+               name='{{ form.zipcode.name }}' placeholder='{{ form.zipcode.label }}'
+               value='{{ form.zipcode.value|default_if_none:'' }}' maxlength={{ form.zipcode.field.max_length }}>
       </div>
       <div class='form-group {% if form.errors.newslettercheckbox %} has-error {% endif %}'>
         {% for error in form.errors.newslettercheckbox %}
-        <label class='control-label' for='{{ form.newslettercheckbox.id_for_label }}'>
-          {{ error }}
-        </label>
+          <label class='control-label' for='{{ form.newslettercheckbox.id_for_label }}'>
+            {{ error }}
+          </label>
         {% endfor %}
+        <div class='checkbox'>
+          <label>
+            <input type='checkbox' id='{{ form.newslettercheckbox.id_for_label }}'
+              name='{{ form.newslettercheckbox.name }}' {% if boxchecked %} checked {% endif %}>
+              Subscribe to our Newsletter
+          </label>
+        </div>
       </div>
-      <button class='btn btn-success mt-2' type='submit'>Update my Subscription Preference</button>
+      <button class='btn btn-success' type='submit'>Update my Subscription Preference</button>
     </form>
   </div>
 </div>

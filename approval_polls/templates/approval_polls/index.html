@@ -1,10 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<p class='text-center'>
+  <a href='{% url 'approval_polls:tag_cloud' %}'>
+  View trending polls
+  </a>
+</p>
   {% if latest_poll_list %}
     <div class='row-fluid top-buffer'>
       <div class='col-md-12'>
-        <h2>Latest Public Polls</h2>
         {% for poll in latest_poll_list %}
           <div class='well well-sm'>
             <a href="{% url 'approval_polls:detail' poll.id %}">{{ poll.question }}</a>
