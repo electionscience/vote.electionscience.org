@@ -139,7 +139,11 @@ Paying close attention to standards and consistency will definitely help improve
 
 ## Deploying in production
 
-This section is only applicable to you in case you are deploying this app in production, not while developing. In production, it is strongly recommended that `DEBUG` be set to `False`. With this, Django does not serve static files out of the box. More information on this [here](https://docs.djangoproject.com/en/1.8/howto/static-files/#admonition-serving-the-files).
+This repo is deployed in production on `https://console.cloud.google.com/compute/instancesDetail/zones/us-central1-f/instances/djangostack-1-vm?project=electionscience` under the CES Google Cloud Platform account.
+
+The site is served from `/var/www/django/`
+
+To update, SSH into the server and `git fetch master` and check if everything is as you think it should be. Then `git checkout master` if it is. 
 
 1. Run the following command to collect static files from all installed apps and place them in the 'staticfiles' directory (as given by the `STATIC_ROOT` variable).
 
@@ -148,7 +152,3 @@ This section is only applicable to you in case you are deploying this app in pro
 2. Since Django does not serve static files in production by default, we make use of a simple [WSGI](https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface) middleware library [`dj-static`](https://pypi.python.org/pypi/dj-static), that provides a Django static file server. Our polls app has been configured to run in production and serve static files once `dj-static` has been installed.
 
 3. Also, do make sure that the `ALLOWED_HOSTS` variable contains the required production domain name/IP address as outlined in the [deployment checklist](https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/#allowed-hosts).
-
-## Discuss
-
-Have a question? Want to discuss something? Head over to the forum at <https://groups.google.com/forum/#!forum/ces-software>.
