@@ -29,7 +29,9 @@
       {% if poll.is_closed and choice in leading_choices %}
       <small class='small label-inline'>
         <span class='label label-success'>Winner
-          <span class='glyphicon glyphicon-star'></span></span>
+          <span class='glyphicon glyphicon-star'>
+          </span>
+        </span>
       </small>
       {% endif %}
       <small class="text-muted">{{ choice.votes }} vote{{ choice.votes|pluralize }} ({{ choice.percentage }}%)</small>

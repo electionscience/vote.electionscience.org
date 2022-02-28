@@ -1,6 +1,15 @@
 body {
 }
 
+.btn-secondary {
+  background-color:#7EC242 !important;
+  border-color: #7EC242;
+}
+.bg-primary  {
+  --bs-bg-opacity: 1;
+  background-color: #1D4749 !important;
+}
+
 .chart div {
   height: 1.4em;
 }
