@@ -11,8 +11,3 @@
 </div>
 
 {% endblock %}
-
-{% block login %}
-  <a href='{% url 'approval_polls:my_info' %}'>{{new_username.username}}</a> |
-  <a href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a>
-{% endblock %}

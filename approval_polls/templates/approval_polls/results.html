@@ -11,11 +11,13 @@
 <div class='row-fluid top-buffer'>
   <div class='col-md-12'>
     <h4>
-      {{ poll.total_votes }} vote{{ poll.total_votes|pluralize }} on {{ poll.total_ballots }}
-      ballot{{ poll.total_ballots|pluralize}}
-      {% if poll.is_closed and poll.total_votes == 0 %}
-      <p class='small'>No votes in this poll</p>
-      {% endif %}
+      <small class="text-muted">
+        {{ poll.total_votes }} vote{{ poll.total_votes|pluralize }} on {{ poll.total_ballots }}
+        ballot{{ poll.total_ballots|pluralize}}
+        {% if poll.is_closed and poll.total_votes == 0 %}
+        <p class='small'>No votes in this poll</p>
+        {% endif %}
+      </small>
     </h4>
   </div>
 </div>
@@ -25,22 +27,24 @@
     {% for choice in poll.choice_set.all|dictsortreversed:"votes" %}
     <h4>{{ choice }}
       {% if poll.is_closed and choice in leading_choices %}
-      <p class='small label-inline'>
+      <small class='small label-inline'>
         <span class='label label-success'>Winner
-          <span class='glyphicon glyphicon-star'></span></span>
-      </p>
+          <span class='glyphicon glyphicon-star'>
+          </span>
+        </span>
+      </small>
       {% endif %}
-      <p class='small'>{{ choice.votes }} vote{{ choice.votes|pluralize }} ({{ choice.percentage }}%)</p>
+      <small class="text-muted">{{ choice.votes }} vote{{ choice.votes|pluralize }} ({{ choice.percentage }}%)</small>
     </h4>
-    <div class='chart bg-info'>
+    <div class='progress'>
       {% if poll.show_lead_color %}
       {% if choice in leading_choices %}
-      <div class='progress-bar-success' style='width:{{ choice.percentage }}%'></div>
+      <div class="progress-bar" role="progressbar" style='width:{{ choice.percentage }}%'></div>
       {% else %}
-      <div class='bg-primary' style='width:{{ choice.percentage }}%'></div>
+      <div class="progress-bar" role="progressbar" style='width:{{ choice.percentage }}%'></div>
       {% endif %}
       {% else %}
-      <div class='bg-primary' style='width:{{ choice.percentage }}%'></div>
+      <div class="progress-bar" role="progressbar" style='width:{{ choice.percentage }}%'></div>
       {% endif %}
     </div>
     {% endfor %}
@@ -59,13 +63,4 @@
   </div>
 </div>
 
-<div class='row-fluid top-buffer'>
-  <div class='col-md-12'>
-    <p class='text-center'>
-      This poll uses approval voting, instead of the more common plurality system.
-      <a href='http://www.electionscience.org/approval-voting'>Learn why it's better</a> and
-      <a href='{% url 'approval_polls:create' %}' target='_top'>create your own poll</a>.
-    </p>
-  </div>
-</div>
 {% endblock %}

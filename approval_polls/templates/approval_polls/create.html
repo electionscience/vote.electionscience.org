@@ -3,129 +3,139 @@
 {% load filters %}
 
 {% block head %}
-  {% load staticfiles %}
-  <link rel="stylesheet" href='{% static 'vendor/jquery-datetimepicker/css/jquery.datetimepicker.css' %}'>
-  <link rel="stylesheet" href='{% static 'vendor/bootstrap-tokenfield/css/bootstrap-tokenfield.min.css' %}'> 
-  <script src='{% static 'vendor/jquery-datetimepicker/js/jquery.datetimepicker.full.min.js' %}'></script>
-  <script src='{% static 'vendor/bootstrap-tokenfield/js/bootstrap-tokenfield.min.js' %}'></script>
-  <script src='{% static 'approval_polls/create.js' %}'></script>
+{% load staticfiles %}
+<link rel="stylesheet" href='{% static 'vendor/jquery-datetimepicker/css/jquery.datetimepicker.css' %}'>
+<link rel="stylesheet" href='{% static 'vendor/bootstrap-tokenfield/css/bootstrap-tokenfield.min.css' %}'>
+<script src='{% static 'vendor/jquery-datetimepicker/js/jquery.datetimepicker.full.min.js' %}'></script>
+<script src='{% static 'vendor/bootstrap-tokenfield/js/bootstrap-tokenfield.min.js' %}'></script>
+<script src='{% static 'approval_polls/create.js' %}'></script>
 {% endblock %}
 
 {% block content %}
+<form action='{% url 'approval_polls:create' %}' method='post'>
+  <fieldset>
 
-<div class='row-fluid full-height'>
-  <div class='col-md-12'>
-    <form action='{% url 'approval_polls:create' %}' method='post'>
-      <legend> Create a Poll </legend>
-      {% csrf_token %}
-      <div class='form-group {% if question_error %} has-error {% endif %}'>
-        {% if question_error %}
-          <label class='control-label' for='question'>
-              {{ question_error }}
-          </label>
-        {% endif %}
-        <input type='text' class='form-control' maxlength='200' value='{{ question }}'
-               name='question' size='28' placeholder='Poll Question'>
-      </div>
+    <legend> Create a Poll </legend>
 
-      {% for i in 5|get_range %}
-      <div class='form-group {% if i == 1 and choice_error %} has-error {% endif %}'>
-        {% if i == 1 and choice_error %}
-          <label class='control-label' for='choice1'>
-              {{ choice_error }}
-          </label>
-        {% endif %}
-        <div class='input-group' id='div-choice{{ i }}'>
-          <input class='form-control' type='text' maxlength='200' name='choice{{ i }}' placeholder='Choice'>
-          <span class='input-group-addon'>
-            <a href='#' class='add-link' id='link-choice{{ i }}' title='Add link' data-toggle='tooltip' data-placement='bottom'>
-              <span class='glyphicon glyphicon-link'></span>
+    <div class='form-group {% if question_error %} has-error {% endif %}'>
+      {% if question_error %}
+      <label class='control-label' for='question'>
+        {{ question_error }}
+      </label>
+      {% endif %}
+
+      <label for="exampleInputEmail1" class="form-label mt-4"><b>Poll Question</b></label>
+      <input type="text" class="form-control" value='{{ question }}' name='question'
+        placeholder='Who do you approve of?'>
+      {% comment %}
+      <input type='text' class='form-control' maxlength='200' value='{{ question }}' name='question' size='28'
+        placeholder='Poll Question'> {% endcomment %}
+    </div>
+
+    {% for i in 5|get_range %}
+    <div class='form-group {% if i == 1 and choice_error %} has-error {% endif %}'>
+      {% if i == 1 and choice_error %}
+      <label class='control-label' for='choice1'>
+        {{ choice_error }}
+      </label>
+      {% endif %}
+      <label for="choice{{ i }}" class="form-label mt-4">Option {{ i }}</label> <span class='input-group-addon'>
+        <a href='#' class='remove-choice' id='remove-choice{{ i }}' title='Remove Choice'>
+          <i class="fa-solid fa-x"></i>
+        </a>
+      </span>
+      <input class='form-control' type='text' maxlength='100' name='choice{{ i }}' id="choice{{ i }}" placeholder='...'>
+    </div>
+    {% endfor %}
+    <button type='button' class='btn btn-primary mt-2 mb-5' id='add-choice' title='Add choice' data-toggle='tooltip'
+      data-placement='bottom'>
+      <i class='fa-solid fa-plus'></i> Add
+    </button>
+
+
+    <!-- Add the collapsible poll settings panel here -->
+    <div class='panel-group' id='accordion' role='tablist' aria-multiselectable='true'>
+      <div class='panel panel-default'>
+        <div class='panel-heading' role='tab' id='headingOne'>
+          <h4 class='panel-title'>
+            Poll Settings
             </a>
-          </span>
-          <span class='input-group-addon'>
-            <a href='#' class='remove-choice' id='remove-choice{{ i }}' title='Remove Choice' >
-              <span class='glyphicon glyphicon-remove'></span>
-            </a>
-          </span>
-          <input type='hidden' id='linkurl-choice{{ i }}' name='linkurl-choice{{ i }}' value=''>
+          </h4>
         </div>
-      </div>
-      {% endfor %}
-      <p>
-        <button type='button' class='btn btn-primary btn-sm' id='add-choice'
-              title='Add choice' data-toggle='tooltip' data-placement='bottom'>
-          <i class='glyphicon glyphicon-plus'></i>
-        </button>
-      </p>
-      <p>
-        <div id='tag-input'>
-          <h6>(Enter a comma after each tag)</h6>
-          <input type='text' name='token-tags' class='form-control' id='tokenTagField' placeholder='Enter keywords' />
-          </label> 
-        </div> 
-      </p>
-      <!-- Add the collapsible poll settings panel here -->
-      <div class='panel-group' id='accordion' role='tablist' aria-multiselectable='true'>
-        <div class='panel panel-default'>
-          <div class='panel-heading' role='tab' id='headingOne'>
-            <h4 class='panel-title'>
-              <a role='button' data-toggle='collapse' data-parent='#accordion' href='#collapsePollSettings' aria-expanded='false' aria-controls='collapsePollSettings'>
-               Poll Settings
-              </a>
-            </h4>
-          </div>
-          <div id='collapsePollSettings' class='panel-collapse collapse' role='tabpanel' aria-labelledby='headingOne'>
-            <div class='panel-body'>
-             Who should be allowed to vote in this poll ?
-              <div class='radio'>
-                <label><input type='radio' name='radio-poll-type' checked='true' value='1'>Anyone (No restriction on the number of ballots per user).</label>
-              </div>
-              <div class='radio'>
-                <label><input type='radio' name='radio-poll-type'  value='2'>Only users with registered accounts (restricted to one ballot per user, requires login).</label>
-              </div>
-              <div class='radio'>
-                <label class='full-width'><input type='radio' name='radio-poll-type' value='3'>Only specific Email owners (will be invited by Email).
-                  <div id='email-input' hidden>
-                    <h6>(Enter a comma after each email ID)</h6>
-                    <input type='text' name='token-emails' class='form-control' id='tokenEmailField' placeholder='Email IDs' />
-                    <label id='email-error' for='token-emails' class='alert alert-danger full-width' hidden>One or more Email addresses are invalid.
-                    </label>  
-                  </div>
+        <div id='collapsePollSettings' role='tabpanel' aria-labelledby='headingOne'>
+          <div class='panel-body'>
+
+            <legend class="mt-4">Who should be allowed to vote in this poll ?
+            </legend>
+            <fieldset class="form-check">
+              <label class="form-check-label"><input type='radio' class="form-check-input" name='radio-poll-type'
+                  checked='true' value='1'>Anyone (No restriction on the
+                number of ballots per user).</label>
+            <label class="form-check-label"><input type='radio' class="form-check-input" name='radio-poll-type'
+                value='2'>Only users with registered accounts
+              (restricted to one ballot per user, requires login).</label>
+  </fieldset>
+
+          {% comment %} This doesn't seem to work? TODO
+          <div class='form-check'>
+            <label class='form-check-label full-width'><input type='radio' class="form-check-input"
+                name='radio-poll-type' value='3'>Only specific Email
+              owners
+              (will be invited by Email).
+              <div id='email-input' hidden>
+                <h6>(Enter a comma after each email ID)</h6>
+                <input type='text' name='token-emails' class='form-control' id='tokenEmailField'
+                  placeholder='Email IDs' />
+                <label id='email-error' for='token-emails' class='alert alert-danger full-width' hidden>One or more
+                  Email addresses are invalid.
                 </label>
               </div>
-              <hr>
-              <p>Poll Visibility</p>
-              <div class='checkbox'>
-                <label><input type='checkbox' id='poll-visibility' name='public-poll-visibility' value='' checked>List this poll on the home page.</label>
-              </div>
-              <hr>
-              <div class = 'datetimepicker'>
-                <p>Please select a closing date and time for this poll, if any</p>
-                <input id='datetimepicker' type='text' class='form-control' name='close-datetime' value='' placeholder='Poll Closing Date' style='background-color: white;' readonly>
-              </div>
-              <div class='checkbox'>
-                <label><input type='checkbox' name='show-close-date' id='checkbox1' value=''>Display Poll Closing Date with this poll.</label>
-              </div>
-              <div class='checkbox'>
-                <label><input type='checkbox' name='show-countdown' id='checkbox2' value=''>Display Poll Closing Countdown with this poll.</label>
-              </div>
-              <hr>
-              <p>Customize Poll</p>
-              <div class='checkbox'>
-                <label><input type='checkbox' name='show-write-in' value=''>Permit Write-in option with this poll.</label>
-              </div>
-              <div class='checkbox'>
-                <label><input type='checkbox' name='show-lead-color' value='' checked>Show Leading option in different color.</label>
-              </div>
-              <div class='checkbox'>
-                <label><input type='checkbox' name='show-email-opt-in' value=''>Display option to opt-in for email communication.</label>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <button type='submit' class='btn btn-success pull-right'>Create</button>
-    </form>
+            </label> {% endcomment %}
+
+  <hr>
+  <legend class="mt-4">Poll Visibility</legend>
+  <div class="form-check">
+    <label  class="form-check-label"><input  class="form-check-input"  type='checkbox' id='poll-visibility' name='public-poll-visibility' value='' checked>List
+      this poll on the home page.</label>
   </div>
+  <hr>
+  <div class='datetimepicker'>
+    <legend class="mt-4">Closing date and time for this poll, if any</legend>
+    <input id='datetimepicker' type='text' class='form-control' name='close-datetime' value=''
+      placeholder='Poll Closing Date' style='background-color: white;' readonly>
+  </div>
+  <div class="form-check">
+    <label class="form-check-label"><input type='checkbox'  class="form-check-input" name='show-close-date' id='checkbox1' value=''>Display Poll Closing Date
+      with this poll.</label>
+  </div>
+  <div class="form-check">
+    <label class="form-check-label"><input type='checkbox'  class="form-check-input" name='show-countdown' id='checkbox2' value=''>Display Poll Closing
+      Countdown
+      with this poll.</label>
+  </div>
+  <hr>
+  <legend class="mt-4">Customize Poll</legend>
+  <div class="form-check">
+    <label class="form-check-label"><input  class="form-check-input" type='checkbox' name='show-write-in' value=''>Permit Write-in option with this
+      poll.</label>
+  </div>
+  <div class="form-check">
+    <label class="form-check-label"><input  class="form-check-input" type='checkbox' name='show-lead-color' value='' checked>Show Leading option in different
+      color.</label>
+  </div>
+  <div class="form-check">
+    <label class="form-check-label"><input  class="form-check-input" type='checkbox' name='show-email-opt-in' value=''>Display option to opt-in for email
+      communication.</label>
+  </div>
+  <hr>
+  <div id='tag-input'>
+    <h6>(Enter a comma after each tag)</h6>
+    <input type='text' name='token-tags' class='form-control' id='tokenTagField' placeholder='Enter keywords' />
+    </label>
+  </div>
+  </fieldset>
+  {% csrf_token %}
+  <button type='submit' class='mt-4 btn btn-success pull-right'>Create</button>
+</form>
 </div>
 {% endblock %}
