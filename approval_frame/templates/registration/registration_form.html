@@ -9,19 +9,12 @@
 
 <div class='row-fluid top-buffer'>
   <div class='col-md-6 col-md-offset-3'>
-    <p class='pull-left'>
-      <a href='{% url 'approval_polls:index' %}'>Home</a>
-    </p>
-    <p class='pull-right'>
-      <a href="{% url 'auth_login' %}">Login</a>
-    </p>
-  </div>
-</div>
-<div class='row-fluid top-buffer'>
-  <div class='col-md-6 col-md-offset-3'>
+    <a href="{% url 'auth_login' %}">Login</a>
+
     <form action='/accounts/register/' method='post'>
       {% csrf_token %}
       <legend>Register</legend>
+
       <div class='form-group {% if form.errors.username %} has-error {% endif %}'>
         {% for error in form.errors.username %}
           <label class='control-label' for='{{ form.username.id_for_label }}'>
@@ -43,10 +36,13 @@
               {{ error }}
           </label>
         {% endfor %}
+        <label for="exampleInputEmail1" class="form-label mt-4">Email address</label>
         <input type='email' class='form-control' id='{{ form.email.id_for_label }}'
                name='{{ form.email.name }}' placeholder='Email ID'
                value='{{ form.email.value|default_if_none:'' }}' maxlength={{ form.email.field.max_length }}>
       </div>
+      <label for="exampleInputPassword1" class="form-label mt-4">Password</label>
+
       <div class='form-group {% if form.errors.password1 or form.non_field_errors %} has-error {% endif %}'>
         {% for error in form.non_field_errors %}
           <label class='control-label' for='{{ form.password1.id_for_label }}'>
@@ -67,6 +63,7 @@
               {{ error }}
           </label>
         {% endfor %}
+        <label for="exampleInputPassword" class="form-label mt-4">Password (again)</label>
         <input type='password' class='form-control' id='{{ form.password2.id_for_label }}'
         name='{{ form.password2.name }}' placeholder='{{ form.password2.label }}'>
       </div>
@@ -76,6 +73,7 @@
               {{ error }}
           </label>
         {% endfor %}
+        <label for="exampleInputPassword1" class="form-label mt-4">Zip Code</label>
         <input type='text' class='form-control' id='{{ form.zipcode.id_for_label }}'
                name='{{ form.zipcode.name }}' placeholder='{{ form.zipcode.label }}'
                value='{{ form.zipcode.value|default_if_none:'' }}' maxlength={{ form.zipcode.field.max_length }}>
@@ -94,7 +92,7 @@
           </label>
         </div>
       </div> -->
-      <button class='btn btn-success' type='submit'>Register</button>
+      <button class='btn btn-success mt-5' type='submit'>Register</button>
     </form>
   </div>
 </div>
