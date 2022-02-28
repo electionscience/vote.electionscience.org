@@ -8,3 +8,4 @@ python-social-auth==0.2.13
 mailchimp==2.0.9
 django-extensions==1.7.9
 djangoajax==2.3.7
+python-dotenv==0.18.0
