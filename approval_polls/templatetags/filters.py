@@ -30,21 +30,14 @@ def get_range(value):
 @register.filter
 def get_item(value, arg):
     val = value.get(arg)
-    if val is not None:
-        return str(val)
-    else:
-        return val
+    return str(val) if val is not None else val
 
 
 @register.filter
 def get_hash_item(value, arg):
-    val = value.get(arg)
-    return val
+    return value.get(arg)
 
 
 @register.filter
 def get_suspend_text(value):
-    if value is True:
-        return "unsuspend"
-    else:
-        return "suspend"
+    return "unsuspend" if value is True else "suspend"
