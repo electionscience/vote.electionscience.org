@@ -71,13 +71,14 @@ def manageSubscriptions(request):
                 )
         else:
             newslettercheckbox = False
-    elif current_user.subscription_set.count() > 0:
-        subscr = current_user.subscription_set.first()
-        form = ManageSubscriptionsForm(initial={'user': request.user, 'zipcode': subscr.zipcode})
-        newslettercheckbox = True
     else:
-        form = ManageSubscriptionsForm()
-        newslettercheckbox = False
+        if current_user.subscription_set.count() > 0:
+            subscr = current_user.subscription_set.first()
+            form = ManageSubscriptionsForm(initial={'user': request.user, 'zipcode': subscr.zipcode})
+            newslettercheckbox = True
+        else:
+            form = ManageSubscriptionsForm()
+            newslettercheckbox = False
 
     return render(
         request,
@@ -103,6 +104,7 @@ class CustomRegistrationView(RegistrationView):
             subscription_errors = update_subscription(True, request.POST['email'], request.POST['zipcode'])
             if len(subscription_errors) == 0:
                 return super(CustomRegistrationView, self).form_valid(request, form)
-            form.add_error(subscription_errors[0], subscription_errors[1])
-            return render(request, 'registration/registration_form.html', {'form': form})
+            else:
+                form.add_error(subscription_errors[0], subscription_errors[1])
+                return render(request, 'registration/registration_form.html', {'form': form})
         return super(CustomRegistrationView, self).form_valid(request, form)

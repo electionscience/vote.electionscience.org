@@ -122,11 +122,13 @@ class DetailView(generic.DetailView):
 
         # Default to setting this if the poll has been configured for it. Thus
         # the user has to opt-out of email communication if required.
-        permit_email = bool(poll.show_email_opt_in)
+        permit_email = True if poll.show_email_opt_in else False
 
         if poll.vtype == 1:
             context['already_voted'] = False
-            if value := self.request.COOKIES.get('polls_voted'):
+            # Check if cookie is already set.
+            value = self.request.COOKIES.get('polls_voted')
+            if value:
                 try:
                     polls_voted_list = json.loads(value)
                 except ValueError:
@@ -138,32 +140,39 @@ class DetailView(generic.DetailView):
         if poll.vtype == 2 and user.is_authenticated():
             for ballot in poll.ballot_set.all():
                 if ballot.user == user:
-                    checked_choices.extend(option.choice for option in ballot.vote_set.all())
+                    for option in ballot.vote_set.all():
+                        checked_choices.append(option.choice)
                     permit_email = ballot.permit_email
         elif poll.vtype == 3:
             # The user can either be authenticated, or redirected through a link.
             invitations = VoteInvitation.objects.filter(poll_id=poll.id)
-            allowed_emails = [invitation.email for invitation in invitations]
-            if user.is_authenticated() and (
-                user.email in allowed_emails or user == poll.user
-            ):
-                context['vote_authorized'] = True
+            allowed_emails = []
+            for invitation in invitations:
+                allowed_emails.append(invitation.email)
+            if user.is_authenticated():
+                # If the user is authenticated, the poll should be accessible from the home
+                # page, if it is public.
+                if user.email in allowed_emails or user == poll.user:
+                    context['vote_authorized'] = True
                     # Get the checked choices.
-                for ballot in poll.ballot_set.all():
-                    if ballot.user == user:
-                        checked_choices.extend(option.choice for option in ballot.vote_set.all())
-                        permit_email = ballot.permit_email
+                    for ballot in poll.ballot_set.all():
+                        if ballot.user == user:
+                            for option in ballot.vote_set.all():
+                                checked_choices.append(option.choice)
+                            permit_email = ballot.permit_email
             if 'key' in self.request.GET and 'email' in self.request.GET:
-                if invitations := VoteInvitation.objects.filter(
+                invitations = VoteInvitation.objects.filter(
                     key=self.request.GET['key'],
                     email=self.request.GET['email'],
                     poll_id=poll.id,
-                ):
+                )
+                if invitations:
                     context['vote_invitation'] = invitations[0]
                     context['vote_authorized'] = True
                     ballot = invitations[0].ballot
                     if ballot is not None:
-                        checked_choices.extend(option.choice for option in ballot.vote_set.all())
+                        for option in ballot.vote_set.all():
+                            checked_choices.append(option.choice)
                         permit_email = ballot.permit_email
         context['allowed_emails'] = allowed_emails
         context['checked_choices'] = checked_choices
@@ -193,7 +202,9 @@ class ResultsView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super(ResultsView, self).get_context_data(**kwargs)
         poll = self.object
-        choices = {choice: choice.votes() for choice in poll.choice_set.all()}
+        choices = {}
+        for choice in poll.choice_set.all():
+            choices[choice] = choice.votes()
         maxvotes = max(choices.values())
         if maxvotes == 0:
             leading_choices = []
