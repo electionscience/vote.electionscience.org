@@ -10,6 +10,8 @@ services:
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
+    environment:
+      - SECRET_KEY=abcd12345
     volumes:
       - .:/code
     ports:
