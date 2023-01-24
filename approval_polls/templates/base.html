@@ -9,19 +9,78 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel='stylesheet' type='text/css' href='{% static 'vendor/js-socials/jssocials.css' %}'>
-  <link rel='stylesheet' type='text/css' href='{% static 'vendor/js-socials/jssocials-theme-flat.css' %}'>
-  <link rel="stylesheet" type='text/css' href='{% static 'vendor/ui/1.12.1/jquery-ui.min.css' %}'>
+  <script src="https://code.jquery.com/jquery-3.6.3.min.js"
+    integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+    integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+  <link rel="stylesheet" type='text/css' href='https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css'>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials.min.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials.css" />
   <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.1.3/dist/minty/bootstrap.min.css" rel='stylesheet'>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
   </script>
-  <script src='{% static 'vendor/jquery-3.2.1.min.js' %}'></script>
-  <script src='{% static 'vendor/ui/1.12.1/jquery-ui.min.js' %}'></script>
-  <script src='{% static 'vendor/jstz/js/jstz.min.js' %}'></script>
-  <script src='{% static 'vendor/js-socials/jssocials.js' %}'></script>
-  <link rel='stylesheet' type='text/css' href='{% static 'approval_polls/style.css' %}'>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.7/jstz.min.js"
+    integrity="sha512-pZ0i46J1zsMwPd2NQZ4IaL427jXE2RVHMk3uv/wPTNlBVp9AbB1L65/4YdrXRPLEmyZCkY9qYOOsQp44V4orHg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <title>Approval Polls from The Center for Election Science</title>
+  <style>
+    .btn-secondary {
+      background-color: #7EC242 !important;
+      border-color: #7EC242;
+    }
+
+    .bg-primary {
+      --bs-bg-opacity: 1;
+      background-color: #1D4749 !important;
+    }
+
+    .chart div {
+      height: 1.4em;
+    }
+
+    .right-buffer {
+      margin-right: 5px;
+    }
+
+    #textAreaCode {
+      resize: none;
+      overflow: hidden;
+      overflow-y: scroll;
+    }
+
+    #socialAuthSep {
+      width: 1px;
+      padding: 0 10px;
+      text-align: center;
+    }
+
+    .full-height {
+      display: inline-block;
+      width: 100%;
+    }
+
+    #pollQuestion {
+      display: inline-block;
+      width: 60%;
+    }
+
+    .full-width {
+      width: 100%
+    }
+
+    .label-inline {
+      display: inline-block;
+    }
+
+    .text-align-center {
+      text-align: center;
+    }
+
+    .jssocials-share-logo {
+      font-family: "Font Awesome 5 Brands" !important;
+    }
+  </style>
   {% block head %}{% endblock %}
 </head>
 
@@ -99,20 +158,20 @@
           </p>
           <div class="container mt-5">
 
-        <div class='col-3 mx-auto'>
-          <a class="img-fluid  text-center" href='http://www.electionscience.org' target='_blank'>
-            <img class="img-fluid  align-self-center mr-3" src='{% static 'approval_polls/images/ES-logo.png' %}' width='100%'
-              border='0'>
-          </a>
+            <div class='col-3 mx-auto'>
+              <a class="img-fluid  text-center" href='http://www.electionscience.org' target='_blank'>
+                <img class="img-fluid  align-self-center mr-3" src='{% static 'approval_polls/images/ES-logo.png' %}'
+                  width='100%' border='0'>
+              </a>
+            </div>
+          </div>
+          {% comment %} <div class='row' id="7730334d-e75b-46f5-bc51-d043e59aebb2">
+            <script type="text/javascript"
+              src="https://default.salsalabs.org/api/widget/template/4c9789ac-6d7f-4065-86e8-676d991e0bbf/?tId=7730334d-e75b-46f5-bc51-d043e59aebb2">
+            </script>
+          </div> {% endcomment %}
         </div>
       </div>
-      {% comment %} <div class='row' id="7730334d-e75b-46f5-bc51-d043e59aebb2">
-        <script type="text/javascript"
-          src="https://default.salsalabs.org/api/widget/template/4c9789ac-6d7f-4065-86e8-676d991e0bbf/?tId=7730334d-e75b-46f5-bc51-d043e59aebb2">
-        </script>
-      </div> {% endcomment %}
-    </div>
-  </div>
 
 
 </body>
