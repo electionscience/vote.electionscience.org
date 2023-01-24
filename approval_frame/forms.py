@@ -32,7 +32,8 @@ class RegistrationFormCustom(RegistrationFormUniqueEmail):
     def clean(self):
         cleaned_data = super(RegistrationFormCustom, self).clean()
         zipcode = cleaned_data.get('zipcode')
-        if newslettercheckbox := cleaned_data.get('newslettercheckbox'):
+        newslettercheckbox = cleaned_data.get('newslettercheckbox')
+        if newslettercheckbox:
             if zipcode:
                 if len(zipcode) != 5 or not zipcode.isdigit():
                     msg = "Please enter a zip code (5 digits, Non-U.S. : 00000)"
@@ -81,7 +82,8 @@ class ManageSubscriptionsForm(forms.Form):
     def clean(self):
         cleaned_data = super(ManageSubscriptionsForm, self).clean()
         zipcode = cleaned_data.get('zipcode')
-        if newslettercheckbox := cleaned_data.get('newslettercheckbox'):
+        newslettercheckbox = cleaned_data.get('newslettercheckbox')
+        if newslettercheckbox:
             if zipcode:
                 if len(zipcode) != 5 or not zipcode.isdigit():
                     msg = "Please enter a zip code (5 digits, Non-U.S. : 00000)"

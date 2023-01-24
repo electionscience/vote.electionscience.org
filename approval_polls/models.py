@@ -33,11 +33,17 @@ class Poll(models.Model):
         return self.ballot_set.count()
 
     def total_votes(self):
-        return sum(c.votes() for c in self.choice_set.all())
+        v = 0
+        for c in self.choice_set.all():
+            v += c.votes()
+        return v
 
     def voters(self):
+        v = []
         ballots = self.ballot_set.all()
-        return [ballot.user for ballot in ballots]
+        for ballot in ballots:
+            v.append(ballot.user)
+        return v
 
     def __unicode__(self):
         return self.question
@@ -56,7 +62,7 @@ class Poll(models.Model):
         for u in ids:
             c = Choice.objects.get(id=u)
             setattr(c, 'choice_text', text_data[u])
-            if c.choice_link is not None or len(link_data[u]) != 0:
+            if not (c.choice_link is None and len(link_data[u]) == 0):
                 setattr(c, 'choice_link', link_data[u])
             c.save()
 
@@ -134,7 +140,7 @@ class Ballot(models.Model):
     email = models.EmailField(null=True, blank=True)
 
     def __unicode__(self):
-        return f"{str(self.id)} at {str(self.timestamp)}"
+        return str(self.id) + " at " + str(self.timestamp)
 
 
 class Vote(models.Model):
@@ -146,7 +152,7 @@ class Vote(models.Model):
         super(Vote, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return f"{str(self.ballot)} for {str(self.choice)}"
+        return str(self.ballot) + " for " + str(self.choice)
 
 
 class VoteInvitation(models.Model):
@@ -181,7 +187,7 @@ class VoteInvitation(models.Model):
             ctx_dict = RequestContext(request, ctx_dict)
 
         current_site = Site.objects.get_current()
-        param_string = f'?key={self.key}&email={self.email}'
+        param_string = '?key=' + self.key + '&email=' + self.email
         ctx_dict.update({
             'param_string': param_string,
             'poll': self.poll,
@@ -202,7 +208,7 @@ class VoteInvitation(models.Model):
         email_message.send()
 
     def __unicode__(self):
-        return f"{str(self.email)} for Poll:{str(self.poll.id)}"
+        return str(self.email) + " for Poll:" + str(self.poll.id)
 
 
 class Subscription(models.Model):
@@ -218,8 +224,8 @@ class PollTag(models.Model):
     def topTagsPercent(cls, count):
         pollTags = cls.objects.all()
         topTags = sorted(pollTags, key=lambda x: x.polls.count(), reverse=True)[:count]
-        sumTotalPolls = sum(t.polls.count() for t in topTags)
-        return {
-            t.tag_text: float(t.polls.count()) / sumTotalPolls * 100
-            for t in topTags
-        }
+        sumTotalPolls = sum([t.polls.count() for t in topTags])
+        topTagsDict = {}
+        for t in topTags:
+            topTagsDict[t.tag_text] = float(t.polls.count()) / sumTotalPolls * 100
+        return topTagsDict

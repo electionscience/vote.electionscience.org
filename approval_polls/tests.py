@@ -186,12 +186,9 @@ class PollVoteTests(TestCase):
             create_ballot(poll).vote_set.create(choice=choice1)
         for _ in range(10):
             create_ballot(poll).vote_set.create(choice=choice2)
-        response = self.client.post(
-            f'/approval_polls/{str(poll.id)}/vote/',
-            data={'choice2': ''},
-            follow=True,
-        )
-
+        response = self.client.post('/approval_polls/' + str(poll.id) + '/vote/',
+                                    data={'choice2': ''},
+                                    follow=True)
         self.assertContains(response, '10 votes')
         self.assertContains(response, '21 votes')
         self.assertContains(response, '101', status_code=200)
@@ -340,7 +337,10 @@ class UserProfileTests(TestCase):
         stored_date = User.objects.get(username="user1").date_joined
         desired_date = timezone.localtime(stored_date)
         test_user_date_joined = desired_date.strftime('%B %d, %Y').replace(' 0', ' ')
-        self.assertContains(response, f"Member since: {str(test_user_date_joined)}")
+        self.assertContains(
+            response,
+            "Member since: " + str(test_user_date_joined)
+            )
 
     def test_user_profile_last_login(self):
 
@@ -348,7 +348,10 @@ class UserProfileTests(TestCase):
         stored_date = User.objects.get(username="user1").last_login
         desired_date = timezone.localtime(stored_date)
         test_user_last_login = desired_date.strftime('%B %d, %Y').replace(' 0', ' ')
-        self.assertContains(response, f"Last Login: {str(test_user_last_login)}")
+        self.assertContains(
+            response,
+            "Last Login: " + str(test_user_last_login)
+            )
 
     def test_show_polls_created_no_polls(self):
 
