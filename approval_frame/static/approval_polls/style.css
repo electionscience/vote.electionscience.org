@@ -1,5 +1,3 @@
-body {
-}
 
 .btn-secondary {
   background-color:#7EC242 !important;
@@ -50,4 +48,7 @@ body {
 
 .text-align-center {
   text-align: center;
+}
+.jssocials-share-logo {
+  font-family: "Font Awesome 5 Brands" !important;
 }
