@@ -12,11 +12,13 @@ def run():
     members = m.lists.members(list_id)['data']
     subscriptions_local = Subscription.objects.all()
     local_emails = []
+    mailchimp_emails = []
     for sub in subscriptions_local:
         user = sub.user
         local_email = user.email
         local_emails.append(local_email)
-    mailchimp_emails = [member['email'] for member in members]
+    for member in members:
+        mailchimp_emails.append(member['email'])
     users_to_be_deleted = sets.Set(local_emails) - sets.Set(mailchimp_emails)
     for user_email in users_to_be_deleted:
         u = User.objects.get(email=user_email)
