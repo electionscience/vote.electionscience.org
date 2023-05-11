@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "ballot",
-                    models.ForeignKey(
+                    models.ForeignKey(on_delete=models.CASCADE, 
                         blank=True, to="approval_polls.Ballot", null=True
                     ),
                 ),
@@ -52,6 +52,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="voteinvitation",
             name="poll",
-            field=models.ForeignKey(to="approval_polls.Poll"),
+            field=models.ForeignKey(on_delete=models.CASCADE, to="approval_polls.Poll"),
         ),
     ]

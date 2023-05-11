@@ -1,6 +1,7 @@
-from django.conf.urls import include, url
+from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.urls import include, path
 from django.views.generic import RedirectView
 
 from approval_frame import views
@@ -11,39 +12,40 @@ from .views import CustomRegistrationView
 admin.autodiscover()
 
 urlpatterns = [
-    url(r"^$", RedirectView.as_view(url="/approval_polls/", permanent=False)),
+    path("", RedirectView.as_view(url="/approval_polls/", permanent=False)),
     url(
-        r"^approval_polls/", include("approval_polls.urls", namespace="approval_polls")
+        "approval_polls/",
+        include(("approval_polls.urls", "approval_polls"), namespace="approval_polls"),
     ),
-    url(r"^admin/", include(admin.site.urls)),
-    url(
-        r"^accounts/register/$",
+    url("admin/", admin.site.urls),
+    path(
+        "accounts/register/",
         CustomRegistrationView.as_view(),
         name="registration_register",
     ),
-    url(r"^accounts/", include("registration.backends.default.urls")),
-    url(r"^accounts/username/change/$", views.changeUsername, name="username_change"),
-    url(
-        r"^accounts/username/change/done/$",
+    path('accounts/', include('registration.backends.default.urls')),
+    path("accounts/username/change/", views.changeUsername, name="username_change"),
+    path(
+        "accounts/username/change/done/",
         views.changeUsernameDone,
         name="username_change_done",
     ),
-    url(
-        r"^accounts/subscription/change/$",
+    path(
+        "accounts/subscription/change/",
         views.manageSubscriptions,
         name="subscription_change",
     ),
-    url(
-        r"^accounts/subscription/change/done/$",
+    path(
+        "accounts/subscription/change/done/",
         views.manageSubscriptionsDone,
         name="subscription_change_done",
     ),
-    url(
-        r"^accounts/password/change/$",
+    path(
+        "accounts/password/change/",
         auth_views.password_change,
         {"post_change_redirect": "/accounts/password_change/done/"},
         name="password_change",
     ),
-    url(r"^accounts/password/change/done/$", auth_views.password_change_done),
-    url("", include("social.apps.django_app.urls", namespace="social")),
+    path("accounts/password/change/done/", auth_views.password_change_done),
+    path("", include("social.apps.django_app.urls", namespace="social")),
 ]

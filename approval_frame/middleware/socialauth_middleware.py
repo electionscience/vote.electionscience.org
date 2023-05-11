@@ -1,6 +1,6 @@
 import sys
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponseRedirect
 from social import exceptions as social_exceptions
 from social.apps.django_app.middleware import SocialAuthExceptionMiddleware

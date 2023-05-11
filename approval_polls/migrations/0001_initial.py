@@ -66,18 +66,18 @@ class Migration(migrations.Migration):
                         primary_key=True,
                     ),
                 ),
-                ("ballot", models.ForeignKey(to="approval_polls.Ballot")),
-                ("choice", models.ForeignKey(to="approval_polls.Choice")),
+                ("ballot", models.ForeignKey(on_delete=models.CASCADE, to="approval_polls.Ballot")),
+                ("choice", models.ForeignKey(on_delete=models.CASCADE, to="approval_polls.Choice")),
             ],
         ),
         migrations.AddField(
             model_name="choice",
             name="poll",
-            field=models.ForeignKey(to="approval_polls.Poll"),
+            field=models.ForeignKey(on_delete=models.CASCADE, to="approval_polls.Poll"),
         ),
         migrations.AddField(
             model_name="ballot",
             name="poll",
-            field=models.ForeignKey(blank=True, to="approval_polls.Poll", null=True),
+            field=models.ForeignKey(on_delete=models.CASCADE, blank=True, to="approval_polls.Poll", null=True),
         ),
     ]

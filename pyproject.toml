@@ -7,16 +7,17 @@ readme = "README.md"
 packages = [{ include = "approval_frame" }]
 
 [tool.poetry.dependencies]
-python = "^3.7"
-django = "^1.11"
-django-registration-redux = "^1.1"
+python = "^3.8"
+django = "~2.0"
+django-registration-redux = "2"
 dj-static = "^0.0.6"
 pytz = "^2015.7"
-python-social-auth = "^0.2.21"
+python-social-auth = "^0.3.6"
 mailchimp = "^2.0.9"
 django-extensions = "^1.7.9"
-djangoajax = "^2.3.7"
+djangoajax = "^3"
 python-dotenv = "^0.18.0"
+social-auth-app-django = "5.00"
 
 
 [build-system]
