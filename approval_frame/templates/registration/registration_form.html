@@ -1,84 +1,71 @@
 {% extends 'base.html' %}
-
 {% block head %}
-  {% load staticfiles %}
-  <script src='{% static 'approval_polls/registration_form.js' %}'></script>
+    {% load staticfiles %}
+    <script src='{% static 'registration_form.js' %}'></script>
 {% endblock %}
-
 {% block content %}
-
-<div class='row-fluid top-buffer'>
-  <div class='col-md-6 col-md-offset-3'>
-    <a href="{% url 'auth_login' %}">Login</a>
-
-    <form action='/accounts/register/' method='post'>
-      {% csrf_token %}
-      <legend>Register</legend>
-
-      <div class='form-group {% if form.errors.username %} has-error {% endif %}'>
-        {% for error in form.errors.username %}
-          <label class='control-label' for='{{ form.username.id_for_label }}'>
-              {{ error }}
-          </label>
-        {% endfor %}
-        <input type='text' class='form-control' id='{{ form.username.id_for_label }}'
-               name='{{ form.username.name }}' placeholder='{{ form.username.label }}'
-               value='{{ form.username.value|default_if_none:'' }}' maxlength='{{ form.username.field.max_length }}'
-               aria-describedby="username-help-block">
-        <span id='username-help-block'
-              class='help-block'>
-          Username may contain up to 30 letters, numbers, or '.+-_' symbols.
-        </span>
-      </div>
-      <div class='form-group {% if form.errors.email %} has-error {% endif %}'>
-        {% for error in form.errors.email %}
-          <label class='control-label' for='{{ form.email.id_for_label }}'>
-              {{ error }}
-          </label>
-        {% endfor %}
-        <label for="exampleInputEmail1" class="form-label mt-4">Email address</label>
-        <input type='email' class='form-control' id='{{ form.email.id_for_label }}'
-               name='{{ form.email.name }}' placeholder='Email ID'
-               value='{{ form.email.value|default_if_none:'' }}' maxlength={{ form.email.field.max_length }}>
-      </div>
-      <label for="exampleInputPassword1" class="form-label mt-4">Password</label>
-
-      <div class='form-group {% if form.errors.password1 or form.non_field_errors %} has-error {% endif %}'>
-        {% for error in form.non_field_errors %}
-          <label class='control-label' for='{{ form.password1.id_for_label }}'>
-              {{ error }}
-          </label>
-        {% endfor %}
-        {% for error in form.errors.password1 %}
-          <label class='control-label' for='{{ form.password1.id_for_label }}'>
-              {{ error }}
-          </label>
-        {% endfor %}
-        <input type='password' class='form-control' id='{{ form.password1.id_for_label }}'
-        name='{{ form.password1.name }}' placeholder='{{ form.password1.label }}'>
-      </div>
-      <div class='form-group {% if form.errors.password2 %} has-error {% endif %}'>
-        {% for error in form.errors.password2 %}
-          <label class='control-label' for='{{ form.password2.id_for_label }}'>
-              {{ error }}
-          </label>
-        {% endfor %}
-        <label for="exampleInputPassword" class="form-label mt-4">Password (again)</label>
-        <input type='password' class='form-control' id='{{ form.password2.id_for_label }}'
-        name='{{ form.password2.name }}' placeholder='{{ form.password2.label }}'>
-      </div>
-      <div class='form-group {% if form.errors.zipcode %} has-error {% endif %}'>
-        {% for error in form.errors.zipcode %}
-          <label class='control-label' for='{{ form.zipcode.id_for_label }}'>
-              {{ error }}
-          </label>
-        {% endfor %}
-        <label for="exampleInputPassword1" class="form-label mt-4">Zip Code</label>
-        <input type='text' class='form-control' id='{{ form.zipcode.id_for_label }}'
-               name='{{ form.zipcode.name }}' placeholder='{{ form.zipcode.label }}'
-               value='{{ form.zipcode.value|default_if_none:'' }}' maxlength={{ form.zipcode.field.max_length }}>
-      </div>
-      <!-- <div class='form-group {% if form.errors.newslettercheckbox %} has-error {% endif %}'>
+    <div class='row-fluid top-buffer'>
+        <div class='col-md-6 col-md-offset-3'>
+            <a href="{% url 'auth_login' %}">Login</a>
+            <form action='/accounts/register/' method='post'>
+                {% csrf_token %}
+                <legend>Register</legend>
+                <div class='form-group {% if form.errors.username %}has-error{% endif %}'>
+                    {% for error in form.errors.username %}
+                        <label class='control-label' for='{{ form.username.id_for_label }}'>{{ error }}</label>
+                    {% endfor %}
+                    <input type='text'
+                           class='form-control'
+                           id='{{ form.username.id_for_label }}'
+                           name='{{ form.username.name }}'
+                           placeholder='{{ form.username.label }}'
+                           value='{{ form.username.value|default_if_none:'' }}'
+                           maxlength='{{ form.username.field.max_length }}'
+                           aria-describedby="username-help-block">
+                    <span id='username-help-block' class='help-block'>
+                        Username may contain up to 30 letters, numbers, or '.+-_' symbols.
+                    </span>
+                </div>
+                <div class='form-group {% if form.errors.email %}has-error{% endif %}'>
+                    {% for error in form.errors.email %}
+                        <label class='control-label' for='{{ form.email.id_for_label }}'>{{ error }}</label>
+                    {% endfor %}
+                    <label for="exampleInputEmail1" class="form-label mt-4">Email address</label>
+                    <input type='email' class='form-control' id='{{ form.email.id_for_label }}' name='{{ form.email.name }}' placeholder='Email ID' value='{{ form.email.value|default_if_none:'' }}' maxlength={{ form.email.field.max_length }}>
+                </div>
+                <label for="exampleInputPassword1" class="form-label mt-4">Password</label>
+                <div class='form-group {% if form.errors.password1 or form.non_field_errors %}has-error{% endif %}'>
+                    {% for error in form.non_field_errors %}
+                        <label class='control-label' for='{{ form.password1.id_for_label }}'>{{ error }}</label>
+                    {% endfor %}
+                    {% for error in form.errors.password1 %}
+                        <label class='control-label' for='{{ form.password1.id_for_label }}'>{{ error }}</label>
+                    {% endfor %}
+                    <input type='password'
+                           class='form-control'
+                           id='{{ form.password1.id_for_label }}'
+                           name='{{ form.password1.name }}'
+                           placeholder='{{ form.password1.label }}'>
+                </div>
+                <div class='form-group {% if form.errors.password2 %}has-error{% endif %}'>
+                    {% for error in form.errors.password2 %}
+                        <label class='control-label' for='{{ form.password2.id_for_label }}'>{{ error }}</label>
+                    {% endfor %}
+                    <label for="exampleInputPassword" class="form-label mt-4">Password (again)</label>
+                    <input type='password'
+                           class='form-control'
+                           id='{{ form.password2.id_for_label }}'
+                           name='{{ form.password2.name }}'
+                           placeholder='{{ form.password2.label }}'>
+                </div>
+                <div class='form-group {% if form.errors.zipcode %}has-error{% endif %}'>
+                    {% for error in form.errors.zipcode %}
+                        <label class='control-label' for='{{ form.zipcode.id_for_label }}'>{{ error }}</label>
+                    {% endfor %}
+                    <label for="exampleInputPassword1" class="form-label mt-4">Zip Code</label>
+                    <input type='text' class='form-control' id='{{ form.zipcode.id_for_label }}' name='{{ form.zipcode.name }}' placeholder='{{ form.zipcode.label }}' value='{{ form.zipcode.value|default_if_none:'' }}' maxlength={{ form.zipcode.field.max_length }}>
+                </div>
+                <!-- <div class='form-group {% if form.errors.newslettercheckbox %}has-error{% endif %}'>
         {% for error in form.errors.newslettercheckbox %}
           <label class='control-label' for='{{ form.newslettercheckbox.id_for_label }}'>
             {{ error }}
@@ -86,18 +73,17 @@
         {% endfor %}
         <div class='checkbox'>
           <label>
-            <input type='checkbox' id='{{ form.newslettercheckbox.id_for_label }}'
-              name='{{ form.newslettercheckbox.name }}' {% if form.newslettercheckbox.value %} checked {% endif %}>
+            <input type='checkbox' id='{{ form.newslettercheckbox.id_for_label }}' name='{{ form.newslettercheckbox.name }}' {% if form.newslettercheckbox.value %}checked{% endif %}>
               Subscribe to our Newsletter
           </label>
         </div>
       </div> -->
-      <button class='btn btn-success mt-5' type='submit'>Register</button>
-    </form>
-  </div>
-</div>
-
+                <button class='btn btn-success mt-5' type='submit'>Register</button>
+            </form>
+        </div>
+    </div>
 {% endblock %}
-
-{% block login %}{% endblock %}
-{% block footer %}{% endblock %}
+{% block login %}
+{% endblock %}
+{% block footer %}
+{% endblock %}

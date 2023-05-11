@@ -1,5 +1,7 @@
 import os
+
 from dotenv import load_dotenv
+
 load_dotenv()  # loads the configs from .env
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -11,14 +13,14 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # For development purposes, set DEBUG to True in a local_settings.py file,
 # which we .gitignore. This file should be added in the same directory
 # that contains this settings.py file.
-DEBUG = False
+DEBUG = os.environ["DEBUG"] or False
 
-SECRET_KEY = os.environ['SECRET_KEY']
+SECRET_KEY = os.environ["SECRET_KEY"]
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "NAME": os.path.join(
             BASE_DIR, "db.sqlite3"
         ),  # Or path to database file if using sqlite3.
@@ -74,7 +76,7 @@ MEDIA_URL = ""
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
@@ -82,7 +84,7 @@ STATIC_URL = "/static/"
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'approval_polls/static/'),
+    os.path.join(BASE_DIR, "staticfiles/"),
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.

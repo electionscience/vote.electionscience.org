@@ -1,5 +1,5 @@
 version: "3.9"
-   
+
 services:
   db:
     image: nouchka/sqlite3:latest
@@ -12,8 +12,6 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     environment:
       - SECRET_KEY=abcd12345
-    volumes:
-      - .:/code
     ports:
       - "8000:8000"
     depends_on:
