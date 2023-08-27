@@ -19,6 +19,7 @@ mailchimp = "2.0.9"
 django-extensions = "1.7.9"
 djangoajax = "2.3.7"
 python-dotenv = "0.18.0"
+django-upgrade = "^1.14.1"
 
 
 [build-system]

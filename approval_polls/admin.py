@@ -15,6 +15,7 @@ class ChoiceInline(admin.TabularInline):
     extra = 3
 
 
+@admin.register(Poll)
 class PollAdmin(admin.ModelAdmin):
     """
     Defines the layout of a 'Poll' in the
@@ -71,5 +72,4 @@ class PollAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(Poll, PollAdmin)
 admin.site.register(Ballot)

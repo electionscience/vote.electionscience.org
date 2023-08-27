@@ -15,7 +15,7 @@ from django.contrib.sites.requests import RequestSite
 class Poll(models.Model):
     question = models.CharField(max_length=200)
     pub_date = models.DateTimeField('date published')
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     vtype = models.IntegerField(default=2)
     close_date = models.DateTimeField('date closed', null=True, blank=True)
     show_close_date = models.BooleanField(default=False)
@@ -117,7 +117,7 @@ class Poll(models.Model):
 
 
 class Choice(models.Model):
-    poll = models.ForeignKey(Poll)
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
     choice_text = models.CharField(max_length=200)
     choice_link = models.CharField(max_length=2048, null=True, blank=True)
 
@@ -134,8 +134,8 @@ class Choice(models.Model):
 
 
 class Ballot(models.Model):
-    poll = models.ForeignKey(Poll, null=True, blank=True)
-    user = models.ForeignKey(User, null=True, blank=True)
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     timestamp = models.DateTimeField('time voted')
     permit_email = models.BooleanField(default=False)
     email = models.EmailField(null=True, blank=True)
@@ -145,8 +145,8 @@ class Ballot(models.Model):
 
 
 class Vote(models.Model):
-    ballot = models.ForeignKey(Ballot)
-    choice = models.ForeignKey(Choice)
+    ballot = models.ForeignKey(Ballot, on_delete=models.CASCADE)
+    choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
         assert self.ballot.poll == self.choice.poll
@@ -158,8 +158,8 @@ class Vote(models.Model):
 
 class VoteInvitation(models.Model):
     email = models.EmailField('voter email')
-    poll = models.ForeignKey(Poll)
-    ballot = models.ForeignKey(Ballot, null=True, blank=True)
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
+    ballot = models.ForeignKey(Ballot, on_delete=models.CASCADE, null=True, blank=True)
     sent_date = models.DateTimeField('invite sent on', null=True, blank=True)
     key = models.CharField('key', max_length=64, unique=True)
 
@@ -213,7 +213,7 @@ class VoteInvitation(models.Model):
 
 
 class Subscription(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     zipcode = models.CharField(max_length=5)
 
 
