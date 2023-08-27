@@ -13,9 +13,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # For development purposes, set DEBUG to True in a local_settings.py file,
 # which we .gitignore. This file should be added in the same directory
 # that contains this settings.py file.
-DEBUG = os.environ["DEBUG"] or False
+DEBUG = os.environ.get("DEBUG") or False
 
-SECRET_KEY = os.environ["SECRET_KEY"]
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 DATABASES = {
     "default": {
