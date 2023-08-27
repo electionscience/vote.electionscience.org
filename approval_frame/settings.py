@@ -15,7 +15,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # that contains this settings.py file.
 DEBUG = os.environ.get("DEBUG") or False
 
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = os.environ.get("SECRET_KEY") or "abcedf132987401747501873"
 
 DATABASES = {
     "default": {
@@ -115,7 +115,6 @@ MIDDLEWARE_CLASSES = (
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "approval_frame.middleware.timezone_middleware.TimezoneMiddleware",
-    "approval_frame.middleware.socialauth_middleware.SocialAuthExceptionMiddleware",
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -136,8 +135,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "social.apps.django_app.context_processors.backends",
-                "social.apps.django_app.context_processors.login_redirect",
             ],
         },
     },
@@ -156,7 +153,6 @@ INSTALLED_APPS = (
     "approval_polls",
     "registration",
     "django_extensions",
-    "social.apps.django_app.default",
     "django_ajax",
 )
 
@@ -164,8 +160,6 @@ ACCOUNT_ACTIVATION_DAYS = 7
 
 AUTHENTICATION_BACKENDS = (
     "approval_frame.backends.EmailOrUsernameBackend",
-    "social.backends.facebook.FacebookOAuth2",
-    "social.backends.google.GoogleOAuth2",
     "django.contrib.auth.backends.ModelBackend",
 )
 
@@ -200,22 +194,3 @@ try:
     from .local_settings import *
 except ImportError:
     pass
-
-SOCIAL_AUTH_PIPELINE = (
-    "social.pipeline.social_auth.social_details",
-    "social.pipeline.social_auth.social_uid",
-    "social.pipeline.social_auth.auth_allowed",
-    "social.pipeline.social_auth.social_user",
-    "social.pipeline.user.get_username",
-    "social.pipeline.social_auth.associate_by_email",
-    "social.pipeline.user.create_user",
-    "social.pipeline.social_auth.associate_user",
-    "social.pipeline.social_auth.load_extra_data",
-    "social.pipeline.user.user_details",
-)
-
-SOCIAL_AUTH_FACEBOOK_SCOPE = ["email"]
-SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-    "locale": "ru_RU",
-    "fields": "id, name, email",
-}

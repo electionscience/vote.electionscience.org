@@ -21,12 +21,6 @@
   overflow-y: scroll;
 }
 
-#socialAuthSep {
-  width: 1px;
-  padding: 0 10px;
-  text-align: center;
-}
-
 .full-height {
   display: inline-block;
   width: 100%;
@@ -47,7 +41,4 @@
 
 .text-align-center {
   text-align: center;
-}
-.jssocials-share-logo {
-  font-family: "Font Awesome 5 Brands" !important;
 }

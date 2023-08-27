@@ -9,6 +9,7 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.crypto import get_random_string
+from django.contrib.sites.requests import RequestSite
 
 
 class Poll(models.Model):

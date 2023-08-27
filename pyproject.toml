@@ -7,9 +7,9 @@ readme = "README.md"
 packages = [{ include = "approval_frame" }]
 
 [tool.poetry.dependencies]
-python = "3.5.10"
+python = "3.8.16"
 django = "1.8.1"
-django-registration-redux = "1.1"
+django-registration-redux = "1.2"
 dj-static = "0.0.6"
 pytz = "2015.7"
 python-openid = "2.2.5"

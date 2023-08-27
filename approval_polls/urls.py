@@ -1,9 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import  url
 
 from approval_polls import views
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^(?P<pk>\d+)/$', views.DetailView.as_view(), name='detail'),
     url(r'^(?P<pk>\d+)/results/$', views.ResultsView.as_view(), name='results'),
@@ -19,4 +18,4 @@ urlpatterns = patterns(
     url(r'^tag/(?P<tag>.+)/$', views.taggedPolls, name='tagged_polls'),
     url(r'^all_tags/$', views.allTags, name='all_tags'),
     url(r'^tag_cloud/$', views.tagCloud, name='tag_cloud')
-)
+]
