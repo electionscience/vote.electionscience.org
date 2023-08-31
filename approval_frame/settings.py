@@ -17,15 +17,33 @@ DEBUG = os.environ.get("DEBUG") or False
 
 SECRET_KEY = os.environ.get("SECRET_KEY") or "abcedf132987401747501873"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "NAME": os.path.join(
-            BASE_DIR, "db.sqlite3"
-        ),  # Or path to database file if using sqlite3.
+ENV = os.environ.get("ENVIRONMENT") or "DEV"
+
+
+    
+if ENV == "PRODUCTION"
+  DATABASES = {
+        "default": {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME':  os.environ.get("PGDATABASE"),
+            'USER':  os.environ.get("PGUSER"),
+            'PASSWORD':  os.environ.get("PGPASSWORD"),
+            'HOST':  os.environ.get("PGHOST"),
+            'PORT':  os.environ.get("PGPORT"),
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "NAME": os.path.join(
+                BASE_DIR, "db.sqlite3"
+            ),  # Or path to database file if using sqlite3.
+        }
+    }
+
+
 
 # The following settings are required for the activation emails in the
 # registration module to work. For development purposes, set these
@@ -38,7 +56,7 @@ EMAIL_HOST_PASSWORD = ""
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["localhost"]
+ALLOWED_HOSTS = ["*"]
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
