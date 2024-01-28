@@ -22,7 +22,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "NAME": os.path.join(
-            BASE_DIR, "db.sqlite3"
+            BASE_DIR, "/data/prod.sqlite3"
         ),  # Or path to database file if using sqlite3.
     }
 }
