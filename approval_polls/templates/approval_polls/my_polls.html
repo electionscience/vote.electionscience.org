@@ -16,7 +16,7 @@
                 {% for poll in latest_poll_list %}
                     <div class='well well-sm' id='well{{ poll.id }}'>
                         <div id='pollQuestion'>
-                            <a href="{% url 'approval_polls:detail' poll.id %}">{{ poll.question }}</a>
+                            <a href="{% url 'detail' poll.id %}">{{ poll.question }}</a>
                         </div>
                         <div class="pull-right">
                             <a class='pull-right btn btn-danger btn-xs'
@@ -26,7 +26,7 @@
                                    id='{{ suspend_text }}-poll-{{ poll.id }}'>{{ suspend_text }}</a>
                             {% endwith %}
                             <a class='pull-right btn btn-primary btn-xs right-buffer'
-                               href="{% url 'approval_polls:edit' poll.id %}">edit</a>
+                               href="{% url 'edit' poll.id %}">edit</a>
                         </div>
                         <div style="display:none">
                             <input type='hidden' id='csrfmiddlewaretoken' value='{{ csrf_token }}'>

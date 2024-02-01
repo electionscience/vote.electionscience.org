@@ -28,8 +28,7 @@
         <div class='col-md-12'>
             <input id='poll-vtype' type='hidden' value={{ poll.vtype }}>
             <input id='poll-id' type='hidden' value={{ poll.id }}>
-            <form action="{% url 'approval_polls:edit' poll_id=poll.id %}"
-                  method='post'>
+            <form action="{% url 'edit' poll_id=poll.id %}" method='post'>
                 <legend>Edit: {{ poll.question }}</legend>
                 <p>
                     {% if not can_edit_poll %}You cannot edit the questions and choices as this poll has got ballots on it!{% endif %}
@@ -74,7 +73,7 @@
                                                            title='Add link'
                                                            data-toggle='tooltip'
                                                            data-placement='bottom'>
-                                                            <span class='glyphicon glyphicon-link {% if link_text or choice.choice_link %}text-success' {% else %} ' {% endif %}></span>
+                                                            <span class='glyphicon glyphicon-link {% if link_text or choice.choice_link %}text-success{% endif %}'></span>
                                                         </a>
                                                     </span>
                                                     <span class='input-group-addon'>
@@ -161,154 +160,153 @@
                                    placeholder='Enter tags' />
                         </label>
                     </div>
-                </p>
-                <!-- Add the collapsible poll settings panel here -->
-                <div class='panel-group'
-                     id='accordion'
-                     role='tablist'
-                     aria-multiselectable='true'>
-                    <div class='panel panel-default'>
-                        <div class='panel-heading' role='tab' id='headingOne'>
-                            <h4 class='panel-title'>
-                                <a role='button'
-                                   data-toggle='collapse'
-                                   data-parent='#accordion'
-                                   href='#collapsePollSettings'
-                                   aria-expanded='true'
-                                   aria-controls='collapsePollSettings'>Poll Settings</a>
-                            </h4>
-                        </div>
-                        <div id='collapsePollSettings'
-                             class='panel-collapse'
-                             role='tabpanel'
-                             aria-labelledby='headingOne'>
-                            <div class='panel-body'>
-                                Who should be allowed to vote in this poll ?
-                                <div class='radio'>
-                                    <label>
-                                        <input type='radio'
-                                               name='radio-poll-type'
-                                               {% if poll.vtype == 1 %}checked='true'{% endif %}
-                                               value='1'>
-                                        Anyone (No restriction on the number of ballots per user).
-                                    </label>
-                                </div>
-                                <div class='radio'>
-                                    <label>
-                                        <input type='radio'
-                                               name='radio-poll-type'
-                                               {% if poll.vtype == 2 %}checked='true'{% endif %}
-                                               value='2'>
-                                        Only users with registered accounts (restricted to one ballot per user, requires login).
-                                    </label>
-                                </div>
-                                <div class='radio'>
-                                    <label class='full-width'>
-                                        <input type='radio'
-                                               name='radio-poll-type'
-                                               {% if poll.vtype == 3 %}checked='true'{% endif %}
-                                               value='3'>
-                                        Only specific Email owners (will be invited by Email).
-                                        <div id='existing-emails' hidden>
-                                            <h6>List of current email invitees(You can copy either of these and paste into the field below):</h6>
-                                            <h6>{{ invited_emails|default:'No current invitees' }}</h6>
-                                        </div>
-                                        <div id='email-input' hidden>
-                                            <h6>(Enter a comma after each email ID)</h6>
-                                            <input type='text'
-                                                   name='token-emails'
-                                                   class='form-control'
-                                                   id='tokenEmailField'
-                                                   placeholder='Email IDs' />
-                                            <label id='email-error'
-                                                   for='token-emails'
-                                                   class='alert alert-danger full-width'
-                                                   hidden>One or more Email addresses are invalid.</label>
-                                        </div>
-                                    </label>
-                                </div>
-                                <hr>
-                                <p>Poll Visibility</p>
-                                <div class='checkbox'>
-                                    <label>
-                                        <input type='checkbox'
-                                               id='poll-visibility'
-                                               name='public-poll-visibility'
-                                               value=''
-                                               autocomplete='off'
-                                               {% if poll.is_private %}{% else %}checked{% endif %}>
-                                        List this poll on the home page.
-                                    </label>
-                                </div>
-                                <hr>
-                                <div class = 'datetimepicker'>
-                                    <p>Please select a closing date and time for this poll, if any</p>
-                                    <input id='datetimepicker'
-                                           type='text'
-                                           class='form-control'
-                                           name='close-datetime'
-                                           value='{{ closedatetime }}'
-                                           placeholder='Poll Closing Date'
-                                           style='background-color: white'
-                                           readonly>
-                                </div>
-                                <div class='checkbox'>
-                                    <label>
-                                        <input type='checkbox'
-                                               name='show-close-date'
-                                               id='checkbox1'
-                                               value=''
-                                               autocomplete='off'
-                                               {% if poll.show_close_date %}checked{% endif %}>
-                                        Display Poll Closing Date with this poll.
-                                    </label>
-                                </div>
-                                <div class='checkbox'>
-                                    <label>
-                                        <input type='checkbox'
-                                               name='show-countdown'
-                                               id='checkbox2'
-                                               value=''
-                                               autocomplete='off'
-                                               {% if poll.show_countdown %}checked{% endif %}>
-                                        Display Poll Closing Countdown with this poll.
-                                    </label>
-                                </div>
-                                <hr>
-                                <p>Customize Poll</p>
-                                <div class='checkbox'>
-                                    <label>
-                                        <input type='checkbox'
-                                               name='show-write-in'
-                                               value=''
-                                               {% if poll.show_write_in %}checked{% endif %}>
-                                        Permit Write-in option with this poll.
-                                    </label>
-                                </div>
-                                <div class='checkbox'>
-                                    <label>
-                                        <input type='checkbox'
-                                               name='show-lead-color'
-                                               value=''
-                                               {% if poll.show_lead_color %}checked{% endif %}>
-                                        Show Leading option in different color.
-                                    </label>
-                                </div>
-                                <div class='checkbox'>
-                                    <label>
-                                        <input type='checkbox'
-                                               name='show-email-opt-in'
-                                               value=''
-                                               {% if poll.show_email_opt_in %}checked{% endif %}>
-                                        Display option to opt-in for email communication.
-                                    </label>
+                    <!-- Add the collapsible poll settings panel here -->
+                    <div class='panel-group'
+                         id='accordion'
+                         role='tablist'
+                         aria-multiselectable='true'>
+                        <div class='panel panel-default'>
+                            <div class='panel-heading' role='tab' id='headingOne'>
+                                <h4 class='panel-title'>
+                                    <a role='button'
+                                       data-toggle='collapse'
+                                       data-parent='#accordion'
+                                       href='#collapsePollSettings'
+                                       aria-expanded='true'
+                                       aria-controls='collapsePollSettings'>Poll Settings</a>
+                                </h4>
+                            </div>
+                            <div id='collapsePollSettings'
+                                 class='panel-collapse'
+                                 role='tabpanel'
+                                 aria-labelledby='headingOne'>
+                                <div class='panel-body'>
+                                    Who should be allowed to vote in this poll ?
+                                    <div class='radio'>
+                                        <label>
+                                            <input type='radio'
+                                                   name='radio-poll-type'
+                                                   {% if poll.vtype == 1 %}checked='true'{% endif %}
+                                                   value='1'>
+                                            Anyone (No restriction on the number of ballots per user).
+                                        </label>
+                                    </div>
+                                    <div class='radio'>
+                                        <label>
+                                            <input type='radio'
+                                                   name='radio-poll-type'
+                                                   {% if poll.vtype == 2 %}checked='true'{% endif %}
+                                                   value='2'>
+                                            Only users with registered accounts (restricted to one ballot per user, requires login).
+                                        </label>
+                                    </div>
+                                    <div class='radio'>
+                                        <label class='full-width'>
+                                            <input type='radio'
+                                                   name='radio-poll-type'
+                                                   {% if poll.vtype == 3 %}checked='true'{% endif %}
+                                                   value='3'>
+                                            Only specific Email owners (will be invited by Email).
+                                            <div id='existing-emails' hidden>
+                                                <h6>List of current email invitees(You can copy either of these and paste into the field below):</h6>
+                                                <h6>{{ invited_emails|default:'No current invitees' }}</h6>
+                                            </div>
+                                            <div id='email-input' hidden>
+                                                <h6>(Enter a comma after each email ID)</h6>
+                                                <input type='text'
+                                                       name='token-emails'
+                                                       class='form-control'
+                                                       id='tokenEmailField'
+                                                       placeholder='Email IDs' />
+                                                <label id='email-error'
+                                                       for='token-emails'
+                                                       class='alert alert-danger full-width'
+                                                       hidden>One or more Email addresses are invalid.</label>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <hr>
+                                    <p>Poll Visibility</p>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox'
+                                                   id='poll-visibility'
+                                                   name='public-poll-visibility'
+                                                   value=''
+                                                   autocomplete='off'
+                                                   {% if poll.is_private %}{% else %}checked{% endif %}>
+                                            List this poll on the home page.
+                                        </label>
+                                    </div>
+                                    <hr>
+                                    <div class = 'datetimepicker'>
+                                        <p>Please select a closing date and time for this poll, if any</p>
+                                        <input id='datetimepicker'
+                                               type='text'
+                                               class='form-control'
+                                               name='close-datetime'
+                                               value='{{ closedatetime }}'
+                                               placeholder='Poll Closing Date'
+                                               style='background-color: white'
+                                               readonly>
+                                    </div>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox'
+                                                   name='show-close-date'
+                                                   id='checkbox1'
+                                                   value=''
+                                                   autocomplete='off'
+                                                   {% if poll.show_close_date %}checked{% endif %}>
+                                            Display Poll Closing Date with this poll.
+                                        </label>
+                                    </div>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox'
+                                                   name='show-countdown'
+                                                   id='checkbox2'
+                                                   value=''
+                                                   autocomplete='off'
+                                                   {% if poll.show_countdown %}checked{% endif %}>
+                                            Display Poll Closing Countdown with this poll.
+                                        </label>
+                                    </div>
+                                    <hr>
+                                    <p>Customize Poll</p>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox'
+                                                   name='show-write-in'
+                                                   value=''
+                                                   {% if poll.show_write_in %}checked{% endif %}>
+                                            Permit Write-in option with this poll.
+                                        </label>
+                                    </div>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox'
+                                                   name='show-lead-color'
+                                                   value=''
+                                                   {% if poll.show_lead_color %}checked{% endif %}>
+                                            Show Leading option in different color.
+                                        </label>
+                                    </div>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox'
+                                                   name='show-email-opt-in'
+                                                   value=''
+                                                   {% if poll.show_email_opt_in %}checked{% endif %}>
+                                            Display option to opt-in for email communication.
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <button type='submit' class='btn btn-success pull-right'>Save</button>
-            </form>
+                    <button type='submit' class='btn btn-success pull-right'>Save</button>
+                </form>
+            </div>
         </div>
-    </div>
-{% endblock %}
+    {% endblock %}

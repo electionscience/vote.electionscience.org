@@ -1,21 +1,18 @@
 {% autoescape off %}
-
-Hi,
-<p>
-  {{ poll.user.username }}
-    {% if poll.user.first_name or poll.user.last_name %} 
-		  ({{ poll.user.first_name }} {{ poll.user.last_name }}) 
-    {% endif %}
-  at {{ site.name }} has invited you to vote in the following poll that uses approval voting:
-  <p>
-    <b>{{ poll.question }}</b>
-  </p>
-  <p>
-    <a href={{ site.domain }}/approval_polls/invitation/{{ poll.id }}/{{ param_string }}>Click here to vote in this poll.</a>
-  </p>
-
-Once you vote, you can update your ballot by clicking on the same link.
-<br><br>
-Thanks!
-</p>
-{% endautoescape %}
+    Hi,
+    <p>
+        {{ poll.user.username }}
+        {% if poll.user.first_name or poll.user.last_name %}({{ poll.user.first_name }} {{ poll.user.last_name }}){% endif %}
+        at {{ site.name }} has invited you to vote in the following poll that uses approval voting:
+        <p>
+            <b>{{ poll.question }}</b>
+        </p>
+        <p>
+            <a href={{ site.domain }}/approval_polls/invitation/{{ poll.id }}/{{ param_string }}>Click here to vote in this
+            poll.</a>
+        </p>
+        Once you vote, you can update your ballot by clicking on the same link.
+        <br>
+        <br>
+        Thanks!
+    {% endautoescape %}

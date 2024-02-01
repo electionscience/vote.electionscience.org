@@ -23,7 +23,7 @@
     <script src='{% static 'create.js' %}'></script>
 {% endblock %}
 {% block content %}
-    <form action='{% url 'approval_polls:create' %}' method='post'>
+    <form action='{% url 'create' %}' method='post'>
         <fieldset>
             <legend>Create a Poll</legend>
             <div class='form-group {% if question_error %}has-error{% endif %}'>
@@ -80,36 +80,33 @@
                  aria-multiselectable='true'>
                 <div class='panel panel-default'>
                     <div class='panel-heading' role='tab' id='headingOne'>
-                        <h4 class='panel-title'>
-                            Poll Settings
-                        </a>
-                    </h4>
-                </div>
-                <div id='collapsePollSettings'
-                     role='tabpanel'
-                     aria-labelledby='headingOne'>
-                    <div class='panel-body'>
-                        <legend class="mt-4">Who should be allowed to vote in this poll ?</legend>
-                        <fieldset class="form-check">
-                            <label class="form-check-label">
-                                <input type='radio'
-                                       class="form-check-input"
-                                       name='radio-poll-type'
-                                       checked='true'
-                                       value='1'>
-                                Anyone (No restriction on the
-                                number of ballots per user).
-                            </label>
-                            <label class="form-check-label">
-                                <input type='radio'
-                                       class="form-check-input"
-                                       name='radio-poll-type'
-                                       value='2'>
-                                Only users with registered accounts
-                                (restricted to one ballot per user, requires login).
-                            </label>
-                        </fieldset>
-                        {% comment %} This doesn't seem to work? TODO
+                        <h4 class='panel-title'>Poll Settings</h4>
+                    </div>
+                    <div id='collapsePollSettings'
+                         role='tabpanel'
+                         aria-labelledby='headingOne'>
+                        <div class='panel-body'>
+                            <legend class="mt-4">Who should be allowed to vote in this poll ?</legend>
+                            <fieldset class="form-check">
+                                <label class="form-check-label">
+                                    <input type='radio'
+                                           class="form-check-input"
+                                           name='radio-poll-type'
+                                           checked='true'
+                                           value='1'>
+                                    Anyone (No restriction on the
+                                    number of ballots per user).
+                                </label>
+                                <label class="form-check-label">
+                                    <input type='radio'
+                                           class="form-check-input"
+                                           name='radio-poll-type'
+                                           value='2'>
+                                    Only users with registered accounts
+                                    (restricted to one ballot per user, requires login).
+                                </label>
+                            </fieldset>
+                            {% comment %} This doesn't seem to work? TODO
           <div class='form-check'>
             <label class='form-check-label full-width'><input type='radio' class="form-check-input" name='radio-poll-type' value='3'>Only specific Email
               owners
@@ -121,102 +118,100 @@
                   Email addresses are invalid.
                 </label>
               </div>
-                        </label> {% endcomment %}
-                        <hr>
-                        <legend class="mt-4">Poll Visibility</legend>
-                        <div class="form-check">
-                            <label class="form-check-label">
-                                <input class="form-check-input"
-                                       type='checkbox'
-                                       id='poll-visibility'
-                                       name='public-poll-visibility'
+                            </label> {% endcomment %}
+                            <hr>
+                            <legend class="mt-4">Poll Visibility</legend>
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    <input class="form-check-input"
+                                           type='checkbox'
+                                           id='poll-visibility'
+                                           name='public-poll-visibility'
+                                           value=''
+                                           checked>
+                                    List
+                                    this poll on the home page.
+                                </label>
+                            </div>
+                            <hr>
+                            <div class='datetimepicker'>
+                                <legend class="mt-4">Closing date and time for this poll, if any</legend>
+                                <input id='datetimepicker'
+                                       type='text'
+                                       class='form-control'
+                                       name='close-datetime'
                                        value=''
-                                       checked>
-                                List
-                                this poll on the home page.
-                            </label>
-                        </div>
-                        <hr>
-                        <div class='datetimepicker'>
-                            <legend class="mt-4">Closing date and time for this poll, if any</legend>
-                            <input id='datetimepicker'
-                                   type='text'
-                                   class='form-control'
-                                   name='close-datetime'
-                                   value=''
-                                   placeholder='Poll Closing Date'
-                                   style='background-color: white'
-                                   readonly>
-                        </div>
-                        <div class="form-check">
-                            <label class="form-check-label">
-                                <input type='checkbox'
-                                       class="form-check-input"
-                                       name='show-close-date'
-                                       id='checkbox1'
-                                       value=''>
-                                Display Poll Closing Date
-                                with this poll.
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <label class="form-check-label">
-                                <input type='checkbox'
-                                       class="form-check-input"
-                                       name='show-countdown'
-                                       id='checkbox2'
-                                       value=''>
-                                Display Poll Closing
-                                Countdown
-                                with this poll.
-                            </label>
-                        </div>
-                        <hr>
-                        <legend class="mt-4">Customize Poll</legend>
-                        <div class="form-check">
-                            <label class="form-check-label">
-                                <input class="form-check-input"
-                                       type='checkbox'
-                                       name='show-write-in'
-                                       value=''>
-                                Permit Write-in option with this
-                                poll.
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <label class="form-check-label">
-                                <input class="form-check-input"
-                                       type='checkbox'
-                                       name='show-lead-color'
-                                       value=''
-                                       checked>
-                                Show Leading option in different
-                                color.
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <label class="form-check-label">
-                                <input class="form-check-input"
-                                       type='checkbox'
-                                       name='show-email-opt-in'
-                                       value=''>
-                                Display option to opt-in for email
-                                communication.
-                            </label>
-                        </div>
-                        <hr>
-                        <div id='tag-input'>
-                            <h6>(Enter a comma after each tag)</h6>
-                            <input type='text'
-                                   name='token-tags'
-                                   class='form-control'
-                                   id='tokenTagField'
-                                   placeholder='Enter keywords' />
-                        </label>
-                    </div>
-                </fieldset>
-                {% csrf_token %}
-                <button type='submit' class='mt-4 btn btn-success pull-right'>Create</button>
-            </form>
-        </div>
-    {% endblock %}
+                                       placeholder='Poll Closing Date'
+                                       style='background-color: white'
+                                       readonly>
+                            </div>
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    <input type='checkbox'
+                                           class="form-check-input"
+                                           name='show-close-date'
+                                           id='checkbox1'
+                                           value=''>
+                                    Display Poll Closing Date
+                                    with this poll.
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    <input type='checkbox'
+                                           class="form-check-input"
+                                           name='show-countdown'
+                                           id='checkbox2'
+                                           value=''>
+                                    Display Poll Closing
+                                    Countdown
+                                    with this poll.
+                                </label>
+                            </div>
+                            <hr>
+                            <legend class="mt-4">Customize Poll</legend>
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    <input class="form-check-input"
+                                           type='checkbox'
+                                           name='show-write-in'
+                                           value=''>
+                                    Permit Write-in option with this
+                                    poll.
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    <input class="form-check-input"
+                                           type='checkbox'
+                                           name='show-lead-color'
+                                           value=''
+                                           checked>
+                                    Show Leading option in different
+                                    color.
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    <input class="form-check-input"
+                                           type='checkbox'
+                                           name='show-email-opt-in'
+                                           value=''>
+                                    Display option to opt-in for email
+                                    communication.
+                                </label>
+                            </div>
+                            <hr>
+                            <div id='tag-input'>
+                                <h6>(Enter a comma after each tag)</h6>
+                                <input type='text'
+                                       name='token-tags'
+                                       class='form-control'
+                                       id='tokenTagField'
+                                       placeholder='Enter keywords' />
+                            </div>
+                        </fieldset>
+                        {% csrf_token %}
+                        <button type='submit' class='mt-4 btn btn-success pull-right'>Create</button>
+                    </form>
+                {% endblock %}

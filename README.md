@@ -1,10 +1,10 @@
 # About
 
-[![Build Status](https://api.travis-ci.org/electionscience/approval_frame.svg?branch=master)](https://api.travis-ci.org/electionscience/approval_frame.svg?branch=master)
+[![Build Status](https://api.travis-ci.org/electionscience/approval_polls.svg?branch=master)](https://api.travis-ci.org/electionscience/approval_polls.svg?branch=master)
 
 Lots of websites have polls, usually as a little side bar.
 But most of those polls are based on plurality voting, an inferior voting method.
-Approval_frame is a replacement for those polls, using approval voting,
+approval_polls is a replacement for those polls, using approval voting,
 which is suitable for embedding in other webpages via an iframe tag.
 The project, taken as a whole, will serve these approval-based webpolls, or the approval_polls package contained within it can be added to other Django-based servers to be used locally.
 
@@ -37,28 +37,28 @@ When you're done working on the project, you can quit the virtualenv by running 
 
 1. [Install git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git). If you're new to git then the [Pro Git](http://git-scm.com/book/en/v2) book is useful.
 
-2. Clone this repository. `git clone https://github.com/electionscience/approval_frame.git`.
+2. Clone this repository. `git clone https://github.com/electionscience/approval_polls.git`.
 
-3. Go into the approval_frame directory. `cd approval_frame`.
+3. Go into the approval_polls directory. `cd approval_polls`.
 
-4. For the registration procedure to work correctly, in development (since we do not want your Email ID and password to be committed to Github), create a new file approval_frame/local_settings.py and add in the following email configuration.
+4. For the registration procedure to work correctly, in development (since we do not want your Email ID and password to be committed to Github), create a new file approval_polls/local_settings.py and add in the following email configuration.
 
-  ```py
-  EMAIL_USE_TLS = True
-  EMAIL_HOST = 'hostname of the smtp server'   # eg. 'smtp.gmail.com' for Gmail.
-  EMAIL_PORT = 587                             # 587 for smtp
-  EMAIL_HOST_USER = 'username or email'        # eg. myaddress@gmail.com
-  EMAIL_HOST_PASSWORD = 'password'             # Your password string
-                                              # or 16 character app password (2 step auth)
-  ```
+```py
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'hostname of the smtp server'   # eg. 'smtp.gmail.com' for Gmail.
+EMAIL_PORT = 587                             # 587 for smtp
+EMAIL_HOST_USER = 'username or email'        # eg. myaddress@gmail.com
+EMAIL_HOST_PASSWORD = 'password'             # Your password string
+                                            # or 16 character app password (2 step auth)
+```
 
-  approval_frame/local_settings.py already exists in .gitignore.
+approval_polls/local_settings.py already exists in .gitignore.
 
-5. Also, in development, set the DEBUG variable to True in the approval_frame/local_settings.py
+5. Also, in development, set the DEBUG variable to True in the approval_polls/local_settings.py
 
-  ```py
-  DEBUG = True
-  ```
+```py
+DEBUG = True
+```
 
 6. Before you run the Django server for the first time, you'll need to create the database tables:
 
@@ -71,7 +71,7 @@ When you're done working on the project, you can quit the virtualenv by running 
    If you would like to setup social authentication for your app while in development, please refer to the following document: [Configure Social Authentication](/docs/Social_Auth_Configure.md)
 
    For the newsletter subscription functionality to work in production and development,
-   please add the following in approval_frame/settings.py and approval_frame/local_settings.py respectively.
+   please add the following in approval_polls/settings.py and approval_polls/local_settings.py respectively.
 
    ```py
    MAILCHIMP_API_KEY = '************************************'
@@ -146,7 +146,7 @@ This repo is deployed in production on `https://console.cloud.google.com/compute
 
 The site is served from `/var/www/django/`
 
-To update, SSH into the server and `git fetch master` and check if everything is as you think it should be. Then `git checkout master` if it is. 
+To update, SSH into the server and `git fetch master` and check if everything is as you think it should be. Then `git checkout master` if it is.
 
 1. Run the following command to collect static files from all installed apps and place them in the 'staticfiles' directory (as given by the `STATIC_ROOT` variable).
 

@@ -9,4 +9,4 @@ WORKDIR /code
 COPY requirements.txt /code/
 RUN pip install -r requirements.txt --no-cache-dir
 COPY . /code/
-CMD gunicorn "approval_frame.wsgi:application" "-b 0.0.0.0:8000"
+CMD gunicorn "approval_polls.wsgi:application" "-b 0.0.0.0:8000"

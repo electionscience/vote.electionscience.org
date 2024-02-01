@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class='row-fluid'>
+        <div class='col-md-12 top-buffer'>
+            <p>An email has been sent to the address you supplied with instructions for completing your registration.</p>
+            <p>
+                Return to <a href='{% url 'index' %}'>home</a>
+            </p>
+        </div>
+    </div>
+{% endblock %}

@@ -105,7 +105,7 @@
                 <div class="collapse navbar-collapse" id="navbarColor01">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a href='{% url 'approval_polls:create' %}'>
+                            <a href='{% url 'create' %}'>
                                 <button class="btn btn-secondary my-2 my-sm-0" type='submit'>Create</button>
                             </a>
                         </li>
@@ -114,11 +114,11 @@
                         {% block login %}
                             {% if user.is_authenticated %}
                                 <li class="nav-item">
-                                    <a class="nav-link" href='{% url 'approval_polls:my_info' %}'>{{ user.username }}</a>
+                                    <a class="nav-link" href='{% url 'my_info' %}'>{{ user.username }}</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link"
-                                       href="{% url 'auth_logout' %}?next={% url 'approval_polls:index' %}">Logout</a>
+                                       href="{% url 'auth_logout' %}?next={% url 'index' %}">Logout</a>
                                 </li>
                             {% else %}
                                 {% if request.path != '/approval_polls/' %}
@@ -149,7 +149,7 @@
                             This poll uses approval voting, instead of the more common plurality system.
                             <br />
                             <a href='http://www.electionscience.org/approval-voting'>Learn why it's better</a> and
-                            <a href='{% url 'approval_polls:create' %}' target='_top'>create your own poll</a>.
+                            <a href='{% url 'create' %}' target='_top'>create your own poll</a>.
                         </p>
                         <div class="container mt-5">
                             <div class='col-3 mx-auto'>
@@ -166,5 +166,7 @@
                         </div> {% endcomment %}
                     </div>
                 </div>
-            </body>
-        </html>
+            </div>
+        </div>
+    </body>
+</html>

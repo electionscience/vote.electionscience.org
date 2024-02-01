@@ -16,7 +16,7 @@
     {% endif %}
     <div class='row-fluid top-buffer full-height'>
         <div class='col-md-12'>
-            <form action='{% url 'approval_polls:vote' poll.id %}' method='post'>
+            <form action='{% url 'vote' poll.id %}' method='post'>
                 {% csrf_token %}
                 <em>Choose as many options as you wish</em>
                 {% for choice in poll.choice_set.all %}
@@ -155,7 +155,7 @@
             <p>
                 Tags:
                 {% for tag in tags %}
-                    <a href='{% url 'approval_polls:tagged_polls' tag %}'>{{ tag }}</a>
+                    <a href='{% url 'tagged_polls' tag %}'>{{ tag }}</a>
                 {% endfor %}
             {% endif %}
         </p>
@@ -181,7 +181,7 @@
             <p class='label label-default'>Creator: {{ poll.user.username }}</p>
         </div>
         <p class='text-center'>
-            <a href='{% url 'approval_polls:results' poll.id %}'>See Results</a>
+            <a href='{% url 'results' poll.id %}'>See Results</a>
         </p>
     </div>
 </div>
@@ -190,7 +190,7 @@
         <p class='text-center'>
             This poll uses approval voting, instead of the more common plurality system.
             <a href='http://www.electionscience.org/approval-voting'>Learn why it's better</a> and
-            <a href='{% url 'approval_polls:create' %}' target='_top'>create your own poll</a>.
+            <a href='{% url 'create' %}' target='_top'>create your own poll</a>.
         </p>
     </div>
 </div>

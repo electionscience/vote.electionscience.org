@@ -6,16 +6,96 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.urls import reverse
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import generic
 from django.views.decorators.http import require_http_methods
 from django_ajax.decorators import ajax
 
-from approval_polls.models import Ballot, Choice, Poll, PollTag, VoteInvitation
+from approval_polls.models import (
+    Ballot,
+    Choice,
+    Poll,
+    PollTag,
+    Subscription,
+    VoteInvitation,
+)
+
+from .forms import ManageSubscriptionsForm, NewUsernameForm
+
+
+@login_required
+def changeUsername(request):
+    if request.method == "POST":
+        form = NewUsernameForm(request.POST)
+
+        if form.is_valid():
+            newusername = form.cleaned_data["new_username"]
+            owner = request.user
+            owner.username = newusername
+            owner.save()
+            return HttpResponseRedirect("/accounts/username/change/done/")
+    else:
+        form = NewUsernameForm()
+
+    return render(request, "registration/username_change_form.html", {"form": form})
+
+
+@login_required
+def changeUsernameDone(request):
+    return render(
+        request,
+        "registration/username_change_done.html",
+        {"new_username": request.user},
+    )
+
+
+@login_required
+def manageSubscriptions(request):
+    current_user = request.user
+    if request.method == "POST":
+        form = ManageSubscriptionsForm(request.POST)
+        if form.is_valid():
+            zipcode = form.cleaned_data.get("zipcode")
+            is_subscribed = form.cleaned_data.get("newslettercheckbox")
+            if current_user.subscription_set.count() > 0:
+                if not is_subscribed:
+                    current_user.subscription_set.first().delete()
+            else:
+                subscr = Subscription(user=current_user, zipcode=zipcode)
+                subscr.save()
+
+            return HttpResponseRedirect("/accounts/subscription/change/done/")
+        else:
+            is_subscribed = False
+    else:
+        if current_user.subscription_set.count() > 0:
+            subscr = current_user.subscription_set.first()
+            form = ManageSubscriptionsForm(
+                initial={"user": request.user, "zipcode": subscr.zipcode}
+            )
+            is_subscribed = True
+        else:
+            form = ManageSubscriptionsForm()
+            is_subscribed = False
+
+    return render(
+        request,
+        "registration/subscription_preferences.html",
+        {"form": form, "boxchecked": is_subscribed},
+    )
+
+
+@login_required
+def manageSubscriptionsDone(request):
+    return render(
+        request,
+        "registration/subscription_change_done.html",
+        {"new_username": request.user},
+    )
 
 
 def index(request):
@@ -242,18 +322,19 @@ def vote(request, poll_id):
                                 choicelink_txt = request.POST["linkurl-" + key].strip()
                                 if choicelink_txt:
                                     choice = poll.choice_set.create(
-                                        choice_text=choice_txt, choice_link=choicelink_txt
+                                        choice_text=choice_txt,
+                                        choice_link=choicelink_txt,
                                     )
                                 else:
-                                    choice = poll.choice_set.create(choice_text=choice_txt)
+                                    choice = poll.choice_set.create(
+                                        choice_text=choice_txt
+                                    )
                             ballot_exist = ballot.vote_set.filter(choice=choice)
                             if not ballot_exist:
                                 ballot.vote_set.create(choice=choice)
                                 ballot.save()
             poll.save()
-            response = HttpResponseRedirect(
-                reverse("approval_polls:results", args=(poll.id,))
-            )
+            response = HttpResponseRedirect(reverse("results", args=(poll.id,)))
             value = request.COOKIES.get("polls_voted")
             if value:
                 try:
@@ -267,9 +348,7 @@ def vote(request, poll_id):
             response.set_cookie("polls_voted", json.dumps(polls_voted_list))
             return response
         else:
-            return HttpResponseRedirect(
-                reverse("approval_polls:detail", args=(poll.id,))
-            )
+            return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
     elif poll_vtype == 2:
         # Type 2 poll - the user is required to login to vote.
         if request.user.is_authenticated():
@@ -298,9 +377,7 @@ def vote(request, poll_id):
                             ballot.save()
                     handle_write_ins(ballot, poll, request)
                     poll.save()
-                    return HttpResponseRedirect(
-                        reverse("approval_polls:results", args=(poll.id,))
-                    )
+                    return HttpResponseRedirect(reverse("results", args=(poll.id,)))
                 else:
                     ballot = poll.ballot_set.get(user=request.user)
 
@@ -328,18 +405,12 @@ def vote(request, poll_id):
                     # Ensure that choice options are updated if required.
                     handle_write_ins(ballot, poll, request)
                     poll.save()
-                    return HttpResponseRedirect(
-                        reverse("approval_polls:results", args=(poll.id,))
-                    )
+                    return HttpResponseRedirect(reverse("results", args=(poll.id,)))
             else:
-                return HttpResponseRedirect(
-                    reverse("approval_polls:detail", args=(poll.id,))
-                )
+                return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
         else:
             return HttpResponseRedirect(
-                reverse("auth_login")
-                + "?next="
-                + reverse("approval_polls:detail", args=(poll.id,))
+                reverse("auth_login") + "?next=" + reverse("detail", args=(poll.id,))
             )
     elif poll_vtype == 3:
         # Type 3 - Vote through the email invitation link.
@@ -420,17 +491,11 @@ def vote(request, poll_id):
                 if invitations:
                     invitations[0].ballot = ballot
                     invitations[0].save()
-                return HttpResponseRedirect(
-                    reverse("approval_polls:results", args=(poll.id,))
-                )
+                return HttpResponseRedirect(reverse("results", args=(poll.id,)))
             else:
-                return HttpResponseRedirect(
-                    reverse("approval_polls:detail", args=(poll.id,))
-                )
+                return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
         else:
-            return HttpResponseRedirect(
-                reverse("approval_polls:detail", args=(poll.id,))
-            )
+            return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
 
 
 def handle_write_ins(ballot, poll, request):
@@ -441,18 +506,14 @@ def handle_write_ins(ballot, poll, request):
                 choice = poll.choice_set.filter(choice_text=choice_txt)
                 if not choice:
                     if "linkurl-" + key in request.POST:
-                        choicelink_txt = request.POST[
-                            "linkurl-" + key
-                            ].strip()
+                        choicelink_txt = request.POST["linkurl-" + key].strip()
                         if choicelink_txt:
                             choice = poll.choice_set.create(
                                 choice_text=choice_txt,
                                 choice_link=choicelink_txt,
                             )
                         else:
-                            choice = poll.choice_set.create(
-                                choice_text=choice_txt
-                            )
+                            choice = poll.choice_set.create(choice_text=choice_txt)
                     ballot_exist = ballot.vote_set.filter(choice=choice)
                     if not ballot_exist:
                         ballot.vote_set.create(choice=choice)
@@ -590,9 +651,7 @@ class CreateView(generic.View):
             if vtype == "3":
                 p.send_vote_invitations(request.POST["token-emails"])
 
-            return HttpResponseRedirect(
-                reverse("approval_polls:embed_instructions", args=(p.id,))
-            )
+            return HttpResponseRedirect(reverse("embed_instructions", args=(p.id,)))
 
 
 class EditView(generic.View):
@@ -616,9 +675,9 @@ class EditView(generic.View):
             {
                 "poll": poll,
                 "choices": choices,
-                "closedatetime": closedatetime.strftime("%Y/%m/%d %H:%M")
-                if poll.close_date
-                else "",
+                "closedatetime": (
+                    closedatetime.strftime("%Y/%m/%d %H:%M") if poll.close_date else ""
+                ),
                 "can_edit_poll": poll.can_edit(),
                 "choices_count": Choice.objects.last().id,
                 "blank_choices": [],
@@ -759,4 +818,4 @@ class EditView(generic.View):
 
             poll.save()
 
-        return HttpResponseRedirect(reverse("approval_polls:my_polls"))
+        return HttpResponseRedirect(reverse("my_polls"))

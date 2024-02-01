@@ -15,7 +15,7 @@
                 <p>Member since: {{ current_user.date_joined|date:"F j, Y e" }}</p>
                 <p>Last Login: {{ current_user.last_login|date:"F j, Y e" }}</p>
                 <p>
-                    <a href='{% url 'approval_polls:my_polls' %}'>Polls I created</a>:
+                    <a href='{% url 'my_polls' %}'>Polls I created</a>:
                     {{ current_user.poll_set.all.count }}
                 </p>
                 <p>
@@ -41,7 +41,7 @@
                 {% for poll in latest_poll_list %}
                     <div class='well well-sm' id='well{{ poll.id }}'>
                         <div id='pollQuestion'>
-                            <a href="{% url 'approval_polls:detail' poll.id %}">{{ poll.question }}</a>
+                            <a href="{% url 'detail' poll.id %}">{{ poll.question }}</a>
                         </div>
                         <div class="pull-right">
                             <a class=' btn btn-danger btn-xs' id='delete-poll-{{ poll.id }}'>remove</a>
@@ -51,7 +51,7 @@
                             {% comment %} {{ suspend_text }} </a> {% endcomment %}
                             {% comment %} {%endwith%} {% endcomment %}
                             <a class='btn btn-primary btn-xs right-buffer'
-                               href="{% url 'approval_polls:edit' poll.id %}">edit</a>
+                               href="{% url 'edit' poll.id %}">edit</a>
                         </div>
                         <div style="display:none">
                             <input type='hidden' id='csrfmiddlewaretoken' value='{{ csrf_token }}'>
