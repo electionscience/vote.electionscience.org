@@ -23,10 +23,10 @@ def index(request):
         pub_date__lte=timezone.now(),
         is_private=False,
     ).order_by("-pub_date")
-    return getPolls(request, poll_list, "approval_polls/index.html")
+    return get_polls(request, poll_list, "approval_polls/index.html")
 
 
-def tagCloud(request):
+def tag_cloud(request):
     return render(
         request,
         "approval_polls/tag_cloud.html",
@@ -35,21 +35,21 @@ def tagCloud(request):
 
 
 @login_required
-def myPolls(request):
+def my_polls(request):
     poll_list = Poll.objects.filter(
         pub_date__lte=timezone.now(), user_id=request.user
     ).order_by("-pub_date")
-    return getPolls(request, poll_list, "approval_polls/my_polls.html")
+    return get_polls(request, poll_list, "approval_polls/my_polls.html")
 
 
-def taggedPolls(request, tag):
+def tagged_polls(request, tag):
     t = PollTag.objects.get(tag_text=tag.lower())
     poll_list = t.polls.all()
-    return getPolls(request, poll_list, "approval_polls/index.html")
+    return get_polls(request, poll_list, "approval_polls/index.html")
 
 
 @login_required
-def myInfo(request):
+def my_info(request):
     poll_list = Poll.objects.filter(
         pub_date__lte=timezone.now(), user_id=request.user
     ).order_by("-pub_date")
@@ -75,7 +75,7 @@ def set_user_timezone(request):
     return HttpResponseRedirect(redirect_url)
 
 
-def getPolls(request, poll_list, render_page):
+def get_polls(request, poll_list, render_page):
     paginator = Paginator(poll_list, 5)
     page = request.GET.get("page")
     try:
@@ -95,7 +95,7 @@ def change_suspension(request, poll_id):
 
 
 @ajax
-def allTags(request):
+def all_tags(request):
     return {"allTags": [t.tag_text for t in PollTag.objects.all()]}
 
 
@@ -240,12 +240,12 @@ def vote(request, poll_id):
                         if not choice:
                             if "linkurl-" + key in request.POST:
                                 choicelink_txt = request.POST["linkurl-" + key].strip()
-                            if choicelink_txt:
-                                choice = poll.choice_set.create(
-                                    choice_text=choice_txt, choice_link=choicelink_txt
-                                )
-                            else:
-                                choice = poll.choice_set.create(choice_text=choice_txt)
+                                if choicelink_txt:
+                                    choice = poll.choice_set.create(
+                                        choice_text=choice_txt, choice_link=choicelink_txt
+                                    )
+                                else:
+                                    choice = poll.choice_set.create(choice_text=choice_txt)
                             ballot_exist = ballot.vote_set.filter(choice=choice)
                             if not ballot_exist:
                                 ballot.vote_set.create(choice=choice)
@@ -296,29 +296,7 @@ def vote(request, poll_id):
                         if "choice" + str(counter + 1) in request.POST:
                             ballot.vote_set.create(choice=choice)
                             ballot.save()
-                    for key, value in list(request.POST.items()):
-                        if key + "txt" in request.POST:
-                            choice_txt = request.POST[key + "txt"].strip()
-                            if choice_txt:
-                                choice = poll.choice_set.filter(choice_text=choice_txt)
-                                if not choice:
-                                    if "linkurl-" + key in request.POST:
-                                        choicelink_txt = request.POST[
-                                            "linkurl-" + key
-                                        ].strip()
-                                    if choicelink_txt:
-                                        choice = poll.choice_set.create(
-                                            choice_text=choice_txt,
-                                            choice_link=choicelink_txt,
-                                        )
-                                    else:
-                                        choice = poll.choice_set.create(
-                                            choice_text=choice_txt
-                                        )
-                                    ballot_exist = ballot.vote_set.filter(choice=choice)
-                                    if not ballot_exist:
-                                        ballot.vote_set.create(choice=choice)
-                                        ballot.save()
+                    handle_write_ins(ballot, poll, request)
                     poll.save()
                     return HttpResponseRedirect(
                         reverse("approval_polls:results", args=(poll.id,))
@@ -348,29 +326,7 @@ def vote(request, poll_id):
                                 ballot_exist.delete()
                                 ballot.save()
                     # Ensure that choice options are updated if required.
-                    for key, value in list(request.POST.items()):
-                        if key + "txt" in request.POST:
-                            choice_txt = request.POST[key + "txt"].strip()
-                            if choice_txt:
-                                choice = poll.choice_set.filter(choice_text=choice_txt)
-                                if not choice:
-                                    if "linkurl-" + key in request.POST:
-                                        choicelink_txt = request.POST[
-                                            "linkurl-" + key
-                                        ].strip()
-                                    if choicelink_txt:
-                                        choice = poll.choice_set.create(
-                                            choice_text=choice_txt,
-                                            choice_link=choicelink_txt,
-                                        )
-                                    else:
-                                        choice = poll.choice_set.create(
-                                            choice_text=choice_txt
-                                        )
-                                    ballot_exist = ballot.vote_set.filter(choice=choice)
-                                    if not ballot_exist:
-                                        ballot.vote_set.create(choice=choice)
-                                        ballot.save()
+                    handle_write_ins(ballot, poll, request)
                     poll.save()
                     return HttpResponseRedirect(
                         reverse("approval_polls:results", args=(poll.id,))
@@ -459,29 +415,7 @@ def vote(request, poll_id):
                                 ballot_exist.delete()
                                 ballot.save()
                 if poll.show_write_in:
-                    for key, value in list(request.POST.items()):
-                        if key + "txt" in request.POST:
-                            choice_txt = request.POST[key + "txt"].strip()
-                            if choice_txt:
-                                choice = poll.choice_set.filter(choice_text=choice_txt)
-                                if not choice:
-                                    if "linkurl-" + key in request.POST:
-                                        choicelink_txt = request.POST[
-                                            "linkurl-" + key
-                                        ].strip()
-                                    if choicelink_txt:
-                                        choice = poll.choice_set.create(
-                                            choice_text=choice_txt,
-                                            choice_link=choicelink_txt,
-                                        )
-                                    else:
-                                        choice = poll.choice_set.create(
-                                            choice_text=choice_txt
-                                        )
-                                    ballot_exist = ballot.vote_set.filter(choice=choice)
-                                    if not ballot_exist:
-                                        ballot.vote_set.create(choice=choice)
-                                        ballot.save()
+                    handle_write_ins(ballot, poll, request)
                 poll.save()
                 if invitations:
                     invitations[0].ballot = ballot
@@ -497,6 +431,32 @@ def vote(request, poll_id):
             return HttpResponseRedirect(
                 reverse("approval_polls:detail", args=(poll.id,))
             )
+
+
+def handle_write_ins(ballot, poll, request):
+    for key, value in list(request.POST.items()):
+        if key + "txt" in request.POST:
+            choice_txt = request.POST[key + "txt"].strip()
+            if choice_txt:
+                choice = poll.choice_set.filter(choice_text=choice_txt)
+                if not choice:
+                    if "linkurl-" + key in request.POST:
+                        choicelink_txt = request.POST[
+                            "linkurl-" + key
+                            ].strip()
+                        if choicelink_txt:
+                            choice = poll.choice_set.create(
+                                choice_text=choice_txt,
+                                choice_link=choicelink_txt,
+                            )
+                        else:
+                            choice = poll.choice_set.create(
+                                choice_text=choice_txt
+                            )
+                    ballot_exist = ballot.vote_set.filter(choice=choice)
+                    if not ballot_exist:
+                        ballot.vote_set.create(choice=choice)
+                        ballot.save()
 
 
 def embed_instructions(request, poll_id):
@@ -698,13 +658,13 @@ class EditView(generic.View):
         poll.save()
         if "token-emails" in request.POST:
             poll.send_vote_invitations(request.POST["token-emails"])
-        existing_tags_set = sets.Set(poll.all_tags().split(","))
+        existing_tags_set = set(poll.all_tags().split(","))
         if len(request.POST["token-tags"]) > 0:
-            request_tags_set = sets.Set(
+            request_tags_set = set(
                 [tag.strip() for tag in request.POST["token-tags"].split(",")]
             )
         else:
-            request_tags_set = sets.Set([])
+            request_tags_set = set([])
         tags_to_add = list(request_tags_set - existing_tags_set)
         tags_to_delete = list(existing_tags_set - request_tags_set)
         if len(tags_to_add) > 0:
@@ -727,8 +687,8 @@ class EditView(generic.View):
                     id = m.group(1)
                     request_choice_ids.append(int(id))
             poll_choice_ids = [choice.id for choice in choices]
-            request_choice_ids_set = sets.Set(request_choice_ids)
-            poll_choice_ids_set = sets.Set(poll_choice_ids)
+            request_choice_ids_set = set(request_choice_ids)
+            poll_choice_ids_set = set(poll_choice_ids)
             choice_ids_for_create = request_choice_ids_set - poll_choice_ids_set
             choice_ids_for_delete = poll_choice_ids_set - request_choice_ids_set
             choice_ids_for_update = poll_choice_ids_set & request_choice_ids_set

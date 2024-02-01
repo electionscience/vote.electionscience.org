@@ -1,7 +1,7 @@
 import datetime
 
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from django.test.client import Client
 from django.utils import timezone
@@ -45,7 +45,7 @@ def create_poll(
     return poll
 
 
-def create_ballot(poll, timestamp=timezone.now(), ip="127.0.0.1"):
+def create_ballot(poll, timestamp=timezone.now()):
     """
     Creates a ballot for the given `poll`, submitted at `timestamp` by `ip`.
     """

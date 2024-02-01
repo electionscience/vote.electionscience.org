@@ -8,7 +8,7 @@ env = environ.Env(
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+environ.Env.read_env(os.path.join(os.path.dirname(BASE_DIR), '.env'))
 DEBUG = env('DEBUG')
 
 # Quick-start development settings - unsuitable for production
@@ -19,12 +19,11 @@ DEBUG = env('DEBUG')
 # which we .gitignore. This file should be added in the same directory
 # that contains this settings.py file.
 
-SECRET_KEY = env("SECRET_KEY", default="abcedf132987401747501873")
+SECRET_KEY = env("SECRET_KEY")
 
 db_path = "/data/prod.sqlite3"
 if DEBUG:
     db_path = os.path.join(BASE_DIR, "db.sqlite3")
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DATABASES = {
     "default": {
@@ -41,16 +40,14 @@ else:
     APP_NAME = env("FLY_APP_NAME")
     ALLOWED_HOSTS = [f"{APP_NAME}.fly.dev"]  # ← Updated!
 
-    # The following settings are required for the activation emails in the
-    # registration module to work. For development purposes, set these
-    # EMAIL_* variables accordingly in the local_settings.py file.
-    EMAIL_USE_TLS = True
-    EMAIL_HOST = env("EMAIL_HOST")  # Example - smtp.gmail.com
-    EMAIL_PORT = env("EMAIL_PORT", int, 587)  # 587 for smtp
-    EMAIL_HOST_USER = env("EMAIL_HOST_USER")  # Example - your email address
-    EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")  # Example - your email password
-
-
+# The following settings are required for the activation emails in the
+# registration module to work.
+SENDGRID_API_KEY = env('SENDGRID_API_KEY', str, default="")
+if SENDGRID_API_KEY != "":
+    EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+    SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -181,20 +178,20 @@ AUTHENTICATION_BACKENDS = (
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "filters": {"require_debug_false": {"()": "django.utils.log.RequireDebugFalse"}},
     "handlers": {
-        "mail_admins": {
-            "level": "ERROR",
-            "filters": ["require_debug_false"],
-            "class": "django.utils.log.AdminEmailHandler",
-        }
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
     },
     "loggers": {
-        "django.request": {
-            "handlers": ["mail_admins"],
-            "level": "ERROR",
-            "propagate": True,
+        "django": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
         },
     },
 }
-
