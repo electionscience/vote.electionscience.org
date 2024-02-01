@@ -31,7 +31,10 @@ class PollAdmin(admin.ModelAdmin):
     search_fields = ['question']
     actions = ["export_voters_as_csv"]
 
-    def export_voters_as_csv(self, request, queryset):
+    @admin.display(
+        description='Export poll with opt-in voter emails.'
+    )
+    def export_voters_as_csv(self, queryset):
         poll_field_names = [
             'id', 'question', 'pub_date', 'user', 'vtype', 'show_email_opt_in',
         ]
@@ -67,9 +70,6 @@ class PollAdmin(admin.ModelAdmin):
 
         return response
 
-    export_voters_as_csv.short_description = (
-        'Export poll with opt-in voter emails.'
-    )
 
 
 admin.site.register(Ballot)

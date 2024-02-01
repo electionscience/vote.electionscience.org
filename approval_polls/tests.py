@@ -370,7 +370,7 @@ class PollIndexTests(TestCase):
         response = self.client.get(reverse("index"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "No polls are available.")
-        self.assertQuerysetEqual(response.context["latest_poll_list"], [])
+        self.assertQuerySetEqual(response.context["latest_poll_list"], [])
 
     def test_index_view_with_a_past_poll(self):
         """
@@ -379,7 +379,7 @@ class PollIndexTests(TestCase):
         """
         create_poll(question="Past poll.", days=-30)
         response = self.client.get(reverse("index"))
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             response.context["latest_poll_list"], ["<Poll: Past poll.>"]
         )
 
@@ -391,7 +391,7 @@ class PollIndexTests(TestCase):
         create_poll(question="Past poll.", days=-30, vtype=1)
         create_poll(question="Future poll.", username="user2", days=30, vtype=1)
         response = self.client.get(reverse("index"))
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             response.context["latest_poll_list"], ["<Poll: Past poll.>"]
         )
 
@@ -402,7 +402,7 @@ class PollIndexTests(TestCase):
         create_poll(question="Past poll 1.", days=-30)
         create_poll(question="Past poll 2.", username="user2", days=-5)
         response = self.client.get(reverse("index"))
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             response.context["latest_poll_list"],
             ["<Poll: Past poll 2.>", "<Poll: Past poll 1.>"],
         )
@@ -523,7 +523,7 @@ class MyPollTests(TestCase):
         self.client.login(username="user1", password="test")
         response = self.client.get(reverse("my_polls"))
         self.assertEqual(response.status_code, 200)
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             response.context["latest_poll_list"], ["<Poll: question1>"]
         )
 
@@ -670,7 +670,7 @@ class UpdatePollTests(TestCase):
 
     def test_poll_details_show_checked_choices(self):
         response = self.client.get("/approval_polls/1/")
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             response.context["checked_choices"], ["<Choice: Choice 1.>"]
         )
 
@@ -678,7 +678,7 @@ class UpdatePollTests(TestCase):
         self.client.logout()
         response = self.client.get("/approval_polls/1/")
         self.assertContains(response, "Login to Vote", status_code=200)
-        self.assertQuerysetEqual(response.context["checked_choices"], [])
+        self.assertQuerySetEqual(response.context["checked_choices"], [])
 
     def test_poll_details_different_user(self):
         self.client.logout()
@@ -686,7 +686,7 @@ class UpdatePollTests(TestCase):
         self.client.login(username="user2", password="password123")
         response = self.client.get("/approval_polls/1/")
         self.assertContains(response, "Vote", status_code=200)
-        self.assertQuerysetEqual(response.context["checked_choices"], [])
+        self.assertQuerySetEqual(response.context["checked_choices"], [])
 
     def test_poll_details_unselect_checked_choice(self):
         self.client.login(username="user1", password="test")
@@ -694,7 +694,7 @@ class UpdatePollTests(TestCase):
         self.client.post("/approval_polls/1/vote/", choice_data, follow=True)
         response = self.client.get("/approval_polls/1/")
         self.assertContains(response, "Vote", status_code=200)
-        self.assertQuerysetEqual(response.context["checked_choices"], [])
+        self.assertQuerySetEqual(response.context["checked_choices"], [])
 
     def test_poll_details_closed_poll(self):
         poll_closed = create_poll(
@@ -727,7 +727,7 @@ class DeletePollTests(TestCase):
         self.client.delete("/approval_polls/1/", follow=True)
         response = self.client.get(reverse("my_polls"))
         self.assertEqual(response.status_code, 200)
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             response.context["latest_poll_list"], ["<Poll: question2>"]
         )
         response = self.client.get("/approval_polls/1/")
@@ -738,7 +738,7 @@ class DeletePollTests(TestCase):
         self.client.delete("/approval_polls/2/", follow=True)
         response = self.client.get(reverse("my_polls"))
         self.assertEqual(response.status_code, 200)
-        self.assertQuerysetEqual(response.context["latest_poll_list"], [])
+        self.assertQuerySetEqual(response.context["latest_poll_list"], [])
         response = self.client.get("/approval_polls/1/")
         self.assertEqual(response.status_code, 404)
         response = self.client.get("/approval_polls/2/")
@@ -770,7 +770,7 @@ class PollVisibilityTests(TestCase):
         """
         response = self.client.get(reverse("index"))
         self.assertEqual(response.status_code, 200)
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             response.context["latest_poll_list"],
             ["<Poll: public poll>"],
         )
@@ -783,7 +783,7 @@ class PollVisibilityTests(TestCase):
         self.client.login(username="user1", password="test")
         response = self.client.get(reverse("my_polls"))
         self.assertEqual(response.status_code, 200)
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             response.context["latest_poll_list"],
             ["<Poll: private poll>", "<Poll: public poll>"],
         )
@@ -796,7 +796,7 @@ class PollVisibilityTests(TestCase):
         self.client.login(username="user2", password="test")
         response = self.client.get(reverse("my_polls"))
         self.assertEqual(response.status_code, 200)
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             response.context["latest_poll_list"],
             [],
         )

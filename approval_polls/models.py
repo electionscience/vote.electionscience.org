@@ -9,7 +9,6 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.crypto import get_random_string
-from django.contrib.sites.requests import RequestSite
 
 
 class Poll(models.Model):
@@ -79,7 +78,7 @@ class Poll(models.Model):
         # Get all the email Ids to store in the DB.
         email_list = []
         for email in emails.split(','):
-            if (re.match("([^@|\s]+@[^@]+\.[^@|\s]+)", email.strip())):
+            if re.match(r"([^@|\s]+@[^@]+\.[^@|\s]+)", email.strip()):
                 email_list.append(email.strip())
             email_list = list(set(email_list))
 

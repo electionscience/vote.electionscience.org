@@ -68,7 +68,6 @@ USE_I18N = True
 
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale.
-USE_L10N = True
 
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
@@ -122,6 +121,7 @@ MIDDLEWARE = (
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "django_ajax.middleware.AJAXMiddleware"
 )
 
 ROOT_URLCONF = "approval_polls.urls"
@@ -193,3 +193,5 @@ LOGGING = {
         },
     },
 }
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
