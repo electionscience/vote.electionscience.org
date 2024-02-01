@@ -6,7 +6,6 @@ from registration.backends.default.views import RegistrationView
 from approval_polls.models import Subscription
 
 from .forms import ManageSubscriptionsForm, NewUsernameForm, RegistrationFormCustom
-from .mailchimp_api import update_subscription
 
 
 @login_required
@@ -42,45 +41,32 @@ def manageSubscriptions(request):
         form = ManageSubscriptionsForm(request.POST)
         if form.is_valid():
             zipcode = form.cleaned_data.get("zipcode")
-            newslettercheckbox = form.cleaned_data.get("newslettercheckbox")
+            is_subscribed = form.cleaned_data.get("newslettercheckbox")
             if current_user.subscription_set.count() > 0:
-                if not newslettercheckbox:
-                    subscription_errors = update_subscription(
-                        False, request.user.email, ""
-                    )
+                if not is_subscribed:
                     current_user.subscription_set.first().delete()
             else:
-                subscription_errors = update_subscription(
-                    True, request.user.email, request.POST["zipcode"]
-                )
                 subscr = Subscription(user=current_user, zipcode=zipcode)
                 subscr.save()
-                if len(subscription_errors) > 0:
-                    form.add_error(subscription_errors[0], subscription_errors[1])
-                    return render(
-                        request,
-                        "registration/subscription_preferences.html",
-                        {"form": form, "boxchecked": newslettercheckbox},
-                    )
 
             return HttpResponseRedirect("/accounts/subscription/change/done/")
         else:
-            newslettercheckbox = False
+            is_subscribed = False
     else:
         if current_user.subscription_set.count() > 0:
             subscr = current_user.subscription_set.first()
             form = ManageSubscriptionsForm(
                 initial={"user": request.user, "zipcode": subscr.zipcode}
             )
-            newslettercheckbox = True
+            is_subscribed = True
         else:
             form = ManageSubscriptionsForm()
-            newslettercheckbox = False
+            is_subscribed = False
 
     return render(
         request,
         "registration/subscription_preferences.html",
-        {"form": form, "boxchecked": newslettercheckbox},
+        {"form": form, "boxchecked": is_subscribed},
     )
 
 
