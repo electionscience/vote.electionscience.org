@@ -1,10 +1,15 @@
 import os
+import environ
 
-from dotenv import load_dotenv
-
-load_dotenv()  # loads the configs from .env
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False),
+    SECRET_KEY=(str, 'abcedf132987401747501873')
+)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+DEBUG = env('DEBUG')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -13,32 +18,39 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # For development purposes, set DEBUG to True in a local_settings.py file,
 # which we .gitignore. This file should be added in the same directory
 # that contains this settings.py file.
-DEBUG = os.environ.get("DEBUG") or False
 
-SECRET_KEY = os.environ.get("SECRET_KEY") or "abcedf132987401747501873"
+SECRET_KEY = env("SECRET_KEY",default="abcedf132987401747501873")
+
+db_path = "/data/prod.sqlite3"
+if DEBUG:
+    db_path = os.path.join(BASE_DIR, "db.sqlite3")
+    # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "NAME": os.path.join(
-            BASE_DIR, "/data/prod.sqlite3"
-        ),  # Or path to database file if using sqlite3.
+        "NAME": db_path,  # Or path to database file if using sqlite3.
     }
 }
 
-# The following settings are required for the activation emails in the
-# registration module to work. For development purposes, set these
-# EMAIL_* variables accordingly in the local_settings.py file.
-EMAIL_USE_TLS = True
-EMAIL_HOST = ""  # Example - smtp.gmail.com
-EMAIL_PORT = 587  # 587 for smtp
-EMAIL_HOST_USER = ""
-EMAIL_HOST_PASSWORD = ""
-
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["localhost"]
+if DEBUG:
+    ALLOWED_HOSTS = ["localhost", "0.0.0.0"]
+else:
+    APP_NAME = env("FLY_APP_NAME")
+    ALLOWED_HOSTS = [f"{APP_NAME}.fly.dev"]  # ← Updated!
+
+    # The following settings are required for the activation emails in the
+    # registration module to work. For development purposes, set these
+    # EMAIL_* variables accordingly in the local_settings.py file.
+    EMAIL_USE_TLS = True
+    EMAIL_HOST = env("EMAIL_HOST")  # Example - smtp.gmail.com
+    EMAIL_PORT = env("EMAIL_PORT", int, 587)  # 587 for smtp
+    EMAIL_HOST_USER = env("EMAIL_HOST_USER")  # Example - your email address
+    EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")  # Example - your email password
+
+
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -108,13 +120,12 @@ TEMPLATE_LOADERS = (
     #     'django.template.loaders.eggs.Loader',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     "django.middleware.common.CommonMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    "approval_frame.middleware.timezone_middleware.TimezoneMiddleware",
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -188,9 +199,3 @@ LOGGING = {
     },
 }
 
-# Any other variables local to the development environment should be
-# declared in the local_settings.py file and are imported here.
-try:
-    from .local_settings import *
-except ImportError:
-    pass

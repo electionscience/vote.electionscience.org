@@ -7,4 +7,4 @@ requests-oauthlib==0.6.0
 mailchimp==2.0.9
 django-extensions==1.7.9
 djangoajax==2.3.7
-python-dotenv==0.18.0
+django-environ==0.11.2

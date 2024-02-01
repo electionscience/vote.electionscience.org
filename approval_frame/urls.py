@@ -11,7 +11,7 @@ app_name = 'approval_polls'
 urlpatterns = [
     path("", RedirectView.as_view(url="/approval_polls/", permanent=False)),
     path(
-        "approval_polls/", include("approval_polls.urls")
+        "approval_polls/", include(("approval_polls.urls", "approval_polls"), namespace="approval_polls")
     ),
     re_path(r"^admin/", admin.site.urls),
     path(

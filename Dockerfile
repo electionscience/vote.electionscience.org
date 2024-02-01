@@ -9,6 +9,6 @@ WORKDIR /code
 COPY requirements.txt /code/
 RUN pip install -r requirements.txt --no-cache-dir
 COPY . /code/
-COPY prod.sqlite3 /data/
+COPY db.sqlite3 /data/db.sqlite
 ENV SECRET_KEY=abcd12345
 CMD python manage.py runserver 0.0.0.0:8000

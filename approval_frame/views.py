@@ -96,16 +96,15 @@ def manageSubscriptionsDone(request):
 class CustomRegistrationView(RegistrationView):
     form_class = RegistrationFormCustom
 
-    def form_valid(self, request, form):
-        if "newslettercheckbox" in request.POST:
+    def form_valid(self, form):
+        if "newslettercheckbox" in self.request.POST:
             subscription_errors = update_subscription(
-                True, request.POST["email"], request.POST["zipcode"]
+                True, self.request.POST["email"], self.request.POST["zipcode"]
             )
             if len(subscription_errors) == 0:
-                return super(CustomRegistrationView, self).form_valid(request, form)
+                return super(CustomRegistrationView, self).form_valid(form)
             else:
-                form.add_error(subscription_errors[0], subscription_errors[1])
-                return render(
-                    request, "registration/registration_form.html", {"form": form}
-                )
-        return super(CustomRegistrationView, self).form_valid(request, form)
+                # Assuming `add_error` method accepts (field, error), where 'field' can be None for non-field errors
+                form.add_error(None, subscription_errors[0])
+                return self.render_to_response(self.get_context_data(form=form))
+        return super(CustomRegistrationView, self).form_valid(form)
