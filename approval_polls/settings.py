@@ -106,6 +106,8 @@ STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 LOGIN_REDIRECT_URL = "/"
 
@@ -121,7 +123,8 @@ MIDDLEWARE = (
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    "django_ajax.middleware.AJAXMiddleware"
+    "django_ajax.middleware.AJAXMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 )
 
 ROOT_URLCONF = "approval_polls.urls"

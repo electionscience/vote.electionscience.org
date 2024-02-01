@@ -15,19 +15,6 @@ files = [
 tests = ["mypy (>=0.800)", "pytest", "pytest-asyncio"]
 
 [[package]]
-name = "dj-static"
-version = "0.0.6"
-description = "Serve production static files with Django."
-optional = false
-python-versions = "*"
-files = [
-    {file = "dj-static-0.0.6.tar.gz", hash = "sha256:032ec1c532617922e6e3e956d504a6fb1acce4fc1c7c94612d0fda21828ce8ef"},
-]
-
-[package.dependencies]
-static3 = "*"
-
-[[package]]
 name = "django"
 version = "5.0.1"
 description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
@@ -175,17 +162,6 @@ files = [
 ]
 
 [[package]]
-name = "python-openid"
-version = "2.2.5"
-description = "OpenID support for servers and consumers."
-optional = false
-python-versions = "*"
-files = [
-    {file = "python-openid-2.2.5.tar.gz", hash = "sha256:92c51c3ecec846cbec4aeff11f9ff47303d4a63f93b0e6ac0ec02a091fed70ef"},
-    {file = "python-openid-2.2.5.zip", hash = "sha256:c2d133e47e0a7705c9272eef00d7a09c174f5bf17a127fed8e2c6499556cc782"},
-]
-
-[[package]]
 name = "pytz"
 version = "2023.4"
 description = "World timezone definitions, modern and historical"
@@ -238,20 +214,6 @@ files = [
 ]
 
 [[package]]
-name = "static3"
-version = "0.7.0"
-description = "A really simple WSGI way to serve static (or mixed) content."
-optional = false
-python-versions = "*"
-files = [
-    {file = "static3-0.7.0.tar.gz", hash = "sha256:674641c64bc75507af2eb20bef7e7e3593dca993dec6674be108fa15b42f47c8"},
-]
-
-[package.extras]
-genshimagic = ["Genshi"]
-kidmagic = ["kid"]
-
-[[package]]
 name = "tokenize-rt"
 version = "5.2.0"
 description = "A wrapper around the stdlib `tokenize` which roundtrips."
@@ -273,7 +235,21 @@ files = [
     {file = "tzdata-2023.4.tar.gz", hash = "sha256:dd54c94f294765522c77399649b4fefd95522479a664a0cec87f41bebc6148c9"},
 ]
 
+[[package]]
+name = "whitenoise"
+version = "6.6.0"
+description = "Radically simplified static file serving for WSGI applications"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "whitenoise-6.6.0-py3-none-any.whl", hash = "sha256:b1f9db9bf67dc183484d760b99f4080185633136a273a03f6436034a41064146"},
+    {file = "whitenoise-6.6.0.tar.gz", hash = "sha256:8998f7370973447fac1e8ef6e8ded2c5209a7b1f67c1012866dbcd09681c3251"},
+]
+
+[package.extras]
+brotli = ["Brotli"]
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "28c5d395df2ed80cc5311ebc276e5c412e65f9d23f7c0184c99324ec5722a3df"
+content-hash = "c33bf4f824f45c2920750ca2356e758ec2746beba04f2b0a874b09e86c48eeb1"
