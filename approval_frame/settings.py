@@ -24,7 +24,7 @@ SECRET_KEY = env("SECRET_KEY", default="abcedf132987401747501873")
 db_path = "/data/prod.sqlite3"
 if DEBUG:
     db_path = os.path.join(BASE_DIR, "db.sqlite3")
-    # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DATABASES = {
     "default": {
