@@ -35,9 +35,8 @@ runtimes:
     - node@18.12.1
     - python@3.10.8
 actions:
-  disabled:
+  enabled:
+    - trunk-upgrade-available
     - trunk-announce
     - trunk-check-pre-push
     - trunk-fmt-pre-commit
-  enabled:
-    - trunk-upgrade-available
