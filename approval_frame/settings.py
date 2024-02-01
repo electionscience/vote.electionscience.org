@@ -19,7 +19,7 @@ DEBUG = env('DEBUG')
 # which we .gitignore. This file should be added in the same directory
 # that contains this settings.py file.
 
-SECRET_KEY = env("SECRET_KEY",default="abcedf132987401747501873")
+SECRET_KEY = env("SECRET_KEY", default="abcedf132987401747501873")
 
 db_path = "/data/prod.sqlite3"
 if DEBUG:
@@ -107,7 +107,6 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-    #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 

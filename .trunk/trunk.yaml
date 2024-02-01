@@ -1,31 +1,37 @@
 version: 0.1
 cli:
-  version: 1.9.1
+  version: 1.19.0
 plugins:
   sources:
     - id: trunk
-      ref: v0.0.17
+      ref: v1.4.2
       uri: https://github.com/trunk-io/plugins
 lint:
   enabled:
-    - djlint@1.27.0
+    - bandit@1.7.7
+    - checkov@3.2.2
+    - osv-scanner@1.6.2
+    - terrascan@1.18.11
+    - trivy@0.48.3
+    - trufflehog@3.66.2
+    - djlint@1.34.1
     - dotenv-linter@3.3.0
-    - ruff@0.0.265
-    - yamllint@1.31.0
-    - taplo@0.7.0
-    - actionlint@1.6.24
-    - flake8@6.0.0
+    - ruff@0.1.15
+    - yamllint@1.33.0
+    - taplo@0.8.1
+    - actionlint@1.6.26
+    - flake8@7.0.0
     - git-diff-check
-    - gitleaks@8.16.3
-    - isort@5.12.0
-    - black@23.3.0
-    - oxipng@8.0.0
+    - gitleaks@8.18.1
+    - isort@5.13.2
+    - black@24.1.1
+    - oxipng@9.0.0
     - hadolint@2.12.0
-    - prettier@2.8.8
-    - markdownlint@0.34.0
+    - prettier@3.2.4
+    - markdownlint@0.39.0
 runtimes:
   enabled:
-    - go@1.19.5
+    - go@1.21.0
     - node@18.12.1
     - python@3.10.8
 actions:
