@@ -23,16 +23,12 @@ django==2.1.15 ; python_full_version == "3.8.16" \
     --hash=sha256:a794f7a2f4b7c928eecfbc4ebad03712ff27fb545abe269bf01aa8500781eb1c
 djangoajax==2.3.7 ; python_full_version == "3.8.16" \
     --hash=sha256:35b5ab882b2ecde84b127db3089e317f31c05f441adf3abd7ce33c5068365cba
-docopt==0.4.0 ; python_full_version == "3.8.16" \
-    --hash=sha256:b752582228e280b7be3677c5a758a352e352ad0bde3a849fd51f79239e88e475
 gunicorn==21.2.0 ; python_full_version == "3.8.16" \
     --hash=sha256:3213aa5e8c24949e792bcacfc176fef362e7aac80b76c56f6b5122bf350722f0 \
     --hash=sha256:88ec8bff1d634f98e61b9f65bc4bf3cd918a90806c6f5c48bc5603849ec81033
 idna==2.10 ; python_full_version == "3.8.16" \
     --hash=sha256:b307872f855b18632ce0c21c5e45be78c0ea7ae4c15c828c20788b26921eb3f6 \
     --hash=sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0
-mailchimp==2.0.9 ; python_full_version == "3.8.16" \
-    --hash=sha256:e01ce74a62ce723455a1cfbb6ea21664d5a3341a21d4de41ff6d6c2c4154a10c
 oauthlib==3.1.0 ; python_full_version == "3.8.16" \
     --hash=sha256:bee41cc35fcca6e988463cacc3bcb8a96224f470ca547e697b604cc697b2f889 \
     --hash=sha256:df884cd6cbe20e32633f1db1072e9356f53638e4361bef4e8b03c9127c9328ea

@@ -34,11 +34,10 @@ DATABASES = {
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+APP_NAME = env("FLY_APP_NAME", str, "")
+ALLOWED_HOSTS = [f"{APP_NAME}.fly.dev", "vote.electionscience.org"]  # ← Updated!
 if DEBUG:
-    ALLOWED_HOSTS = ["localhost", "0.0.0.0"]
-else:
-    APP_NAME = env("FLY_APP_NAME")
-    ALLOWED_HOSTS = [f"{APP_NAME}.fly.dev", "vote.electionscience.org"]  # ← Updated!
+    ALLOWED_HOSTS.extend(["localhost", "0.0.0.0"])
 
 # The following settings are required for the activation emails in the
 # registration module to work.
@@ -48,6 +47,7 @@ if SENDGRID_API_KEY != "":
     SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = "vote@electionscience.org"
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
