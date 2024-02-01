@@ -9,5 +9,4 @@ WORKDIR /code
 COPY requirements.txt /code/
 RUN pip install -r requirements.txt --no-cache-dir
 COPY . /code/
-COPY db.sqlite3 /data/db.sqlite
-CMD python manage.py runserver 0.0.0.0:8000
+CMD gunicorn "approval_frame.wsgi:application" "-b 0.0.0.0:8000"

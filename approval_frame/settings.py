@@ -38,7 +38,7 @@ if DEBUG:
     ALLOWED_HOSTS = ["localhost", "0.0.0.0"]
 else:
     APP_NAME = env("FLY_APP_NAME")
-    ALLOWED_HOSTS = [f"{APP_NAME}.fly.dev"]  # ← Updated!
+    ALLOWED_HOSTS = [f"{APP_NAME}.fly.dev", "vote.electionscience.org"]  # ← Updated!
 
 # The following settings are required for the activation emails in the
 # registration module to work.

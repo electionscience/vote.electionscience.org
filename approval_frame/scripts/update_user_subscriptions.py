@@ -1,5 +1,3 @@
-import sets
-
 from approval_polls.models import Subscription
 from django.contrib.auth.models import User
 from approval_frame.mailchimp_api import get_mailchimp_api
@@ -19,7 +17,7 @@ def run():
         local_emails.append(local_email)
     for member in members:
         mailchimp_emails.append(member['email'])
-    users_to_be_deleted = sets.Set(local_emails) - sets.Set(mailchimp_emails)
+    users_to_be_deleted = set(local_emails) - set(mailchimp_emails)
     for user_email in users_to_be_deleted:
         u = User.objects.get(email=user_email)
         if u is not None:
