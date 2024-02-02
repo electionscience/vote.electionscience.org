@@ -2,6 +2,7 @@ from django.template import Library
 
 register = Library()
 
+
 # Taken from https://djangosnippets.org/snippets/1357/
 
 
@@ -48,3 +49,13 @@ def get_suspend_text(value):
         return "unsuspend"
     else:
         return "suspend"
+
+
+@register.filter
+def to_percent_str(value):
+    return "{0:.2%}".format(value)
+
+
+@register.filter
+def sort_by_votes(choices):
+    return sorted(choices, key=lambda choice: choice.votes(), reverse=True)

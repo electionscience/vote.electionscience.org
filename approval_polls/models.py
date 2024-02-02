@@ -13,10 +13,10 @@ from django.utils.crypto import get_random_string
 
 class Poll(models.Model):
     question = models.CharField(max_length=200)
-    pub_date = models.DateTimeField('date published')
+    pub_date = models.DateTimeField("date published")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     vtype = models.IntegerField(default=2)
-    close_date = models.DateTimeField('date closed', null=True, blank=True)
+    close_date = models.DateTimeField("date closed", null=True, blank=True)
     show_close_date = models.BooleanField(default=False)
     show_countdown = models.BooleanField(default=False)
     show_write_in = models.BooleanField(default=False)
@@ -53,31 +53,29 @@ class Poll(models.Model):
 
     def add_choices(self, ids, text_data, link_data):
         for n in ids:
-            self.choice_set.create(
-                choice_text=text_data[n],
-                choice_link=link_data[n]
-            )
+            self.choice_set.create(choice_text=text_data[n], choice_link=link_data[n])
 
     def update_choices(self, ids, text_data, link_data):
         for u in ids:
             c = Choice.objects.get(id=u)
-            setattr(c, 'choice_text', text_data[u])
+            setattr(c, "choice_text", text_data[u])
             if not (c.choice_link is None and len(link_data[u]) == 0):
-                setattr(c, 'choice_link', link_data[u])
+                setattr(c, "choice_link", link_data[u])
             c.save()
 
     def delete_choices(self, ids):
         for d in ids:
             cho_d = Choice.objects.get(id=d)
             cho_d.delete()
-            '''
+            """
               Recommended by RelatedManager, but hasn't worked locally
               self.choice_set.remove(cho_d)
-            '''
+            """
+
     def send_vote_invitations(self, emails):
         # Get all the email Ids to store in the DB.
         email_list = []
-        for email in emails.split(','):
+        for email in emails.split(","):
             if re.match(r"([^@|\s]+@[^@]+\.[^@|\s]+)", email.strip()):
                 email_list.append(email.strip())
             email_list = list(set(email_list))
@@ -99,7 +97,7 @@ class Poll(models.Model):
     def add_tags(self, tags):
         for tagtext in tags:
             text = tagtext.strip().lower()
-            if text is not None or text != '':
+            if text is not None or text != "":
                 tag = PollTag.objects.filter(tag_text=text).first()
                 if tag is None:
                     tag = PollTag(tag_text=str(text.strip()))
@@ -112,7 +110,10 @@ class Poll(models.Model):
             self.polltag_set.remove(tag)
 
     def all_tags(self):
-        return (',').join([str(t.tag_text) for t in self.polltag_set.all()])
+        return (",").join([str(t.tag_text) for t in self.polltag_set.all()])
+
+    def __str__(self):
+        return self.question
 
 
 class Choice(models.Model):
@@ -126,16 +127,19 @@ class Choice(models.Model):
     def percentage(self):
         if self.poll.total_ballots() == 0:
             return 0
-        return self.votes() * 100 / self.poll.total_ballots()
+        return self.votes() / self.poll.total_ballots()
 
     def __unicode__(self):
+        return self.choice_text
+
+    def __str__(self):
         return self.choice_text
 
 
 class Ballot(models.Model):
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    timestamp = models.DateTimeField('time voted')
+    timestamp = models.DateTimeField("time voted")
     permit_email = models.BooleanField(default=False)
     email = models.EmailField(null=True, blank=True)
 
@@ -156,11 +160,11 @@ class Vote(models.Model):
 
 
 class VoteInvitation(models.Model):
-    email = models.EmailField('voter email')
+    email = models.EmailField("voter email")
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
     ballot = models.ForeignKey(Ballot, on_delete=models.CASCADE, null=True, blank=True)
-    sent_date = models.DateTimeField('invite sent on', null=True, blank=True)
-    key = models.CharField('key', max_length=64, unique=True)
+    sent_date = models.DateTimeField("invite sent on", null=True, blank=True)
+    key = models.CharField("key", max_length=64, unique=True)
 
     @classmethod
     def generate_key(cls):
@@ -173,13 +177,13 @@ class VoteInvitation(models.Model):
         """
         email_subject = getattr(
             settings,
-            'INVITATION_EMAIL_SUBJECT',
-            'approval_polls/invitation_email_subject.txt'
+            "INVITATION_EMAIL_SUBJECT",
+            "approval_polls/invitation_email_subject.txt",
         )
         email_body_html = getattr(
             settings,
-            'INVITATION_EMAIL_HTML',
-            'approval_polls/invitation_email_body.html'
+            "INVITATION_EMAIL_HTML",
+            "approval_polls/invitation_email_body.html",
         )
 
         ctx_dict = {}
@@ -187,23 +191,25 @@ class VoteInvitation(models.Model):
             ctx_dict = RequestContext(request, ctx_dict)
 
         current_site = Site.objects.get_current()
-        param_string = '?key=' + self.key + '&email=' + self.email
-        ctx_dict.update({
-            'param_string': param_string,
-            'poll': self.poll,
-            'site': current_site,
-        })
+        param_string = "?key=" + self.key + "&email=" + self.email
+        ctx_dict.update(
+            {
+                "param_string": param_string,
+                "poll": self.poll,
+                "site": current_site,
+            }
+        )
 
         subject = render_to_string(email_subject, ctx_dict)
         message_html = render_to_string(email_body_html, ctx_dict)
         from_email = settings.DEFAULT_FROM_EMAIL
         email_message = EmailMultiAlternatives(
             subject,
-            '',
+            "",
             from_email,
             [self.email],
         )
-        email_message.attach_alternative(message_html, 'text/html')
+        email_message.attach_alternative(message_html, "text/html")
 
         email_message.send()
 

@@ -2,6 +2,7 @@ import datetime
 import json
 import re
 
+import structlog
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
@@ -24,6 +25,8 @@ from approval_polls.models import (
 )
 
 from .forms import ManageSubscriptionsForm, NewUsernameForm
+
+logger = structlog.get_logger(__name__)
 
 
 @login_required
@@ -275,12 +278,16 @@ class ResultsView(generic.DetailView):
         choices = {}
         for choice in poll.choice_set.all():
             choices[choice] = choice.votes()
-        maxvotes = max(choices.values())
-        if maxvotes == 0:
+        max_votes = max(choices.values())
+        if max_votes == 0:
             leading_choices = []
         else:
-            leading_choices = [k for k, v in list(choices.items()) if v == maxvotes]
+            leading_choices = [k for k, v in list(choices.items()) if v == max_votes]
+
+        choices = list(poll.choice_set.all())
+        choices.sort(key=lambda choice: choice.votes(), reverse=True)
         context["leading_choices"] = leading_choices
+        logger.error("results", maxvotes=context["leading_choices"])
         return context
 
 
