@@ -34,56 +34,56 @@
                 referrerpolicy="no-referrer"></script>
         <title>Approval Polls from The Center for Election Science</title>
         <style>
-    .btn-secondary {
-      background-color: #7EC242 !important;
-      border-color: #7EC242;
-    }
+        .btn-secondary {
+            background-color: #7EC242 !important;
+            border-color: #7EC242;
+        }
 
-    .bg-primary {
-      --bs-bg-opacity: 1;
-      background-color: #1D4749 !important;
-    }
+        .bg-primary {
+            --bs-bg-opacity: 1;
+            background-color: #1D4749 !important;
+        }
 
-    .chart div {
-      height: 1.4em;
-    }
+        .chart div {
+            height: 1.4em;
+        }
 
-    .right-buffer {
-      margin-right: 5px;
-    }
+        .right-buffer {
+            margin-right: 5px;
+        }
 
-    #textAreaCode {
-      resize: none;
-      overflow: hidden;
-      overflow-y: scroll;
-    }
+        #textAreaCode {
+            resize: none;
+            overflow: hidden;
+            overflow-y: scroll;
+        }
 
 
-    .full-height {
-      display: inline-block;
-      width: 100%;
-    }
+        .full-height {
+            display: inline-block;
+            width: 100%;
+        }
 
-    #pollQuestion {
-      display: inline-block;
-      width: 60%;
-    }
+        #pollQuestion {
+            display: inline-block;
+            width: 60%;
+        }
 
-    .full-width {
-      width: 100%
-    }
+        .full-width {
+            width: 100%
+        }
 
-    .label-inline {
-      display: inline-block;
-    }
+        .label-inline {
+            display: inline-block;
+        }
 
-    .text-align-center {
-      text-align: center;
-    }
+        .text-align-center {
+            text-align: center;
+        }
 
-    .jssocials-share-logo {
-      font-family: "Font Awesome 5 Brands" !important;
-    }
+        .jssocials-share-logo {
+            font-family: "Font Awesome 5 Brands" !important;
+        }
         </style>
         {% block head %}{% endblock %}
     </head>
@@ -111,6 +111,10 @@
                         </li>
                     </ul>
                     <ul class="nav navbar-nav justify-content-end">
+                        {#                        <input type="hidden" name="passkeys" id="passkeys"/>#}
+                        {#                        <button class="btn btn-block btn-dark" type="button" onclick="authn('loginForm')"><img src="{% static 'passkeys/imgs/FIDO-Passkey_Icon-White.png' %}"
+     style="width: 24px"></button>#}
+                        {#                        {%include 'passkeys.js' %}#}
                         {% block login %}
                             {% if user.is_authenticated %}
                                 <li class="nav-item">
@@ -121,16 +125,9 @@
                                        href="{% url 'auth_logout' %}?next={% url 'index' %}">Logout</a>
                                 </li>
                             {% else %}
-                                {% if request.path != '/approval_polls/' %}
-                                    <li class="nav-item">
-                                        <a class="nav-link"
-                                           href="{% url 'auth_login' %}?next={{ request.path }}">Login</a>
-                                    </li>
-                                {% else %}
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{% url 'auth_login' %}">Login</a>
-                                    </li>
-                                {% endif %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'login' %}?next={{ request.path }}">Login</a>
+                                </li>
                             {% endif %}
                         {% endblock %}
                     </ul>

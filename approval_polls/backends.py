@@ -1,24 +1,17 @@
-from django.contrib.auth.backends import ModelBackend
-from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
-from django.core.validators import validate_email
+import logging
+
+from django.conf import settings
+from django.contrib.auth.backends import BaseBackend
+from passageidentity import Passage
 
 
-class EmailOrUsernameBackend(ModelBackend):
+class PassageAuth(BaseBackend):
     """
     Class to authenticate the user based on the given username or Email ID.
-
     """
 
     def authenticate(self, request, username=None, password=None, **kwargs):
-        try:
-            validate_email(username)
-            kwargs = {"email": username}
-        except ValidationError:
-            kwargs = {"username": username}
-        try:
-            user = User.objects.get(**kwargs)
-            if user.check_password(password):
-                return user
-        except User.DoesNotExist:
-            return None
+        psg = Passage(settings.PASSAGE_APP_ID)
+        user = psg.validateJwt(request)
+        logging.info(f"User: {user}")
+        return user

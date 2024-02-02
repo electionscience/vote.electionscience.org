@@ -108,7 +108,6 @@ STATICFILES_FINDERS = (
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
-
 LOGIN_REDIRECT_URL = "/"
 
 # List of callables that know how to import templates from various sources.
@@ -159,17 +158,15 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     "approval_polls",
-    "registration",
+    # "registration",
     "django_extensions",
     "django_ajax",
+    "passkeys",
 )
 
 ACCOUNT_ACTIVATION_DAYS = 7
 
-AUTHENTICATION_BACKENDS = (
-    "approval_polls.backends.EmailOrUsernameBackend",
-    "django.contrib.auth.backends.ModelBackend",
-)
+AUTHENTICATION_BACKENDS = ("approval_polls.backends.PassageAuth",)
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -198,3 +195,6 @@ LOGGING = {
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+PASSAGE_APP_ID = env("PASSAGE_APP_ID", str, default="")
+PASSAGE_API_KEY = env("PASSAGE_API_KEY", str, default="")

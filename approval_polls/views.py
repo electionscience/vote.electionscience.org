@@ -97,6 +97,10 @@ def manageSubscriptionsDone(request):
     )
 
 
+def login(request):
+    return render(request, "registration/login.html")
+
+
 def index(request):
     poll_list = Poll.objects.filter(
         pub_date__lte=timezone.now(),
