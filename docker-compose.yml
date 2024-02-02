@@ -3,12 +3,10 @@ version: "3.9"
 services:
   web:
     build: .
-    entrypoint: gunicorn
-    command:
-      - "approval_polls.wsgi:application"
-      - "-b 0.0.0.0:8000"
+    environment:
+      DEBUG: False
     ports:
       - "8000:8000"
     volumes:
       - ./:/code
-      - ./db.sqlite3:/data/db.sqlite3
+      - ./db.sqlite3:/data/prod.sqlite3
