@@ -6,14 +6,12 @@
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-6">
-                {% if form.errors %}
-                    <div class="alert alert-danger" role="alert">Invalid credentials. Please try again.</div>
-                {% endif %}
+                {% if invalid %}<div class="alert alert-danger">Invalid Username or password</div>{% endif %}
                 <div class="card">
                     <div class="card-header text-center">Login</div>
                     <div class="card-body">
                         <form method="post"
-                              action="{% if next %}/accounts/login/?next={{ next }}{% else %}/accounts/login/{% endif %}"
+                              action="{% if next %}/accounts/login/?next= {{ next }}{% else %}/accounts/login/{% endif %}"
                               id="loginForm">
                             {% csrf_token %}
                             {% if invalid %}<div class="alert alert-danger" role="alert">Invalid Username or Password</div>{% endif %}
@@ -36,8 +34,8 @@
                                        placeholder="Password">
                             </div>
                             <button type="submit" class="btn btn-primary w-100">Login</button>
-                            <input type="hidden" name="passkeys" id="passkeys" />
                             <div class="text-center mt-3">
+                                <input type="hidden" name="passkeys" id="passkeys" />
                                 <button class="btn btn-block btn-dark"
                                         type="button"
                                         onclick="authn('loginForm')">
@@ -45,6 +43,7 @@
                                          style="width: 24px">
                                     &nbsp;Login with Passkey
                                 </button>
+                                {% include 'passkeys.js' %}
                             </div>
                             <div class="text-center mt-3">
                                 <a href="{% url 'registration_register' %}">Need an account? Register</a>
@@ -52,7 +51,6 @@
                             <div class="text-center mt-3">
                                 <a href='{% url 'auth_password_reset' %}'>Forgot Password?</a>
                             </div>
-                            {% include 'passkeys.js' %}
                         </form>
                     </div>
                 </div>

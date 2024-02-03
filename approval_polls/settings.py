@@ -203,7 +203,13 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "passkeys.backend.PasskeyModelBackend",
 ]  # Change your authentication backend
+
 FIDO_SERVER_ID = "vote.electionscience.org"  # Server rp id for FIDO2, it the full domain of your project
 FIDO_SERVER_NAME = "vote.electionscience.org"
+if DEBUG:
+    FIDO_SERVER_ID = (
+        "localhost"  # Server rp id for FIDO2, it the full domain of your project
+    )
+    FIDO_SERVER_NAME = "localhost"
 
 KEY_ATTACHMENT = None
