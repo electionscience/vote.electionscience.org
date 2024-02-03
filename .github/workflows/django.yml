@@ -25,7 +25,6 @@ jobs:
           python-version: 3.11
           cache: poetry
       - run: poetry install
-      - run: poetry run pytest
       - name: Run Tests
         run: |
           poetry run python manage.py test
