@@ -1,35 +1,15 @@
 from django.contrib import admin
-from django.urls import include, path, re_path
-from registration.views import RegistrationView
+from django.urls import include, path
 
 from . import views
 
 app_name = "approval_polls"
 
 urlpatterns = [
-    re_path(r"^admin/", admin.site.urls),
+    path("admin/", admin.site.urls),
     path("passkeys/", include("passkeys.urls")),
     path("accounts/logout/", views.logoutView, name="auth_logout"),
-    path(
-        "accounts/register/", RegistrationView.as_view(), name="registration_register"
-    ),
-    path("accounts/", include("registration.backends.default.urls")),
-    path("accounts/username/change/", views.changeUsername, name="username_change"),
-    path(
-        "accounts/username/change/done/",
-        views.changeUsernameDone,
-        name="username_change_done",
-    ),
-    path(
-        "accounts/subscription/change/",
-        views.manageSubscriptions,
-        name="subscription_change",
-    ),
-    path(
-        "accounts/subscription/change/done/",
-        views.manageSubscriptionsDone,
-        name="subscription_change_done",
-    ),
+    path("accounts/", include("registration.backends.simple.urls")),
     path("", views.index, name="index"),
     path("<int:pk>/", views.DetailView.as_view(), name="detail"),
     path("<int:pk>/results/", views.ResultsView.as_view(), name="results"),
