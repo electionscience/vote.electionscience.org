@@ -2,14 +2,7 @@ $(function () {
   $("#share").jsSocials({
     showLabel: false,
     showCount: false,
-    shares: [
-      "email",
-      "twitter",
-      "facebook",
-      "googleplus",
-      "linkedin",
-      "pinterest",
-    ],
+    shares: ["email", "twitter", "facebook", "linkedin", "pinterest"],
   });
 
   var invitation_key, invitation_email;

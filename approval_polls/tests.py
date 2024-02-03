@@ -179,13 +179,13 @@ class PollDetailTests(TestCase):
 class PollResultsTests(TestCase):
     def test_results_view_with_no_ballots(self):
         """
-        Results page of a poll with a choice shows 0 votes (0%),
+        Results page of a poll with a choice shows 0 votes (0.00%),
         0 votes on 0 ballots.
         """
         poll = create_poll(question="Choice poll.")
         poll.choice_set.create(choice_text="Choice text.")
         response = self.client.get(reverse("results", args=(poll.id,)))
-        self.assertContains(response, "0 votes (0%)", status_code=200)
+        self.assertContains(response, "0 votes (0.00%)", status_code=200)
         self.assertContains(response, "0 votes on 0", status_code=200)
 
     def test_results_view_with_ballots(self):
@@ -197,7 +197,7 @@ class PollResultsTests(TestCase):
         choice = poll.choice_set.create(choice_text="Choice text.")
         create_ballot(poll).vote_set.create(choice=choice)
         response = self.client.get(reverse("results", args=(poll.id,)))
-        self.assertContains(response, "1 vote (50%)", status_code=200)
+        self.assertContains(response, "1 vote (50.00%)", status_code=200)
         self.assertContains(response, "1 vote on 2", status_code=200)
 
 
@@ -215,7 +215,7 @@ class PollVoteTests(TestCase):
         choice2 = poll.choice_set.create(choice_text="Choice 2.")
         for _ in range(10):
             create_ballot(poll).vote_set.create(choice=choice1)
-        for _ in range(10):
+        for _ in range(21):
             create_ballot(poll).vote_set.create(choice=choice2)
         response = self.client.post(
             "/" + str(poll.id) + "/vote/",
