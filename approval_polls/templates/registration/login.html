@@ -13,7 +13,7 @@
                     <div class="card-header text-center">Login</div>
                     <div class="card-body">
                         <form method="post"
-                              action="{% if next %}/accounts/login/?next={{ next }}{% else %}/accounts/login/{% endif %}"
+                              action="{% if next %}/accounts/login/?next= {{ next }}{% else %}/accounts/login/{% endif %}"
                               id="loginForm">
                             {% csrf_token %}
                             {% if invalid %}<div class="alert alert-danger" role="alert">Invalid Username or Password</div>{% endif %}
@@ -36,6 +36,7 @@
                                        placeholder="Password">
                             </div>
                             <button type="submit" class="btn btn-primary w-100">Login</button>
+                            <input type="hidden" name="passkeys" id="passkeys" />
                             <div class="text-center mt-3">
                                 <button class="btn btn-block btn-dark"
                                         type="button"
