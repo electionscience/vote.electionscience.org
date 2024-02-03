@@ -3,6 +3,7 @@ import json
 import re
 
 import structlog
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
@@ -105,13 +106,13 @@ def index(request):
         pub_date__lte=timezone.now(),
         is_private=False,
     ).order_by("-pub_date")
-    return get_polls(request, poll_list, "approval_polls/index.html")
+    return get_polls(request, poll_list, "index.html")
 
 
 def tag_cloud(request):
     return render(
         request,
-        "approval_polls/tag_cloud.html",
+        "tag_cloud.html",
         {"topTags": PollTag.topTagsPercent(15)},
     )
 
@@ -121,13 +122,13 @@ def my_polls(request):
     poll_list = Poll.objects.filter(
         pub_date__lte=timezone.now(), user_id=request.user
     ).order_by("-pub_date")
-    return get_polls(request, poll_list, "approval_polls/my_polls.html")
+    return get_polls(request, poll_list, "my_polls.html")
 
 
 def tagged_polls(request, tag):
     t = PollTag.objects.get(tag_text=tag.lower())
     poll_list = t.polls.all()
-    return get_polls(request, poll_list, "approval_polls/index.html")
+    return get_polls(request, poll_list, "index.html")
 
 
 @login_required
@@ -145,7 +146,7 @@ def my_info(request):
         polls = paginator.page(paginator.num_pages)
     return render(
         request,
-        "approval_polls/my_info.html",
+        "my_info.html",
         {"current_user": request.user, "latest_poll_list": polls},
     )
 
@@ -181,7 +182,7 @@ def all_tags(request):
 
 class DetailView(generic.DetailView):
     model = Poll
-    template_name = "approval_polls/detail.html"
+    template_name = "detail.html"
 
     def get_queryset(self):
         return Poll.objects.filter(pub_date__lte=timezone.now())
@@ -262,12 +263,12 @@ class DetailView(generic.DetailView):
     def delete(self, request, *args, **kwargs):
         poll_id = self.get_object().id
         Poll.objects.filter(id=poll_id).delete()
-        return HttpResponseRedirect("/approval_polls/my-polls/")
+        return HttpResponseRedirect("/my-polls/")
 
 
 class ResultsView(generic.DetailView):
     model = Poll
-    template_name = "approval_polls/results.html"
+    template_name = "results.html"
 
     def get_queryset(self):
         return Poll.objects.filter(pub_date__lte=timezone.now())
@@ -525,14 +526,14 @@ def handle_write_ins(ballot, poll, request):
 
 
 def embed_instructions(request, poll_id):
-    link = request.build_absolute_uri("/approval_polls/{}".format(poll_id))
-    return render(request, "approval_polls/embed_instructions.html", {"link": link})
+    link = request.build_absolute_uri("/{}".format(poll_id))
+    return render(request, "embed_instructions.html", {"link": link})
 
 
 class CreateView(generic.View):
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
-        return render(request, "approval_polls/create.html")
+        return render(request, "create.html")
 
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
@@ -541,7 +542,7 @@ class CreateView(generic.View):
         if "question" not in request.POST:
             return render(
                 request,
-                "approval_polls/create.html",
+                "create.html",
                 {"question_error": "The question is missing"},
             )
         else:
@@ -550,7 +551,7 @@ class CreateView(generic.View):
             if not question:
                 return render(
                     request,
-                    "approval_polls/create.html",
+                    "create.html",
                     {"question_error": "The question is missing"},
                 )
 
@@ -577,7 +578,7 @@ class CreateView(generic.View):
             if not len(choices):
                 return render(
                     request,
-                    "approval_polls/create.html",
+                    "create.html",
                     {
                         "choice_error": "At least one choice is required",
                         "question": question,
@@ -675,7 +676,7 @@ class EditView(generic.View):
             closedatetime = timezone.localtime(poll.close_date)
         return render(
             request,
-            "approval_polls/edit.html",
+            "edit.html",
             {
                 "poll": poll,
                 "choices": choices,
@@ -791,7 +792,7 @@ class EditView(generic.View):
                 ccount = Choice.objects.last().id + new_choice_len
                 return render(
                     request,
-                    "approval_polls/edit.html",
+                    "edit.html",
                     {
                         "poll": poll,
                         "choices": choices,
@@ -823,3 +824,8 @@ class EditView(generic.View):
             poll.save()
 
         return HttpResponseRedirect(reverse("my_polls"))
+
+
+def logoutView(request):
+    logout(request)
+    return HttpResponseRedirect("/")

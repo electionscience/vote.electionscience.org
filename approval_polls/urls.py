@@ -2,12 +2,14 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 from registration.views import RegistrationView
 
-from approval_polls import views
+from . import views
 
 app_name = "approval_polls"
 
 urlpatterns = [
     re_path(r"^admin/", admin.site.urls),
+    path("passkeys/", include("passkeys.urls")),
+    path("accounts/logout/", views.logoutView, name="auth_logout"),
     path(
         "accounts/register/", RegistrationView.as_view(), name="registration_register"
     ),

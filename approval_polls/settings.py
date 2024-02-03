@@ -158,17 +158,13 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     "approval_polls",
-    "registration",
     "django_extensions",
+    "passkeys",
+    "registration",
     "django_ajax",
 )
 
 ACCOUNT_ACTIVATION_DAYS = 7
-
-AUTHENTICATION_BACKENDS = (
-    "approval_polls.backends.EmailOrUsernameBackend",
-    "django.contrib.auth.backends.ModelBackend",
-)
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -197,3 +193,11 @@ LOGGING = {
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+AUTHENTICATION_BACKENDS = [
+    "passkeys.backend.PasskeyModelBackend"
+]  # Change your authentication backend
+FIDO_SERVER_ID = "vote.electionscience.org"  # Server rp id for FIDO2, it the full domain of your project
+FIDO_SERVER_NAME = "vote.electionscience.org"
+
+KEY_ATTACHMENT = None

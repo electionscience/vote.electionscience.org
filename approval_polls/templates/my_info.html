@@ -14,6 +14,17 @@
             <div class='well well-sm'>
                 <p>Member since: {{ current_user.date_joined|date:"F j, Y e" }}</p>
                 <p>Last Login: {{ current_user.last_login|date:"F j, Y e" }}</p>
+                <div id="pk" class="alert alert-info" style="display: none">
+                    Your device supports passkeys, <a href="{% url 'passkeys:enroll' %}">Enroll</a>
+                </div>
+                <script type="text/javascript">
+                    function register_pk()
+                    {
+                        $('#pk').show();
+                    }
+                    {% include 'check_passkeys.js'%}
+                    $(document).ready(check_passkey(true,register_pk))
+                </script>
                 <p>
                     <a href='{% url 'my_polls' %}'>Polls I created</a>:
                     {{ current_user.poll_set.all.count }}

@@ -27,7 +27,6 @@ lint:
     - black@24.1.1
     - oxipng@9.0.0
     - hadolint@2.12.0
-    - prettier@3.2.4
     - markdownlint@0.39.0
 runtimes:
   enabled:

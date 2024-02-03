@@ -1,56 +1,62 @@
 {% extends 'base.html' %}
 {% block head %}
     {% load static %}
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/4.9.2/bootstrap-social.min.css"
-          integrity="sha512-3CYhYJnb7/677SX8kzxL2+gW6vVzXiVEC6ZhK0S4tGVp7dTlMjSZPVvA79aH8YMU0xuKn2tLZIFaBctUi4Cb/w=="
-          crossorigin="anonymous"
-          referrerpolicy="no-referrer" />
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
-          integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
-          crossorigin="anonymous"
-          referrerpolicy="no-referrer" />
 {% endblock %}
 {% block content %}
-    {% if form.errors %}
-        <div class='row-fluid top-buffer'>
-            <div class='col-md-12 text-danger'>Invalid credentials. Please try again.</div>
-        </div>
-    {% endif %}
-    <div class='row top-buffer  align-self-center'>
-        <div class='col-md-6'>
-            <div class='row'>
-                {% if next %}
-                    <form method='post' action='/accounts/login/?next={{ next }}'>
-                    {% else %}
-                        <form method='post' action='/accounts/login/'>
-                        {% endif %}
-                        {% csrf_token %}
-                        <a href="{% url 'registration_register' %}">Register</a>
-                        <legend>Login</legend>
-                        {% comment %}<div class='form-group'>
-          </div>
-                        {% endcomment %}
-                        <div class='form-group'>
-                            <input type='text' class='form-control' id='{{ form.username.id_for_label }}' name='{{ form.username.name }}' placeholder='Username or Email ID' maxlength={{ form.username.field.max_length }}>
-                        </div>
-                        <div class='form-group'>
-                            <input type='password'
-                                   class='form-control'
-                                   id='{{ form.password.id_for_label }}'
-                                   name='{{ form.password.name }}'
-                                   placeholder='{{ form.password.label }}'>
-                        </div>
-                        <div class='form-group small'>
-                            <p align='right'>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                {% if form.errors %}
+                    <div class="alert alert-danger" role="alert">Invalid credentials. Please try again.</div>
+                {% endif %}
+                <div class="card">
+                    <div class="card-header text-center">Login</div>
+                    <div class="card-body">
+                        <form method="post"
+                              action="{% if next %}/accounts/login/?next={{ next }}{% else %}/accounts/login/{% endif %}"
+                              id="loginForm">
+                            {% csrf_token %}
+                            {% if invalid %}<div class="alert alert-danger" role="alert">Invalid Username or Password</div>{% endif %}
+                            <div class="mb-3">
+                                <label for="inputUsername" class="form-label">Username</label>
+                                <input type="text"
+                                       id="inputUsername"
+                                       name="username"
+                                       class="form-control"
+                                       placeholder="Username"
+                                       autocomplete="username webautn"
+                                       autofocus>
+                            </div>
+                            <div class="mb-3">
+                                <label for="inputPassword" class="form-label">Password</label>
+                                <input type="password"
+                                       id="inputPassword"
+                                       name="password"
+                                       class="form-control"
+                                       placeholder="Password">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Login</button>
+                            <div class="text-center mt-3">
+                                <button class="btn btn-block btn-dark"
+                                        type="button"
+                                        onclick="authn('loginForm')">
+                                    <img src="{% static 'passkeys/imgs/FIDO-Passkey_Icon-White.png' %}"
+                                         style="width: 24px">
+                                    &nbsp;Login with Passkey
+                                </button>
+                            </div>
+                            <div class="text-center mt-3">
+                                <a href="{% url 'registration_register' %}">Need an account? Register</a>
+                            </div>
+                            <div class="text-center mt-3">
                                 <a href='{% url 'auth_password_reset' %}'>Forgot Password?</a>
-                            </p>
-                        </div>
-                        <button type='submit' class='btn btn-success'>Login</button>
-                    </form>
+                            </div>
+                            {% include 'passkeys.js' %}
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    {% endblock %}
-    {% block login %}{% endblock %}
+    </div>
+    <script type="application/javascript">window.onload = checkConditionalUI('loginForm');</script>
+{% endblock %}
