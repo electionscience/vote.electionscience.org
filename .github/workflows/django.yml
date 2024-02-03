@@ -22,8 +22,8 @@ jobs:
         run: pipx install poetry
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'poetry'
+          python-version: 3.11
+          cache: poetry
       - run: poetry install
       - run: poetry run pytest
       - name: Run Tests

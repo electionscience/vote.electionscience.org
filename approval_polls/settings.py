@@ -40,6 +40,10 @@ ALLOWED_HOSTS = [f"{APP_NAME}.fly.dev", "vote.electionscience.org"]  # ← Updat
 if DEBUG:
     ALLOWED_HOSTS.extend(["localhost", "0.0.0.0"])
 
+CSRF_TRUSTED_ORIGINS = ["https://vote.electionscience.org"]
+CSRF_ALLOWED_ORIGINS = ["https://vote.electionscience.org"]
+CORS_ORIGINS_WHITELIST = ["https://vote.electionscience.org"]
+
 # The following settings are required for the activation emails in the
 # registration module to work.
 SENDGRID_API_KEY = env("SENDGRID_API_KEY", str, default="")
