@@ -9,6 +9,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("passkeys/", include("passkeys.urls")),
     path("accounts/logout/", views.logoutView, name="auth_logout"),
+    path("accounts/login/", views.loginView, name="auth_login"),
     path("accounts/", include("registration.backends.simple.urls")),
     path("", views.index, name="index"),
     path("<int:pk>/", views.DetailView.as_view(), name="detail"),

@@ -3,7 +3,7 @@ import json
 import re
 
 import structlog
-from django.contrib.auth import logout
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
@@ -829,3 +829,18 @@ class EditView(generic.View):
 def logoutView(request):
     logout(request)
     return HttpResponseRedirect("/")
+
+
+def loginView(request):
+    context = {}
+    if request.method == "POST":
+        user = authenticate(
+            request,
+            username=request.POST["username"],
+            password=request.POST["password"],
+        )
+        if user:
+            login(request, user)
+            return HttpResponseRedirect("/")
+        context["invalid"] = True
+    return render(request, "registration/login.html", context)
