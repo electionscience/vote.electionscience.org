@@ -1,0 +1,18 @@
+{% load widget_tweaks %}
+{% for field in attrs.form %}
+    <div class="mb-3{% if field.errors %} form-floating has-error{% endif %}">
+        {% if field.field.widget.input_type != 'checkbox' %}
+            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+            {{ field|add_class:"form-control" }}
+        {% else %}
+            <div class="form-check">
+                {{ field|add_class:"form-check-input" }}
+                <label for="{{ field.id_for_label }}" class="form-check-label">{{ field.label }}</label>
+            </div>
+        {% endif %}
+        {% if field.help_text %}
+            <div id="{{ field.id_for_label }}-help" class="form-text">{{ field.help_text }}</div>
+        {% endif %}
+        {% for error in field.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+    </div>
+{% endfor %}

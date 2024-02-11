@@ -6,12 +6,12 @@ from . import views
 app_name = "approval_polls"
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("passkeys/", include("passkeys.urls")),
-    path("accounts/logout/", views.logoutView, name="auth_logout"),
-    path("accounts/login/", views.loginView, name="auth_login"),
-    path("accounts/", include("registration.backends.simple.urls")),
     path("", views.index, name="index"),
+    path("admin/", admin.site.urls),
+    # path("passkeys/", include("passkeys.urls")),
+    # path("accounts/logout/", views.logoutView, name="auth_logout"),
+    # path("accounts/login/", views.loginView, name="account_login"),
+    # path("accounts/", include("registration.backends.simple.urls")),
     path("<int:pk>/", views.DetailView.as_view(), name="detail"),
     path("<int:pk>/results/", views.ResultsView.as_view(), name="results"),
     path(
@@ -34,4 +34,5 @@ urlpatterns = [
     path("tag/<path:tag>/", views.tagged_polls, name="tagged_polls"),
     path("all_tags/", views.all_tags, name="all_tags"),
     path("tag_cloud/", views.tag_cloud, name="tag_cloud"),
+    path("accounts/", include("allauth.urls")),
 ]

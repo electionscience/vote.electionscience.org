@@ -128,6 +128,7 @@ MIDDLEWARE = (
     "django.contrib.messages.middleware.MessageMiddleware",
     "django_ajax.middleware.AJAXMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 )
 
 ROOT_URLCONF = "approval_polls.urls"
@@ -163,9 +164,12 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     "approval_polls",
     "django_extensions",
-    "passkeys",
-    "registration",
     "django_ajax",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "widget_tweaks",
 )
 
 ACCOUNT_ACTIVATION_DAYS = 7
@@ -201,7 +205,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 AUTHENTICATION_BACKENDS = [
     "approval_polls.backends.EmailOrUsernameBackend",
     "django.contrib.auth.backends.ModelBackend",
-    "passkeys.backend.PasskeyModelBackend",
 ]  # Change your authentication backend
 
 FIDO_SERVER_ID = "vote.electionscience.org"  # Server rp id for FIDO2, it the full domain of your project
@@ -213,3 +216,20 @@ if DEBUG:
     FIDO_SERVER_NAME = "localhost"
 
 KEY_ATTACHMENT = None
+
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        # For each OAuth based provider, either add a ``SocialApp``
+        # (``socialaccount`` app) containing the required client
+        # credentials, or list them here:
+        "APP": {
+            "client_id": "766775776124-db3o7dn963di14rteuue1hkeg1hmh1mv.apps.googleusercontent.com",
+            "secret": env("GOOGLE_SECRET", str, default=""),
+            "key": "",
+        }
+    }
+}
+
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True

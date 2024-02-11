@@ -121,17 +121,17 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link"
-                                       href="{% url 'auth_logout' %}?next={% url 'index' %}">Logout</a>
+                                       href="{% url 'account_logout' %}?next={% url 'index' %}">Logout</a>
                                 </li>
                             {% else %}
                                 {% if request.path != '/approval_polls/' %}
                                     <li class="nav-item">
                                         <a class="nav-link"
-                                           href="{% url 'auth_login' %}?next={{ request.path }}">Login</a>
+                                           href="{% url 'account_login' %}?next={{ request.path }}">Login</a>
                                     </li>
                                 {% else %}
                                     <li class="nav-item">
-                                        <a class="nav-link" href="{% url 'auth_login' %}">Login</a>
+                                        <a class="nav-link" href="{% url 'account_login' %}">Login</a>
                                     </li>
                                 {% endif %}
                             {% endif %}

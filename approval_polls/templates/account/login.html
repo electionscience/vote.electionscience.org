@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+{% load socialaccount %}
+{% load i18n %}
+{% load allauth account %}
+{% block head_title %}
+    {% trans "Sign In" %}
+{% endblock head_title %}
+{% block content %}
+    {% element h1 %}
+    {% trans "Sign In" %}
+{% endelement %}
+{% comment %} {% if SOCIALACCOUNT_ENABLED %} {% endcomment %}
+<a href="{% provider_login_url 'google' %}">
+    <img src="{% static 'images/google-signin-button.png' %}"
+         alt="Sign in with Google"
+         width="200 em" />
+</a>
+{% comment %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">{% include "socialaccount/snippets/login.html" with page_layout="entrance" %}</div>
+        </div>
+</div> {% endcomment %}
+{% comment %} {% endif %} {% endcomment %}
+<hr />
+{% url 'account_login' as login_url %}
+{% element form form=form method="post" action=login_url tags="entrance,login" %}
+{% slot body %}
+{% csrf_token %}
+{% element fields form=form unlabeled=True %}
+{% endelement %}
+{% if redirect_field_value %}
+    <input type="hidden"
+           name="{{ redirect_field_name }}"
+           value="{{ redirect_field_value }}" />
+{% endif %}
+{% endslot %}
+{% slot actions %}
+{% element button type="submit" tags="prominent,login" %}
+{% trans "Sign In" %}
+{% endelement %}
+<a href="{{ signup_url }}">
+    <button class="btn btn-light">Register</button>
+</a>
+{% endslot %}
+{% endelement %}
+{% endblock content %}

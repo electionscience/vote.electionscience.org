@@ -1,0 +1,17 @@
+{% load allauth %}
+<form method="{{ attrs.method }}"
+      action="{{ attrs.action }}"
+      class="form-horizontal">
+    <div class="form-body">
+        {% slot body %}
+    {% endslot %}
+</div>
+<div class="form-actions">
+    <div class="row">
+        <div class="col-md-12">
+            {% slot actions %}
+        {% endslot %}
+    </div>
+</div>
+</div>
+</form>
