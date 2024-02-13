@@ -1,6 +1,7 @@
 import os
 
 import environ
+import sentry_sdk
 
 env = environ.Env(
     # set casting, default value
@@ -189,12 +190,12 @@ LOGGING = {
     },
     "root": {
         "handlers": ["console"],
-        "level": "WARNING",
+        "level": "DEBUG",
     },
     "loggers": {
         "django": {
             "handlers": ["console"],
-            "level": "WARNING",
+            "level": "INFO",
             "propagate": False,
         },
     },
@@ -243,5 +244,18 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_SESSION_REMEMBER = True
-if not DEBUG:
-    ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = env(
+    "ACCOUNT_DEFAULT_HTTP_PROTOCOL", str, default="https"
+)
+
+
+sentry_sdk.init(
+    dsn="https://78856604267db99554868743d5eb61e5@o4506681396625408.ingest.sentry.io/4506681396756480",
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    traces_sample_rate=1.0,
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=1.0,
+)
