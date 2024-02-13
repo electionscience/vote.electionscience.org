@@ -211,7 +211,7 @@ class DetailView(generic.DetailView):
                 else:
                     if poll.id in polls_voted_list:
                         context["already_voted"] = True
-        if poll.vtype == 2 and user.is_authenticated():
+        if poll.vtype == 2 and user.is_authenticated:
             for ballot in poll.ballot_set.all():
                 if ballot.user == user:
                     for option in ballot.vote_set.all():
@@ -223,17 +223,16 @@ class DetailView(generic.DetailView):
             allowed_emails = []
             for invitation in invitations:
                 allowed_emails.append(invitation.email)
-            if user.is_authenticated():
-                # If the user is authenticated, the poll should be accessible from the home
-                # page, if it is public.
-                if user.email in allowed_emails or user == poll.user:
-                    context["vote_authorized"] = True
-                    # Get the checked choices.
-                    for ballot in poll.ballot_set.all():
-                        if ballot.user == user:
-                            for option in ballot.vote_set.all():
-                                checked_choices.append(option.choice)
-                            permit_email = ballot.permit_email
+            if user.is_authenticated and (
+                user.email in allowed_emails or user == poll.user
+            ):
+                context["vote_authorized"] = True
+                # Get the checked choices.
+                for ballot in poll.ballot_set.all():
+                    if ballot.user == user:
+                        for option in ballot.vote_set.all():
+                            checked_choices.append(option.choice)
+                        permit_email = ballot.permit_email
             if "key" in self.request.GET and "email" in self.request.GET:
                 invitations = VoteInvitation.objects.filter(
                     key=self.request.GET["key"],
@@ -356,7 +355,7 @@ def vote(request, poll_id):
             return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
     elif poll_vtype == 2:
         # Type 2 poll - the user is required to login to vote.
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             # Check if a poll is closed
             if not poll.is_closed():
                 # Check if a ballot exists under the users name.
@@ -438,7 +437,7 @@ def vote(request, poll_id):
             if users:
                 auth_user = users[0]
 
-        elif request.user.is_authenticated():
+        elif request.user.is_authenticated:
             auth_user = request.user
             invitations = VoteInvitation.objects.filter(
                 email=request.user.email,

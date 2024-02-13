@@ -18,6 +18,7 @@ ignore: # A list of paths or files which Sourcery will ignore.
   - env
   - .env
   - .tox
+  - approval_polls/static
 
 rule_settings:
   enable:
