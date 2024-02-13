@@ -9,13 +9,15 @@
 {% block content %}
     {% element h1 %}
     {% trans "Sign In" %}
-{% endelement %}
+{% endelement head_title %}
 {% comment %} {% if SOCIALACCOUNT_ENABLED %} {% endcomment %}
-<a href="{% provider_login_url 'google' %}">
-    <img src="{% static 'images/google-signin-button.png' %}"
-         alt="Sign in with Google"
-         width="200 em" />
-</a>
+<div class="text-center">
+    <a href="{% provider_login_url 'google' %}">
+        <img src="{% static 'images/google-signin-button.png' %}"
+             alt="Sign in with Google"
+             width="200 em" />
+    </a>
+</div>
 <hr />
 {% url 'account_login' as login_url %}
 {% element form form=form method="post" action=login_url tags="entrance,login" %}
@@ -33,9 +35,11 @@
 {% element button type="submit" tags="prominent,login" %}
 {% trans "Sign In" %}
 {% endelement %}
-<a href="{{ signup_url }}">
-    <button class="btn btn-light">Register</button>
-</a>
 {% endslot %}
 {% endelement %}
+<hr />
+<a href="{% url 'account_signup' %}">
+    <button class="btn btn-light">Register</button>
+</a>
+</div>
 {% endblock content %}

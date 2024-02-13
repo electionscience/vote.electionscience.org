@@ -8,10 +8,6 @@ app_name = "approval_polls"
 urlpatterns = [
     path("", views.index, name="index"),
     path("admin/", admin.site.urls),
-    # path("passkeys/", include("passkeys.urls")),
-    # path("accounts/logout/", views.logoutView, name="auth_logout"),
-    # path("accounts/login/", views.loginView, name="account_login"),
-    # path("accounts/", include("registration.backends.simple.urls")),
     path("<int:pk>/", views.DetailView.as_view(), name="detail"),
     path("<int:pk>/results/", views.ResultsView.as_view(), name="results"),
     path(
