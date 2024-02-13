@@ -9,6 +9,10 @@ ENV PYTHONUNBUFFERED=1
 # Set the working directory in the container
 WORKDIR /code
 
+# Create a non-root user and switch to it
+RUN adduser -D appuser
+USER appuser
+
 # Install Poetry
 # Note: Consider locking the Poetry version for consistent builds
 ENV POETRY_VERSION=1.7
@@ -28,6 +32,8 @@ RUN poetry install --no-dev --no-root
 
 # Copy the rest of the project files into the working directory
 COPY . /code/
+
+HEALTHCHECK CMD curl --fail http://localhost:8000/ || exit 1
 
 # Use a script as the entrypoint
 ENTRYPOINT ["/code/entrypoint.sh"]
