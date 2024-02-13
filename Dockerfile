@@ -31,10 +31,5 @@ COPY . /code/
 
 HEALTHCHECK CMD curl --fail http://localhost:8000/ || exit 1
 
-# Create a non-root user and switch to it
-RUN adduser --disabled-password appuser
-USER appuser
-
-
 # Use a script as the entrypoint
 ENTRYPOINT ["/code/entrypoint.sh"]
