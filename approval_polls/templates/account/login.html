@@ -16,13 +16,10 @@
          alt="Sign in with Google"
          width="200 em" />
 </a>
-{% comment %}
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-5">{% include "socialaccount/snippets/login.html" with page_layout="entrance" %}</div>
-        </div>
-</div> {% endcomment %}
-{% comment %} {% endif %} {% endcomment %}
+<script src="//accounts.google.com/gsi/client" async></script>
+<div id="g_id_onload" data-client_id=766775776124-db3o7dn963di14rteuue1hkeg1hmh1mv.apps.googleusercontent.com
+    " data-login_uri="{% url 'google_login_by_token' %}"
+</div>
 <hr />
 {% url 'account_login' as login_url %}
 {% element form form=form method="post" action=login_url tags="entrance,login" %}

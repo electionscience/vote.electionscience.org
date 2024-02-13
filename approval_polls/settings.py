@@ -227,11 +227,21 @@ SOCIALACCOUNT_PROVIDERS = {
             "client_id": "766775776124-db3o7dn963di14rteuue1hkeg1hmh1mv.apps.googleusercontent.com",
             "secret": env("GOOGLE_SECRET", str, default=""),
             "key": "",
-        }
+        },
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
     }
 }
 
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+ACCOUNT_EMAIL_VERIFICATION = True
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_SESSION_REMEMBER = True
 if not DEBUG:
     ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
