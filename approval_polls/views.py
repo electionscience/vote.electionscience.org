@@ -287,7 +287,6 @@ class ResultsView(generic.DetailView):
         choices = list(poll.choice_set.all())
         choices.sort(key=lambda choice: choice.votes(), reverse=True)
         context["leading_choices"] = leading_choices
-        logger.error("results", maxvotes=context["leading_choices"])
         return context
 
 

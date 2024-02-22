@@ -53,7 +53,7 @@ def get_suspend_text(value):
 
 @register.filter
 def to_percent_str(value):
-    return "{0:.2%}".format(value)
+    return "{0:.0%}".format(value)
 
 
 @register.filter
