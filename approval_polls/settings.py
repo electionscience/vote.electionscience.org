@@ -39,7 +39,7 @@ DATABASES = {
 APP_NAME = env("FLY_APP_NAME", str, "")
 ALLOWED_HOSTS = [f"{APP_NAME}.fly.dev", "vote.electionscience.org"]  # ← Updated!
 if DEBUG:
-    ALLOWED_HOSTS.extend(["localhost", "0.0.0.0"])
+    ALLOWED_HOSTS.extend(["localhost", "0.0.0.0", "127.0.0.1"])
 
 CSRF_TRUSTED_ORIGINS = ["https://vote.electionscience.org"]
 CSRF_ALLOWED_ORIGINS = ["https://vote.electionscience.org"]
