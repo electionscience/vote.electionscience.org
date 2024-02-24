@@ -4,15 +4,30 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.http import HttpResponse
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
 
 from approval_polls.models import Ballot, Choice, Poll
 
+# Define a resource class for the User model
 
-class ApprovalPollsUserAdmin(UserAdmin):
-    # override the default sort column
-    ordering = ("-date_joined",)
-    # if you want the date they joined or other columns displayed in the list,
-    # override list_display too
+
+class UserResource(resources.ModelResource):
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "email",
+            "date_joined",
+            "first_name",
+            "last_name",
+            "is_staff",
+        )
+
+
+# Create a custom admin class for the User model
+class UserAdminWithExport(ImportExportModelAdmin):
+    resource_class = UserResource
     list_display = (
         "username",
         "email",
@@ -21,11 +36,12 @@ class ApprovalPollsUserAdmin(UserAdmin):
         "last_name",
         "is_staff",
     )
+    ordering = ("-date_joined",)
 
 
-# finally replace the default UserAdmin with yours
+# Unregister the default User admin and register the custom one
 admin.site.unregister(User)
-admin.site.register(User, ApprovalPollsUserAdmin)
+admin.site.register(User, UserAdminWithExport)
 
 
 class ChoiceInline(admin.TabularInline):
