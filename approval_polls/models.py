@@ -139,7 +139,7 @@ class Choice(models.Model):
 class Ballot(models.Model):
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    timestamp = models.DateTimeField("time voted")
+    timestamp = models.DateTimeField("time voted", auto_now_add=True)
     permit_email = models.BooleanField(default=False)
     email = models.EmailField(null=True, blank=True)
 

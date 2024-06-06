@@ -57,38 +57,27 @@
                             {% with choice_id=choice.id %}
                                 {% with box_text=existing_choice_texts_existing|get_item:choice_id %}
                                     {% with link_text=existing_choice_links_existing|get_item:choice_id %}
-                                        <div class='form-group {% if choice.id in blank_choices %}has-error{% endif %}'>
+                                        <div class="form-group {% if choice.id in blank_choices %}has-error{% endif %}">
                                             {% if choice_blank_error and choice_id in blank_choices %}
-                                                <label class='control-label' for='choice{{ choice_id }}'>
+                                                <label class="control-label" for="choice{{ choice_id }}">
                                                     Please ensure you have a value for the choice or remove it.
                                                 </label>
                                             {% endif %}
-                                            <div class='input-group' id='div-choice{{ choice.pk }}'>
-                                                <input class='form-control' type='text' maxlength='200' name='choice{{ choice.pk }}' placeholder='Choice' value="{% if choice_id in blank_choices %}" {% else %} {{ box_text|default:choice.choice_text }} {% endif %} {% if not can_edit_poll %}disabled{% endif %}>
+                                            <div class="input-group" id="div-choice{{ choice.pk }}">
+                                                <input class="form-control" type="text" maxlength="200" name="choice{{ choice.pk }}" placeholder="Choice" value="{% if choice_id in blank_choices %}{% else %}{{ box_text|default:choice.choice_text }}{% endif %}" {% if not can_edit_poll %}disabled{% endif %}>
                                                 {% if can_edit_poll %}
-                                                    <span class='input-group-addon'>
-                                                        <a href='#'
-                                                           class='add-link'
-                                                           id='link-choice{{ choice.pk }}'
-                                                           title='Add link'
-                                                           data-toggle='tooltip'
-                                                           data-placement='bottom'>
-                                                            <span class='glyphicon glyphicon-link {% if link_text or choice.choice_link %}text-success{% endif %}'></span>
+                                                    <span class="input-group-addon">
+                                                        <a href="#" class="add-link" id="link-choice{{ choice.pk }}" title="Add link" data-toggle="tooltip" data-placement="bottom">
+                                                            <span class="glyphicon glyphicon-link {% if link_text or choice.choice_link %}text-success{% endif %}"></span>
                                                         </a>
                                                     </span>
-                                                    <span class='input-group-addon'>
-                                                        <a href='#'
-                                                           class='remove-choice'
-                                                           id='remove-choice{{ choice.pk }}'
-                                                           title='Remove Choice'>
-                                                            <span class='glyphicon glyphicon-remove'></span>
+                                                    <span class="input-group-addon">
+                                                        <a href="#" class="remove-choice" id="remove-choice{{ choice.pk }}" title="Remove Choice">
+                                                            <span class="glyphicon glyphicon-remove"></span>
                                                         </a>
                                                     </span>
                                                 {% endif %}
-                                                <input type='hidden'
-                                                       id='linkurl-choice{{ choice.pk }}'
-                                                       name='linkurl-choice{{ choice.pk }}'
-                                                       value='{{ link_text|default:choice.choice_link }}'>
+                                                <input type="hidden" id="linkurl-choice{{ choice.pk }}" name="linkurl-choice{{ choice.pk }}" value="{{ link_text|default:choice.choice_link }}">
                                             </div>
                                         </div>
                                     {% endwith %}

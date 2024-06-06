@@ -14,17 +14,17 @@
         <div class='row-fluid top-buffer full-height'>
             <div class='col-md-13'>
                 {% for poll in latest_poll_list %}
-                    <div class='well well-sm' id='well{{ poll.id }}'>
+                    <div class='well well-sm' id='well{{ poll.id }}'
                         <div id='pollQuestion'>
                             <a href="{% url 'detail' poll.id %}">{{ poll.question }}</a>
                         </div>
                         <div class="pull-right">
                             <a class='pull-right btn btn-danger btn-xs'
                                id='delete-poll-{{ poll.id }}'>remove</a>
-                            {% with suspend_text=poll.is_suspended|get_suspend_text %}
+                            {% comment %} {% with suspend_text=poll.is_suspended|get_suspend_text %}
                                 <a class='pull-right btn btn-warning btn-xs right-buffer'
                                    id='{{ suspend_text }}-poll-{{ poll.id }}'>{{ suspend_text }}</a>
-                            {% endwith %}
+                            {% endwith %} {% endcomment %}
                             <a class='pull-right btn btn-primary btn-xs right-buffer'
                                href="{% url 'edit' poll.id %}">edit</a>
                         </div>

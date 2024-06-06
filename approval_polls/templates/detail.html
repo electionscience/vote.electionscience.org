@@ -27,12 +27,8 @@
                                    id='choice{{ forloop.counter }}'
                                    {% if checked_choices %} {% if choice in checked_choices %}checked{% endif %}
                                    {% endif %}>
-                            {% if choice.choice_link %}
-                                <a href={{ choice.choice_link }} target='_blank'>{{ choice.choice_text }}</a>
-                            {% else %}
                                 {{ choice.choice_text }}
-                            {% endif %}
-                        </label>
+                                </label>
                     </div>
                 {% endfor %}
                 {% if poll.show_write_in and not poll.is_closed %}

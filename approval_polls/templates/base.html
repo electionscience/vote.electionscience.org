@@ -69,7 +69,7 @@
                         {% block login %}
                             {% if user.is_authenticated %}
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'my_info' %}">{{ user.username }}</a>
+                                    <a class="nav-link" href="{% url 'my_info' %}">{% firstof user.username "My Profile"%}</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link"
