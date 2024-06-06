@@ -250,6 +250,8 @@ ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = env(
     "ACCOUNT_DEFAULT_HTTP_PROTOCOL", str, default="https"
 )
+# ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5  # or any reasonable number
+ACCOUNT_RATE_LIMITS = False
 
 
 sentry_sdk.init(
