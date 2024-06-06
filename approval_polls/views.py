@@ -558,7 +558,7 @@ class CreateView(generic.View):
                 # but then it would be harder to avoid POST params
                 # that aren't choices but happen to start with choice.
                 # in case someone adds a "choiceType" option later.
-                m = re.match("choice(\d+)", key)
+                m = re.match(r"choice(\d+)", key)
                 if m:
                     text = request.POST[key].strip()
                     if text == "":
@@ -744,7 +744,7 @@ class EditView(generic.View):
             update_data_for_link = {}
             choice_blank = False
             for k in list(request.POST.keys()):
-                m = re.search("choice(\d+)", k)
+                m = re.search(r"choice(\d+)", k)
                 if m and m.group(1):
                     id = m.group(1)
                     request_choice_ids.append(int(id))

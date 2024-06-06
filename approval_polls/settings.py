@@ -111,7 +111,14 @@ STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
 
 LOGIN_REDIRECT_URL = "/"
 
@@ -205,7 +212,7 @@ LOGGING = {
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 AUTHENTICATION_BACKENDS = [
-    "approval_polls.backends.EmailOrUsernameBackend",
+    "approval_polls.backends.EmailBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]  # Change your authentication backend
 

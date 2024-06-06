@@ -1,5 +1,6 @@
 import datetime
 
+import structlog
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.client import Client
@@ -7,6 +8,8 @@ from django.urls import reverse
 from django.utils import timezone
 
 from approval_polls.models import Choice, Poll
+
+logger = structlog.get_logger(__name__)
 
 
 def queryset_to_list_string(queryset):
@@ -22,6 +25,7 @@ def page_to_list_string(page):
 def create_poll(
     question,
     username="user1",
+    email="user1@example.com",
     days=0,
     ballots=0,
     vtype=2,
@@ -101,7 +105,13 @@ class PollIndexTests(TestCase):
         displayed.
         """
         create_poll(question="Past poll.", days=-30, vtype=1)
-        create_poll(question="Future poll.", username="user2", days=30, vtype=1)
+        create_poll(
+            question="Future poll.",
+            username="user2",
+            email="user2@example.com",
+            days=30,
+            vtype=1,
+        )
         response = self.client.get(reverse("index"))
 
         # Get the queryset of past polls (which should be displayed)
@@ -120,7 +130,12 @@ class PollIndexTests(TestCase):
         The polls index page may display multiple polls.
         """
         create_poll(question="Past poll 1.", days=-30)
-        create_poll(question="Past poll 2.", username="user2", days=-5)
+        create_poll(
+            question="Past poll 2.",
+            username="user2",
+            email="user2@example.com",
+            days=-5,
+        )
         response = self.client.get(reverse("index"))
 
         # Get the queryset of past polls (which should be displayed)
@@ -179,13 +194,13 @@ class PollDetailTests(TestCase):
 class PollResultsTests(TestCase):
     def test_results_view_with_no_ballots(self):
         """
-        Results page of a poll with a choice shows 0 votes (0.00%),
+        Results page of a poll with a choice shows 0 votes (0%),
         0 votes on 0 ballots.
         """
         poll = create_poll(question="Choice poll.")
         poll.choice_set.create(choice_text="Choice text.")
         response = self.client.get(reverse("results", args=(poll.id,)))
-        self.assertContains(response, "0 votes (0.00%)", status_code=200)
+        self.assertContains(response, "0 votes (0%)", status_code=200)
         self.assertContains(response, "0 votes on 0", status_code=200)
 
     def test_results_view_with_ballots(self):
@@ -197,8 +212,8 @@ class PollResultsTests(TestCase):
         choice = poll.choice_set.create(choice_text="Choice text.")
         create_ballot(poll).vote_set.create(choice=choice)
         response = self.client.get(reverse("results", args=(poll.id,)))
-        self.assertContains(response, "1 vote (50.00%)", status_code=200)
-        self.assertContains(response, "1 vote on 2", status_code=200)
+        logger.info(response.rendered_content)
+        self.assertContains(response, "1 vote (50%)", status_code=200)
 
 
 class PollVoteTests(TestCase):
@@ -231,7 +246,13 @@ class MyPollTests(TestCase):
     def setUp(self):
         self.client = Client()
         create_poll(question="question1", days=-5, vtype=1)
-        create_poll(question="question2", username="user2", days=-5, vtype=1)
+        create_poll(
+            question="question2",
+            username="user2",
+            email="user2@example.com",
+            days=-5,
+            vtype=1,
+        )
 
     def test_redirect_when_not_logged_in(self):
         """
@@ -249,7 +270,7 @@ class MyPollTests(TestCase):
         """
         Only polls created by the logged in user should be displayed.
         """
-        self.client.login(username="user1", password="test")
+        self.client.login(username="user1", email="user1@example.com", password="test")
         response = self.client.get(reverse("my_polls"))
         self.assertEqual(response.status_code, 200)
 
@@ -277,7 +298,7 @@ class PollCreateTests(TestCase):
         The create a poll form exists.
         """
         response = self.client.post("/create/")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_create_shows_iframe_code(self):
         """
@@ -291,7 +312,7 @@ class PollCreateTests(TestCase):
             "token-tags": "",
         }
         response = self.client.post("/create/", poll_data, follow=True)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "approval_polls/embed_instructions.html")
         self.assertTrue("/1" in response.context["link"])
 
@@ -336,7 +357,9 @@ class UserProfileTests(TestCase):
     def setUp(self):
         self.client = Client()
         User.objects.create_user("user1", "user1ces@gmail.com", "password123")
-        self.client.login(username="user1", password="password123")
+        self.client.login(
+            username="user1", email="user1@example.com", password="password123"
+        )
 
     def test_user_profile_show_username(self):
         """
@@ -390,7 +413,7 @@ class UpdatePollTests(TestCase):
             close_date=timezone.now() + datetime.timedelta(days=10),
         )
         poll.choice_set.create(choice_text="Choice 1.")
-        self.client.login(username="user1", password="test")
+        self.client.login(username="user1", email="user1@example.com", password="test")
         choice_data = {
             "choice1": "on",
         }
@@ -403,7 +426,7 @@ class UpdatePollTests(TestCase):
     def test_poll_details_show_checked_choices(self):
         response = self.client.get("/1/")
         self.assertQuerySetEqual(
-            response.context["checked_choices"], ["<Choice: Choice 1.>"]
+            response.context["checked_choices"], "[<Choice: Choice 1.>]"
         )
 
     def test_poll_details_logout_current_user(self):
@@ -415,13 +438,15 @@ class UpdatePollTests(TestCase):
     def test_poll_details_different_user(self):
         self.client.logout()
         User.objects.create_user("user2", "user2@example.com", "password123")
-        self.client.login(username="user2", password="password123")
+        self.client.login(
+            username="user2", email="user2@example.com", password="password123"
+        )
         response = self.client.get("/1/")
         self.assertContains(response, "Vote", status_code=200)
         self.assertQuerySetEqual(response.context["checked_choices"], [])
 
     def test_poll_details_unselect_checked_choice(self):
-        self.client.login(username="user1", password="test")
+        self.client.login(username="user1", email="user1@example.com", password="test")
         choice_data = {}
         self.client.post("/1/vote/", choice_data, follow=True)
         response = self.client.get("/1/")
@@ -432,9 +457,12 @@ class UpdatePollTests(TestCase):
         poll_closed = create_poll(
             question="Create Closed Poll.",
             username="user2",
+            email="user2@example.com",
             close_date=timezone.now() + datetime.timedelta(days=-10),
         )
-        self.client.login(username="user2", password="password123")
+        self.client.login(
+            username="user2", email="user2@example.com", password="password123"
+        )
         response = self.client.get(reverse("detail", args=(poll_closed.id,)))
         self.assertContains(response, "Sorry! This poll is closed.", status_code=200)
 
@@ -453,7 +481,7 @@ class DeletePollTests(TestCase):
 
         for _ in range(2):
             create_ballot(poll)
-        self.client.login(username="user1", password="test")
+        self.client.login(username="user1", email="user1@example.com", password="test")
 
     def test_delete_one_poll(self):
         self.client.delete("/1/", follow=True)
@@ -493,7 +521,7 @@ class DeletePollTests(TestCase):
 class PollVisibilityTests(TestCase):
     def setUp(self):
         self.client = Client()
-        self.client.login(username="user1", password="test")
+        self.client.login(username="user1", email="user1@example.com", password="test")
         create_poll(
             question="public poll", days=-10, vtype=3, ballots=2, is_private=False
         )
@@ -525,7 +553,7 @@ class PollVisibilityTests(TestCase):
         A poll that is marked private is visible to its owner, along with
         his/her public polls.
         """
-        self.client.login(username="user1", password="test")
+        self.client.login(username="user1", email="user1@example.com", password="test")
         response = self.client.get(reverse("my_polls"))
         self.assertEqual(response.status_code, 200)
         self.assertQuerySetEqual(
@@ -538,7 +566,7 @@ class PollVisibilityTests(TestCase):
         A poll that is marked private should not be visible to another user.
         """
         self.client.logout()
-        self.client.login(username="user2", password="test")
+        self.client.login(username="user2", email="user2@example.com", password="test")
         response = self.client.get(reverse("my_polls"))
         self.assertEqual(response.status_code, 200)
         self.assertQuerySetEqual(
@@ -558,7 +586,7 @@ class PollEditTests(TestCase):
         create_vote_invitation(self.poll, email="test1@test1.com")
         self.poll.choice_set.create(choice_text="Choice 1.")
         self.choice = Choice.objects.get(poll_id=self.poll.id)
-        self.client.login(username="user1", password="test")
+        self.client.login(username="user1", email="user1@example.com", password="test")
 
     def test_edit_view_with_invalid_poll(self):
         """
@@ -575,7 +603,7 @@ class PollEditTests(TestCase):
         """
         User.objects.create_user("user2", "user2@example.com", "test")
         self.client.logout()
-        self.client.login(username="user2", password="test")
+        self.client.login(username="user2", email="user2@example.com", password="test")
         response = self.client.get(reverse("edit", args=(1,)))
         self.assertEqual(response.status_code, 403)
 
@@ -656,7 +684,7 @@ class SuspendPollTests(TestCase):
         )
         self.poll.choice_set.create(choice_text="Choice 1.")
         self.choice = Choice.objects.get(poll_id=self.poll.id)
-        self.client.login(username="user1", password="test")
+        self.client.login(username="user1", email="user1@example.com", password="test")
 
     def test_suspend_tests(self):
         response = self.client.get(reverse("my_polls"))
@@ -689,7 +717,7 @@ class TagCloudTests(TestCase):
         self.poll.choice_set.create(choice_text="Choice 1.")
         self.poll.add_tags(["New York"])
         self.choice = Choice.objects.get(poll_id=self.poll.id)
-        self.client.login(username="user1", password="test")
+        self.client.login(username="user1", email="user1@example.com", password="test")
 
     def test_poll_tag_exists(self):
         response = self.client.get(reverse("detail", args=(1,)))

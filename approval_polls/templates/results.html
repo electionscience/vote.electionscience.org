@@ -29,8 +29,7 @@
                             </span>
                         </small>
                     {% endif %}
-                    <small class="text-muted">{{ choice.votes }} vote{{ choice.votes|pluralize }}
-                    ({{ choice.percentage|to_percent_str }})</small>
+                    <small class="text-muted">{{ choice.votes }} vote{{ choice.votes|pluralize }} ({{ choice.percentage|to_percent_str }})</small>
                 </h4>
                 <div class='progress'>
                     {% if poll.show_lead_color %}
