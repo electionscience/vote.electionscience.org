@@ -7,39 +7,54 @@
     {% trans "Sign In" %}
 {% endblock head_title %}
 {% block content %}
-    {% element h1 %}
-    {% trans "Sign In" %}
-{% endelement head_title %}
-{% comment %} {% if SOCIALACCOUNT_ENABLED %} {% endcomment %}
+<h1>{% trans "Sign In" %}</h1>
+
+{% load widget_tweaks %}
+<form method="post" action="{% url 'account_login' %}" class="form-horizontal">
+    {% csrf_token %}
+    <div class="form-body">
+        <div class="mb-3">
+            <label for="{{ form.login.id_for_label }}" class="form-label">Email</label>
+            {{ form.login|add_class:"form-control" }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+            {{ form.password|add_class:"form-control" }}
+            <div id="{{ form.password.auto_id }}-help" class="form-text">
+                <a href="{% url 'account_reset_password' %}">Forgot your password?</a>
+            </div>
+        </div>
+        {% if redirect_field_value %}
+            <input type="hidden"
+                   name="{{ redirect_field_name }}"
+                   value="{{ redirect_field_value }}" />
+        {% endif %}
+    </div>
+    <div class="form-actions">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-center">
+                <button class="btn btn-primary" type="submit">
+                    {% trans "Sign In" %}
+                </button>
+                <a href="{% url 'account_signup' %}">
+                    <button class="btn btn-secondary">Register</button>
+                </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<hr />
+
 <div class="text-center">
     <a href="{% provider_login_url 'google' %}">
         <img src="{% static 'images/google-signin-button.png' %}"
-             alt="Sign in with Google"
-             width="200 em" />
+            alt="Sign in with Google"
+            width="200px"
+            height="45px" />
     </a>
+
 </div>
-<hr />
-{% url 'account_login' as login_url %}
-{% element form form=form method="post" action=login_url tags="entrance,login" %}
-{% slot body %}
-{% csrf_token %}
-{% element fields form=form unlabeled=True %}
-{% endelement %}
-{% if redirect_field_value %}
-    <input type="hidden"
-           name="{{ redirect_field_name }}"
-           value="{{ redirect_field_value }}" />
-{% endif %}
-{% endslot %}
-{% slot actions %}
-{% element button type="submit" tags="prominent,login" %}
-{% trans "Sign In" %}
-{% endelement %}
-{% endslot %}
-{% endelement %}
-<hr />
-<a href="{% url 'account_signup' %}">
-    <button class="btn btn-light">Register</button>
-</a>
-</div>
+
 {% endblock content %}
