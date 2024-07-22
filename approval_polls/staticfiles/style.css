@@ -1,16 +1,41 @@
 .bg-primary {
   --bs-bg-opacity: 1;
-  background-color: #1d4749 !important;
+  background-color: #000000 !important;
 }
 
 .btn-secondary {
-  background-color: #42c2a1 !important; /* Teal */
-  border-color: #42c2a1 !important;
+  background-color: #fff !important; /* Teal */
+  border-color: #000 !important;
+  color: #000;
+}
+
+.btn-success {
+  background-color: #000 !important; /* Teal */
+  border-color: #fff !important;
+}
+
+.btn {
+    background-color: var(--token-80553515-7ab0-44ac-b981-96d7680674fd, #ffffff);
+    --border-bottom-width: 1px;
+    --border-color: var(--token-8333892f-efe4-41b8-b3da-b102a8c97a9f, #d4d4d4);
+    border-radius: 3px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 1px 0px, rgba(0, 0, 0, 0.05) 0px 2px 4px 0px;
+    gap: 0px;
+    padding: 8px;
+}
+
+a {
+  color: #000;
+  font-weight: 600
+}
+
+a:hover {
+  color: #000;
 }
 
 .btn-primary {
-  background-color: #7ec242 !important;
-  border-color: #7ec242 !important;
+  background-color: #000;`
+  border-color: #fff;
 }
 
 .chart div {
@@ -51,4 +76,35 @@
   resize: none;
   overflow: hidden;
   overflow-y: scroll;
+}
+
+body {
+  font-family: var(--framer-blockquote-font-family, var(--framer-font-family, Inter, Inter Placeholder, sans-serif));
+}
+
+@font-face {
+  font-family: Fragment Mono;
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(https://fonts.gstatic.com/s/fragmentmono/v4/4iCr6K5wfMRRjxp0DA6-2CLnB45HhrUI.woff2) format("woff2");
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F
+}
+
+@font-face {
+  font-family: Fragment Mono;
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(https://fonts.gstatic.com/s/fragmentmono/v4/4iCr6K5wfMRRjxp0DA6-2CLnB41HhrUI.woff2) format("woff2");
+  unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF
+}
+
+@font-face {
+  font-family: Fragment Mono;
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(https://fonts.gstatic.com/s/fragmentmono/v4/4iCr6K5wfMRRjxp0DA6-2CLnB4NHhg.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD
 }
