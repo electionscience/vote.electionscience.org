@@ -22,7 +22,7 @@ django-passkeys = "^1.2.7"
 django-allauth = "^0.61.1"
 djlint = "^1.34.1"
 django-widget-tweaks = "^1.5.0"
-sentry-sdk = { extras = ["django"], version = "^1.40.4" }
+sentry-sdk = { extras = ["django"], version = "^2.8.0" }
 django-import-export = "^3.3.7"
 pytest = "^8.2.2"
 pytest-django = "^4.8.0"
