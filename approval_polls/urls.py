@@ -9,6 +9,7 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("admin/", admin.site.urls),
     path("<int:pk>/", views.DetailView.as_view(), name="detail"),
+    path("<int:poll_id>/delete/", views.delete_poll, name="delete_poll"),
     path("<int:pk>/results/", views.ResultsView.as_view(), name="results"),
     path(
         "<int:poll_id>/embed_instructions/",
@@ -16,7 +17,7 @@ urlpatterns = [
         name="embed_instructions",
     ),
     path("<int:poll_id>/vote/", views.vote, name="vote"),
-    path("<int:poll_id>/edit/", views.EditView.as_view(), name="edit"),
+    # path("<int:poll_id>/edit/", views.EditView.as_view(), name="edit"),
     path(
         "<int:poll_id>/change_suspension/",
         views.change_suspension,

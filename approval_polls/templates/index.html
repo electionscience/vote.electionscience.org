@@ -2,7 +2,13 @@
 {% block content %}
     <div class="container">
         {% if latest_poll_list %}
-            <h1 class="mb-4">Latest Public Polls</h1>
+            <h1 class="mb-4">
+                {% if tag %}
+                    Tag: {{ tag.tag_text }}
+                {% else %}
+                    Latest Public Polls
+                {% endif %}
+            </h1>
             <div class="row">
                 <div class="col-12">
                     {% for poll in latest_poll_list %}
@@ -26,7 +32,7 @@
                             <a class="page-link"
                                href="?page={{ latest_poll_list.previous_page_number }}"
                                aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span> Previous
+                                <span aria-hidden="true">«</span> Previous
                             </a>
                         </li>
                     {% endif %}
@@ -38,7 +44,7 @@
                             <a class="page-link"
                                href="?page={{ latest_poll_list.next_page_number }}"
                                aria-label="Next">
-                                Next <span aria-hidden="true">&raquo;</span>
+                                Next <span aria-hidden="true">»</span>
                             </a>
                         </li>
                     {% endif %}
