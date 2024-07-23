@@ -7,7 +7,7 @@
                 {% for poll in latest_poll_list %}
                     <div class='well well-sm'>
                         <a href="{% url 'detail' poll.id %}">{{ poll.question }}</a>
-                        <p>Published on {{ poll.pub_date|date:"N j, Y, P e" }} by {{ poll.user.username }}</p>
+                        <p>Published on {{ poll.pub_date|date:"N j, Y, P e" }} by {% firstof poll.user.username poll.user.first_name %}</p>
                     </div>
                 {% endfor %}
             </div>

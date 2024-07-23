@@ -6,6 +6,7 @@ set -e
 # Run Django migrations
 echo "Running migrations"
 python manage.py migrate --noinput
+python manage.py compress
 python manage.py collectstatic --noinput
 
 # Start Gunicorn server
