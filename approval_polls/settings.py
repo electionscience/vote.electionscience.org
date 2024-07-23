@@ -29,7 +29,8 @@ if DEBUG:
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        "ENGINE": "django.db.backends.sqlite3",
         "NAME": db_path,  # Or path to database file if using sqlite3.
     }
 }
@@ -216,7 +217,8 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]  # Change your authentication backend
 
-FIDO_SERVER_ID = "vote.electionscience.org"  # Server rp id for FIDO2, it the full domain of your project
+# Server rp id for FIDO2, it the full domain of your project
+FIDO_SERVER_ID = "vote.electionscience.org"
 FIDO_SERVER_NAME = "vote.electionscience.org"
 if DEBUG:
     FIDO_SERVER_ID = (

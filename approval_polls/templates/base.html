@@ -96,7 +96,7 @@
         </nav>
         <div class="container mt-5 mb-5">
             <div class="row justify-content-center">
-                <div class="col-8">
+                <div class="col-sm-auto">
                     {% block content %}
                     {% endblock content %}
                 </div>
@@ -104,25 +104,24 @@
                     <div class="col-md-12">
                         <hr>
                         <p class="text-center">
-                            This poll uses approval voting, instead of the more common plurality system.
+                            This poll uses <a href="https://www.electionscience.org/approval-voting">approval voting</a>, instead of the more common plurality system.
                             <br />
                             <a href="https://www.electionscience.org/approval-voting">Learn why it's better</a> and
                             <a href="{% url 'create' %}" target="_top">create your own poll</a>.
                         </p>
                         <div class="container mt-5">
-                            <div class="col-3 mx-auto">
-                                <a class="img-fluid  text-center"
-                                   href="https://www.electionscience.org"
-                                   target="_blank">
-                                    <img class="img-fluid  align-self-center mr-3"
-                                         src="{% static 'images/ces-horizontal-stack.png' %}"
-                                         width="100%"
-                                         height="100%"
-                                         border="0"
-                                         alt="Election Science Logo">
-                                </a>
-                            </div>
-                        </div>
+                          <div class="row justify-content-center">
+                              <div class="col-12 col-sm-10 col-md-8 col-lg-6 text-center">
+                                  <a href="https://www.electionscience.org" target="_blank" rel="noopener noreferrer">
+                                      <img src="{% static 'images/ces-horizontal-stack.png' %}"
+                                           class="img-fluid mx-auto d-block"
+                                           alt="Election Science Logo"
+                                           style="max-width: 100%; min-width: 200px;">
+                                  </a>
+                              </div>
+                          </div>
+                      </div>
+
                     </div>
                 </div>
             </div>
