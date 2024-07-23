@@ -25,7 +25,12 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("zipcode", models.CharField(max_length=5)),
-                ("user", models.ForeignKey(on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
         ),
     ]

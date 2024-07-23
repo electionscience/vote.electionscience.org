@@ -38,8 +38,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "ballot",
-                    models.ForeignKey(on_delete=models.CASCADE, 
-                        blank=True, to="approval_polls.Ballot", null=True
+                    models.ForeignKey(
+                        on_delete=models.CASCADE,
+                        blank=True,
+                        to="approval_polls.Ballot",
+                        null=True,
                     ),
                 ),
             ],

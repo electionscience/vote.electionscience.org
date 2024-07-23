@@ -581,7 +581,9 @@ class PollVisibilityTests(TestCase):
         response = self.client.get(reverse("my_polls"))
         self.assertEqual(response.status_code, 200)
         self.assertQuerySetEqual(
-            response.context["latest_poll_list"], [repr(self.public_poll)], transform=repr
+            response.context["latest_poll_list"],
+            [repr(self.public_poll)],
+            transform=repr,
         )
 
 
