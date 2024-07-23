@@ -3,58 +3,55 @@
 {% load socialaccount %}
 {% load i18n %}
 {% load allauth account %}
+{% load widget_tweaks %}
 {% block head_title %}
     {% trans "Sign In" %}
 {% endblock head_title %}
 {% block content %}
-<h1>{% trans "Sign In" %}</h1>
-
-{% load widget_tweaks %}
-<form method="post" action="{% url 'account_login' %}" class="form-horizontal">
-    {% csrf_token %}
-    <div class="form-body">
-        <div class="mb-3">
-            <label for="{{ form.login.id_for_label }}" class="form-label">Email</label>
-            {{ form.login|add_class:"form-control" }}
-        </div>
-        <div class="mb-3">
-            <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
-            {{ form.password|add_class:"form-control" }}
-            <div id="{{ form.password.auto_id }}-help" class="form-text">
-                <a href="{% url 'account_reset_password' %}">Forgot your password?</a>
+    <h1>{% trans "Sign In" %}</h1>
+    <form method="post"
+          action="{% url 'account_login' %}"
+          class="form-horizontal">
+        {% csrf_token %}
+        <div class="form-body">
+            <div class="mb-3">
+                <label for="{{ form.login.id_for_label }}" class="form-label">Email</label>
+                {{ form.login|add_class:"form-control" }}
             </div>
+            <div class="mb-3">
+                <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+                {{ form.password|add_class:"form-control" }}
+                <div id="{{ form.password.auto_id }}-help" class="form-text">
+                    <a href="{% url 'account_reset_password' %}">Forgot your password?</a>
+                </div>
+            </div>
+            {% if redirect_field_value %}
+                <input type="hidden"
+                       name="{{ redirect_field_name }}"
+                       value="{{ redirect_field_value }}" />
+            {% endif %}
         </div>
-        {% if redirect_field_value %}
-            <input type="hidden"
-                   name="{{ redirect_field_name }}"
-                   value="{{ redirect_field_value }}" />
-        {% endif %}
-    </div>
-    <div class="form-actions">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="text-center">
-                <button class="btn btn-primary" type="submit">
-                    {% trans "Sign In" %}
-                </button>
-                <a href="{% url 'account_signup' %}">
-                    <button class="btn btn-secondary">Register</button>
-                </a>
+        <div class="form-actions">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="text-center">
+                        <button class="btn btn-primary" type="submit">{% trans "Sign In" %}</button>
+                    </div>
                 </div>
             </div>
         </div>
+    </form>
+    <!-- Register button outside the form -->
+    <div class="text-center mt-3">
+        <a href="{% url 'account_signup' %}" class="btn btn-secondary">Register</a>
     </div>
-</form>
-<hr />
-
-<div class="text-center">
-    <a href="{% provider_login_url 'google' %}">
-        <img src="{% static 'images/google-signin-button.png' %}"
-            alt="Sign in with Google"
-            width="200px"
-            height="45px" />
-    </a>
-
-</div>
-
+    <hr />
+    <div class="text-center">
+        <a href="{% provider_login_url 'google' %}">
+            <img src="{% static 'images/google-signin-button.png' %}"
+                 alt="Sign in with Google"
+                 width="200px"
+                 height="45px" />
+        </a>
+    </div>
 {% endblock content %}

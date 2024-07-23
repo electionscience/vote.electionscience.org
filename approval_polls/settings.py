@@ -1,4 +1,5 @@
 import os
+import sys
 
 import environ
 import sentry_sdk
@@ -26,6 +27,15 @@ SECRET_KEY = env("SECRET_KEY")
 db_path = "/data/prod.sqlite3"
 if DEBUG:
     db_path = os.path.join(BASE_DIR, "db.sqlite3")
+
+if not DEBUG:
+    COMPRESS_OFFLINE = True
+    LIBSASS_OUTPUT_STYLE = "compressed"
+
+if "test" in sys.argv:
+    COMPRESS_OFFLINE = False
+    COMPRESS_ENABLED = False
+
 
 DATABASES = {
     "default": {
@@ -97,6 +107,14 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # Example: "http://example.com/static/", "http://static.example.com/"
 STATIC_URL = "/static/"
 
+COMPRESS_PRECOMPILERS = (("text/x-scss", "django_libsass.SassCompiler"),)
+
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "compressor.finders.CompressorFinder",
+]
+
 # Additional locations of static files
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "staticfiles/"),
@@ -105,12 +123,6 @@ STATICFILES_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
-# List of finder classes that know how to find static files in
-# various locations.
-STATICFILES_FINDERS = (
-    "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-)
 
 STORAGES = {
     "default": {
@@ -180,6 +192,7 @@ INSTALLED_APPS = (
     "allauth.socialaccount.providers.google",
     "widget_tweaks",
     "import_export",
+    "compressor",
 )
 
 ACCOUNT_ACTIVATION_DAYS = 7

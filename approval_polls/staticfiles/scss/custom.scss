@@ -1,0 +1,139 @@
+// Custom variables for black and white theme
+$primary: #000000;
+$secondary: #ffffff;
+$success: #000000;
+$info: #ffffff;
+$warning: #000000;
+$danger: #000000;
+$light: #ffffff;
+$dark: #000000;
+
+$body-color: #000000;
+$body-bg: #ffffff;
+
+$link-color: #000000;
+$link-hover-color: #404040;
+
+$border-color: #000000;
+
+// Import Bootstrap
+@import "bootstrap/bootstrap";
+
+// Custom styles
+
+body {
+  font-family: var(
+    --framer-blockquote-font-family,
+    var(--framer-font-family, Inter, Inter Placeholder, sans-serif)
+  );
+}
+
+.chart div {
+  height: 1.4em;
+}
+
+.full-height {
+  display: inline-block;
+  width: 100%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.jssocials-share-logo {
+  font-family: "Font Awesome 5 Brands";
+}
+
+.label-inline {
+  display: inline-block;
+}
+
+.right-buffer {
+  margin-right: 5px;
+}
+
+.text-align-center {
+  text-align: center;
+}
+
+#pollQuestion {
+  display: inline-block;
+  width: 60%;
+}
+
+#textAreaCode {
+  resize: none;
+  overflow: hidden;
+  overflow-y: scroll;
+}
+
+// Additional custom styles for high contrast
+
+// Improve button contrast
+.btn-primary {
+  @include button-variant($primary, $primary, $secondary);
+}
+
+.btn-secondary {
+  @include button-variant($secondary, $secondary, $primary);
+}
+
+// Improve form control visibility
+.form-control {
+  border-color: $primary;
+  color: $primary;
+  background-color: $secondary;
+
+  &:focus {
+    border-color: $primary;
+    box-shadow: 0 0 0 0.2rem rgba($primary, 0.25);
+  }
+}
+
+// Improve table readability
+.table {
+  color: $primary;
+  border-color: $primary;
+
+  th,
+  td {
+    border-color: $primary;
+  }
+}
+
+// Improve card visibility
+.card {
+  border-color: $primary;
+
+  .card-header,
+  .card-footer {
+    background-color: $light;
+    border-color: $primary;
+  }
+}
+
+// Improve nav visibility
+.nav-link {
+  color: $secondary;
+}
+
+// Custom style for primary buttons in the navbar
+.navbar .btn-primary {
+  border-color: $white;
+
+  &:hover,
+  &:focus,
+  &:active {
+    border-color: $white;
+  }
+}
+
+// Improve alert contrast
+@each $color, $value in $theme-colors {
+  .alert-#{$color} {
+    color: $primary;
+    background-color: $value;
+    border-color: $primary;
+  }
+}
