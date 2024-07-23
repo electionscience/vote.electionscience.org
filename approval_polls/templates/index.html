@@ -1,36 +1,60 @@
 {% extends 'base.html' %}
 {% block content %}
-    {% if latest_poll_list %}
-        <div class='row-fluid top-buffer'>
-            <div class='col-md-12'>
-                <h2>Latest Public Polls</h2>
-                {% for poll in latest_poll_list %}
-                    <div class='well well-sm'>
-                        <a href="{% url 'detail' poll.id %}">{{ poll.question }}</a>
-                        <p>Published on {{ poll.pub_date|date:"N j, Y, P e" }} by {% firstof poll.user.username poll.user.first_name %}</p>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-        <div class='row-fluid top-buffer'>
-            <div class='col-md-12'>
-                <div class='text-center'>
-                    {% if latest_poll_list.has_previous %}
-                        <a href='?page={{ latest_poll_list.previous_page_number }}'>&laquo;Previous</a>
-                    {% endif %}
-                    (page {{ latest_poll_list.number }} of {{ latest_poll_list.paginator.num_pages }})
-                    {% if latest_poll_list.has_next %}<a href='?page={{ latest_poll_list.next_page_number }}'>Next&raquo;</a>{% endif %}
+    <div class="container">
+        {% if latest_poll_list %}
+            <h1 class="mb-4">Latest Public Polls</h1>
+            <div class="row">
+                <div class="col-12">
+                    {% for poll in latest_poll_list %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h2 class="card-title h5">
+                                    <a href="{% url 'detail' poll.id %}">{{ poll.question }}</a>
+                                </h2>
+                                <p class="card-text">
+                                    Published on {{ poll.pub_date|date:"N j, Y, P e" }} by {% firstof poll.user.username poll.user.first_name %}
+                                </p>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
-        </div>
-    {% else %}
-        <div class='row-fluid top-buffer'>
-            <div class='col-md-12'>
-                <p>No polls are available.</p>
-            </div>
-        </div>
-    {% endif %}
+            <nav aria-label="Poll list pagination" class="my-4">
+                <ul class="pagination justify-content-center">
+                    {% if latest_poll_list.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ latest_poll_list.previous_page_number }}"
+                               aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span> Previous
+                            </a>
+                        </li>
+                    {% endif %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Page {{ latest_poll_list.number }} of {{ latest_poll_list.paginator.num_pages }}</span>
+                    </li>
+                    {% if latest_poll_list.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ latest_poll_list.next_page_number }}"
+                               aria-label="Next">
+                                Next <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% else %}
+            <div class="alert alert-info" role="alert">No polls are available.</div>
+        {% endif %}
+    </div>
 {% endblock content %}
 {% block footer %}
-    <a href='{% url 'create' %}'>Create a Poll</a>
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <a href="{% url 'create' %}" class="btn btn-primary">Create a Poll</a>
+            </div>
+        </div>
+    </div>
 {% endblock %}
