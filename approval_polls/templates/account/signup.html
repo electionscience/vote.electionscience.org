@@ -3,37 +3,49 @@
 {% load allauth %}
 {% load i18n %}
 {% block head_title %}
-    {% trans "Signup" %}
+    {% trans "Sign Up" %}
 {% endblock head_title %}
 {% block content %}
-    {% element h1 %}
-    {% trans "Sign Up" %}
-{% endelement %}
-<p>
-    {% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}
-</p>
-{% url 'account_signup' as action_url %}
-{% element form form=form method="post" action=action_url tags="entrance,signup" %}
-{% slot body %}
-{% csrf_token %}
-{% element fields form=form unlabeled=True %}
-{% endelement %}
-{% if redirect_field_value %}
-    <input type="hidden"
-           name="{{ redirect_field_name }}"
-           value="{{ redirect_field_value }}" />
-{% endif %}
-{% endslot %}
-{% slot actions %}
-{% element button tags="prominent,signup" type="submit" %}
-{% trans "Sign Up" %}
-{% endelement %}
-{% endslot %}
-{% endelement %}
-<hr />
-<div class="text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card mt-5">
+                <div class="card-body">
+                    {% element h1 %}
+                    <h2 class="card-title text-center mb-4">{% trans "Sign Up" %}</h2>
+                {% endelement %}
+                <p class="text-center mb-4">
+                    {% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}
+                </p>
+                {% url 'account_signup' as action_url %}
+                {% element form form=form method="post" action=action_url tags="entrance,signup" %}
+                {% slot body %}
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {{ field|add_class:"form-control" }}
+                        {% if field.help_text %}<small class="form-text text-muted">{{ field.help_text }}</small>{% endif %}
+                        {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                {% endfor %}
+                {% if redirect_field_value %}
+                    <input type="hidden"
+                           name="{{ redirect_field_name }}"
+                           value="{{ redirect_field_value }}" />
+                {% endif %}
+            {% endslot %}
+            {% slot actions %}
+            <div class="d-grid gap-2 mt-4">
+                <button class="btn btn-primary btn-lg">{% trans "Sign Up" %}</button>
+            </div>
+        {% endslot %}
+    {% endelement %}
     {% if SOCIALACCOUNT_ENABLED %}
-        {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
+        <hr class="my-4">
+        <div class="text-center">{% include "socialaccount/snippets/login.html" with page_layout="entrance" %}</div>
     {% endif %}
+</div>
+</div>
+</div>
 </div>
 {% endblock content %}

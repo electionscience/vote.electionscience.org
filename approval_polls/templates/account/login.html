@@ -8,50 +8,55 @@
     {% trans "Sign In" %}
 {% endblock head_title %}
 {% block content %}
-    <h1>{% trans "Sign In" %}</h1>
-    <form method="post"
-          action="{% url 'account_login' %}"
-          class="form-horizontal">
-        {% csrf_token %}
-        <div class="form-body">
-            <div class="mb-3">
-                <label for="{{ form.login.id_for_label }}" class="form-label">Email</label>
-                {{ form.login|add_class:"form-control" }}
-            </div>
-            <div class="mb-3">
-                <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
-                {{ form.password|add_class:"form-control" }}
-                <div id="{{ form.password.auto_id }}-help" class="form-text">
-                    <a href="{% url 'account_reset_password' %}">Forgot your password?</a>
-                </div>
-            </div>
-            {% if redirect_field_value %}
-                <input type="hidden"
-                       name="{{ redirect_field_name }}"
-                       value="{{ redirect_field_value }}" />
-            {% endif %}
-        </div>
-        <div class="form-actions">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="text-center">
-                        <button class="btn btn-primary" type="submit">{% trans "Sign In" %}</button>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card mt-5">
+                    <div class="card-body">
+                        <h2 class="card-title text-center mb-4">{% trans "Sign In" %}</h2>
+                        <form method="post" action="{% url 'account_login' %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="{{ form.login.id_for_label }}" class="form-label">Email</label>
+                                {{ form.login|add_class:"form-control" }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+                                {{ form.password|add_class:"form-control" }}
+                                <div id="{{ form.password.auto_id }}-help" class="form-text">
+                                    <a href="{% url 'account_reset_password' %}">Forgot your password?</a>
+                                </div>
+                            </div>
+                            {% if redirect_field_value %}
+                                <input type="hidden"
+                                       name="{{ redirect_field_name }}"
+                                       value="{{ redirect_field_value }}" />
+                            {% endif %}
+                            <div class="d-grid gap-2 mt-4">
+                                <button class="btn btn-primary btn-lg" type="submit">{% trans "Sign In" %}</button>
+                            </div>
+                        </form>
+                        <div class="text-center mt-3">
+                            <p>
+                                Don't have an account? <a href="{% url 'account_signup' %}">Register</a>
+                            </p>
+                        </div>
+                        {% if SOCIALACCOUNT_ENABLED %}
+                            <hr class="my-4">
+                            <div class="text-center">
+                                <p class="mb-2">Or sign in with:</p>
+                                <a href="{% provider_login_url 'google' %}"
+                                   class="btn btn-outline-secondary">
+                                    <img src="{% static 'images/google-signin-button.png' %}"
+                                         alt="Sign in with Google"
+                                         width="200px"
+                                         height="45px" />
+                                </a>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
-    </form>
-    <!-- Register button outside the form -->
-    <div class="text-center mt-3">
-        <a href="{% url 'account_signup' %}" class="btn btn-secondary">Register</a>
-    </div>
-    <hr />
-    <div class="text-center">
-        <a href="{% provider_login_url 'google' %}">
-            <img src="{% static 'images/google-signin-button.png' %}"
-                 alt="Sign in with Google"
-                 width="200px"
-                 height="45px" />
-        </a>
     </div>
 {% endblock content %}
