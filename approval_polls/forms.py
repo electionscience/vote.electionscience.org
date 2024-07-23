@@ -1,3 +1,4 @@
+from allauth.account.forms import SignupForm
 from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
@@ -89,3 +90,14 @@ class ManageSubscriptionsForm(forms.Form):
             else:
                 msg = "This field is required."
                 self.add_error("zipcode", msg)
+
+
+class CustomSignupForm(SignupForm):
+    def __init__(self, *args, **kwargs):
+        super(CustomSignupForm, self).__init__(*args, **kwargs)
+        del self.fields["password2"]
+
+    def save(self, request):
+        # Ensure you don't need to use password2 in the save method
+        user = super(CustomSignupForm, self).save(request)
+        return user
