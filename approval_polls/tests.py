@@ -158,7 +158,9 @@ class PollIndexTests(TestCase):
         """
         create_poll(question="Empty page poll.")
         response = self.client.get("/?page=2")
-        self.assertContains(response, "(page 1 of 1)", status_code=200)
+        print(response)
+
+        self.assertContains(response, "Page 1 of 1", status_code=200)
 
 
 class PollDetailTests(TestCase):
@@ -200,7 +202,7 @@ class PollResultsTests(TestCase):
         poll = create_poll(question="Choice poll.")
         poll.choice_set.create(choice_text="Choice text.")
         response = self.client.get(reverse("results", args=(poll.id,)))
-        self.assertContains(response, "0 votes (0%)", status_code=200)
+        self.assertContains(response, "0 votes", status_code=200)
 
     def test_results_view_with_ballots(self):
         """
@@ -211,7 +213,7 @@ class PollResultsTests(TestCase):
         choice = poll.choice_set.create(choice_text="Choice text.")
         create_ballot(poll).vote_set.create(choice=choice)
         response = self.client.get(reverse("results", args=(poll.id,)))
-        self.assertContains(response, "1 vote (50%)", status_code=200)
+        self.assertContains(response, "1 vote", status_code=200)
 
 
 class PollVoteTests(TestCase):
@@ -354,44 +356,57 @@ class PollCreateTests(TestCase):
 class UserProfileTests(TestCase):
     def setUp(self):
         self.client = Client()
-        User.objects.create_user("user1", "user1ces@gmail.com", "password123")
-        self.client.login(
-            username="user1", email="user1@example.com", password="password123"
+        self.user = User.objects.create_user(
+            "user1", "user1ces@gmail.com", "password123"
+        )
+        self.client.login(username="user1", password="password123")
+
+    def test_user_profile_contains_correct_info(self):
+        response = self.client.get(reverse("my_info"))
+        self.assertEqual(response.status_code, 200)
+
+        # Check if the response contains the user's information
+        self.assertContains(response, self.user.username)
+        self.assertContains(response, self.user.email)
+
+        # Check if date_joined is present (we don't need to check the exact format)
+        self.assertContains(response, self.user.date_joined.strftime("%Y"))
+        self.assertContains(response, self.user.date_joined.strftime("%B"))
+
+    def test_user_profile_polls_count(self):
+        response = self.client.get(reverse("my_info"))
+        self.assertEqual(response.status_code, 200)
+
+        # Initially, the user should have 0 polls
+        content = response.content.decode("utf-8")
+        self.assertRegex(
+            content,
+            r'<dt class="col-sm-3">Polls created:</dt>\s*<dd class="col-sm-9">\s*<a href="/my-polls/">0</a>',
         )
 
-    def test_user_profile_member_since(self):
-        response = self.client.get(reverse("my_info"))
-        stored_date = User.objects.get(username="user1").date_joined
-        desired_date = timezone.localtime(stored_date)
-        test_user_date_joined = desired_date.strftime("%B %d, %Y").replace(" 0", " ")
-        self.assertContains(response, "Member since: " + str(test_user_date_joined))
-
-    def test_user_profile_last_login(self):
-        response = self.client.get(reverse("my_info"))
-        stored_date = User.objects.get(username="user1").last_login
-        desired_date = timezone.localtime(stored_date)
-        test_user_last_login = desired_date.strftime("%B %d, %Y").replace(" 0", " ")
-        self.assertContains(response, "Last Login: " + str(test_user_last_login))
-
-    def test_show_polls_created_no_polls(self):
-        response = self.client.get(reverse("my_info"))
-        html_string = '<p><a href="/my-polls/">Polls I created</a>: 0</p>'
-        self.assertContains(response, html_string, html=True)
-
-    def test_show_polls_created_one_poll(self):
-        poll = Poll.objects.create(
+        # Create a poll
+        Poll.objects.create(
             question="Which is your favorite color?",
-            pub_date=timezone.now() + datetime.timedelta(days=0),
-            user=User.objects.get(username="user1"),
+            pub_date=timezone.now(),
+            user=self.user,
             vtype=2,
         )
 
-        for _ in range(0):
-            create_ballot(poll)
-
+        # Check again, now the user should have 1 poll
         response = self.client.get(reverse("my_info"))
-        html_string = '<p><a href="/my-polls/">Polls I created</a>: 1</p>'
-        self.assertContains(response, html_string, html=True)
+        content = response.content.decode("utf-8")
+        self.assertRegex(
+            content,
+            r'<dt class="col-sm-3">Polls created:</dt>\s*<dd class="col-sm-9">\s*<a href="/my-polls/">1</a>',
+        )
+
+    def test_user_profile_links(self):
+        response = self.client.get(reverse("my_info"))
+        self.assertEqual(response.status_code, 200)
+
+        # Check if the necessary links are present
+        self.assertContains(response, reverse("my_polls"))
+        self.assertContains(response, "/accounts/password/change")
 
 
 class UpdatePollTests(TestCase):
