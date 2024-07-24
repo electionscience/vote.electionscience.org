@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db.models import Count
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -273,20 +274,30 @@ class ResultsView(generic.DetailView):
         return Poll.objects.filter(pub_date__lte=timezone.now())
 
     def get_context_data(self, **kwargs):
-        context = super(ResultsView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         poll = self.object
-        choices = {}
-        for choice in poll.choice_set.all():
-            choices[choice] = choice.votes()
-        max_votes = max(choices.values())
-        if max_votes == 0:
-            leading_choices = []
-        else:
-            leading_choices = [k for k, v in list(choices.items()) if v == max_votes]
 
-        choices = list(poll.choice_set.all())
-        choices.sort(key=lambda choice: choice.votes(), reverse=True)
-        context["leading_choices"] = leading_choices
+        # Annotate choices with vote count and order by votes
+        choices = poll.choice_set.annotate(vote_count=Count("vote")).order_by(
+            "-vote_count"
+        )
+
+        # Calculate max votes
+        max_votes = choices.first().vote_count if choices.exists() else 0
+
+        # Determine leading choices
+        leading_choices = [
+            choice for choice in choices if choice.vote_count == max_votes
+        ]
+
+        context.update(
+            {
+                "choices": choices,
+                "leading_choices": leading_choices,
+                "max_votes": max_votes,
+            }
+        )
+
         return context
 
 

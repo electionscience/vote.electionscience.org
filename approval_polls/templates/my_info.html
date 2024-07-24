@@ -1,85 +1,98 @@
 {% extends 'base.html' %}
-{% block head %}
-    {% load static %}
+{% load static %}
+{% block extra_css %}<!-- Add any additional CSS here -->{% endblock %}
+{% block extra_js %}
     <script src="{% static 'my_polls.js' %}"></script>
 {% endblock %}
 {% block content %}
-    <div class='row-fluid top-buffer'>
-        <div class='col-md-12'>
-            <h3>My User Profile</h3>
-        </div>
-    </div>
-    <div class='row-fluid top-buffer'>
-        <div class='col-md-12'>
-            <div class='well well-sm'>
-                {% comment %} <p>First Name: {{ current_user.first_name }}</p>
-                <p>Last Name: {{ current_user.last_name }}</p> {% endcomment %}
-                <p>     Email: {{ current_user.email }}</p>
-                <p>Member since: {{ current_user.date_joined|date:"F j, Y e" }}</p>
-                <p>Last Login: {{ current_user.last_login|date:"F j, Y e" }}</p>
-                <p>
-                    <a href='{% url 'my_polls' %}'>Polls I created</a>:
-                    {{ current_user.poll_set.all.count }}
-                </p>
-                <p>
-                    <a href='/accounts/username/change'>Change Username</a>
-                </p>
-                <p>
-                    <a href='/accounts/password/change'>Change Password</a>
-                </p>
-                <p>
-                    <a href='/accounts/subscription/change/'>Manage Subscriptions</a>
-                </p>
-            </div>
-        </div>
-    </div>
-    <div class='row-fluid top-buffer'>
-        <div class='col-md-12'>
-            <h3>My Polls</h3>
-        </div>
-    </div>
-    {% if latest_poll_list %}
-        <div class='row-fluid top-buffer full-height'>
-            <div class='col-md-13'>
-                {% for poll in latest_poll_list %}
-                    <div class='well well-sm' id='well{{ poll.id }}'>
-                        <div id='pollQuestion'>
-                            <a href="{% url 'detail' poll.id %}">{{ poll.question }}</a>
-                        </div>
-                        <div class="pull-right">
-                            <a class=' btn btn-danger btn-xs' id='delete-poll-{{ poll.id }}'>remove</a>
-                            {% comment %} {%with suspend_text=poll.is_suspended|get_suspend_text%} {% endcomment %}
-                            {% comment %} <a class='btn btn-warning btn-xs right-buffer'
-    id='{{suspend_text}}-poll-{{ poll.id }}'> {% endcomment %}
-                            {% comment %} {{ suspend_text }} </a> {% endcomment %}
-                            {% comment %} {%endwith%} {% endcomment %}
-                            <a class='btn btn-primary btn-xs right-buffer'
-                               href="{% url 'edit' poll.id %}">edit</a>
-                        </div>
-                        <div style="display:none">
-                            <input type='hidden' id='csrfmiddlewaretoken' value='{{ csrf_token }}'>
-                        </div>
-                        <p>Published on {{ poll.pub_date|date:"N j, Y, P e" }}</p>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-        <div class='row-fluid top-buffer'>
-            <div class='col-md-12'>
-                <div class='text-center'>
-                    {% if latest_poll_list.has_previous %}
-                        <a href='?page={{ latest_poll_list.previous_page_number }}'>&laquo;Previous</a>
-                    {% endif %}
-                    (page {{ latest_poll_list.number }} of {{ latest_poll_list.paginator.num_pages }})
-                    {% if latest_poll_list.has_next %}<a href='?page={{ latest_poll_list.next_page_number }}'>Next&raquo;</a>{% endif %}
+    <div class="container">
+        <h1 class="mb-4">My User Profile</h1>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title h4">Personal Information</h2>
+                <dl class="row">
+                    <dt class="col-sm-3">First Name:</dt>
+                    <dd class="col-sm-9">
+                        {{ current_user.first_name }}
+                    </dd>
+                    <dt class="col-sm-3">Last Name:</dt>
+                    <dd class="col-sm-9">
+                        {{ current_user.last_name }}
+                    </dd>
+                    <dt class="col-sm-3">Username:</dt>
+                    <dd class="col-sm-9">
+                        {{ current_user.username }}
+                    </dd>
+                    <dt class="col-sm-3">Email:</dt>
+                    <dd class="col-sm-9">
+                        {{ current_user.email }}
+                    </dd>
+                    <dt class="col-sm-3">Member since:</dt>
+                    <dd class="col-sm-9">
+                        {{ current_user.date_joined|date:"F j, Y" }}
+                    </dd>
+                    <dt class="col-sm-3">Last Login:</dt>
+                    <dd class="col-sm-9">
+                        {{ current_user.last_login|date:"F j, Y" }}
+                    </dd>
+                    <dt class="col-sm-3">Polls created:</dt>
+                    <dd class="col-sm-9">
+                        <a href="{% url 'my_polls' %}">{{ current_user.poll_set.all.count }}</a>
+                    </dd>
+                </dl>
+                <div class="mt-3">
+                    <a href="/accounts/password/change" class="btn btn-primary">Change Password</a>
+                    {% comment %}
+                <a href="/accounts/username/change" class="btn btn-secondary">Change Username</a>
+                <a href="/accounts/subscription/change/" class="btn btn-info">Manage Subscriptions</a>
+                    {% endcomment %}
                 </div>
             </div>
         </div>
-    {% else %}
-        <div class='row-fluid top-buffer'>
-            <div class='col-md-12'>
-                <p>No polls are available.</p>
-            </div>
-        </div>
-    {% endif %}
+        <h2 class="mb-3">My Polls</h2>
+        {% if latest_poll_list %}
+            {% for poll in latest_poll_list %}
+                <div class="card mb-3" id="poll-{{ poll.id }}">
+                    <div class="card-body">
+                        <h3 class="card-title h5">
+                            <a href="{% url 'detail' poll.id %}">{{ poll.question }}</a>
+                        </h3>
+                        <p class="card-text">Published on {{ poll.pub_date|date:"N j, Y, P e" }}</p>
+                        <div class="d-flex justify-content-end">
+                            <a href="{% url 'edit' poll.id %}" class="btn btn-primary btn-sm me-2">Edit</a>
+                            <button class="btn btn-danger btn-sm" id="delete-poll-{{ poll.id }}">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <nav aria-label="Poll list pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if latest_poll_list.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ latest_poll_list.previous_page_number }}"
+                               aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span> Previous
+                            </a>
+                        </li>
+                    {% endif %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Page {{ latest_poll_list.number }} of {{ latest_poll_list.paginator.num_pages }}</span>
+                    </li>
+                    {% if latest_poll_list.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ latest_poll_list.next_page_number }}"
+                               aria-label="Next">
+                                Next <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% else %}
+            <div class="alert alert-info" role="alert">No polls are available.</div>
+        {% endif %}
+        <input type="hidden" id="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    </div>
 {% endblock content %}

@@ -27,8 +27,8 @@
                                    id='choice{{ forloop.counter }}'
                                    {% if checked_choices %} {% if choice in checked_choices %}checked{% endif %}
                                    {% endif %}>
-                                {{ choice.choice_text }}
-                                </label>
+                            {{ choice.choice_text }}
+                        </label>
                     </div>
                 {% endfor %}
                 {% if poll.show_write_in and not poll.is_closed %}
@@ -39,7 +39,7 @@
                                 title='Add Option'
                                 data-toggle='tooltip'
                                 data-placement='bottom'>
-                            <small><i class='glyphicon glyphicon-plus'></i></small>
+                            <i class="bi bi-plus"></i> Add Option
                         </button>
                     </p>
                 {% endif %}

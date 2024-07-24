@@ -52,84 +52,81 @@
     <body>
         {% load tz %}
         {% get_current_timezone as TIME_ZONE %}
-        <nav class="navbar navbar-expand-sm navbar-dark bg-primary">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="{% url 'index' %}">Vote, by ElectionScience.org</a>
-                <button class="navbar-toggler"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#navbarColor01"
-                        aria-controls="navbarColor01"
-                        aria-expanded="false"
-                        aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarColor01">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a href="{% url 'create' %}">
-                                <button class="btn btn-primary my-2 my-sm-0" type="submit">Create</button>
-                            </a>
-                        </li>
-                    </ul>
-                    <ul class="nav navbar-nav justify-content-end">
-                        {% block login %}
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+                <div class="container">
+                    <a class="navbar-brand" href="{% url 'index' %}">Vote with Election Science</a>
+                    <button class="navbar-toggler"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#navbarMain"
+                            aria-controls="navbarMain"
+                            aria-expanded="false"
+                            aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarMain">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'create' %}">Create Election</a>
+                            </li>
+                        </ul>
+                        <ul class="navbar-nav">
                             {% if user.is_authenticated %}
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'my_info' %}">{% firstof user.username "My Profile" %}</a>
+                                    <a class="nav-link" href="{% url 'my_info' %}">My Profile</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link"
                                        href="{% url 'account_logout' %}?next={% url 'index' %}">Logout</a>
                                 </li>
                             {% else %}
-                                {% if request.path != '/approval_polls/' %}
-                                    <li class="nav-item">
-                                        <a class="nav-link"
-                                           href="{% url 'account_login' %}?next={{ request.path }}">Login</a>
-                                    </li>
-                                {% else %}
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{% url 'account_login' %}">Login</a>
-                                    </li>
-                                {% endif %}
+                                <li class="nav-item">
+                                    <a class="nav-link"
+                                       href="{% url 'account_login' %}{% if request.path != '/approval_polls/' %}?next={{ request.path }}{% endif %}">Login</a>
+                                </li>
                             {% endif %}
-                        {% endblock login %}
-                    </ul>
+                        </ul>
+                    </div>
                 </div>
-            </div>
-        </nav>
-        <div class="container mt-5 mb-5">
-            <div class="row justify-content-center">
-                {% block content %}
-                {% endblock content %}
-                <div class="row-fluid mt-5">
-                    <div class="col-md-12">
-                        <hr>
-                        <p class="text-center">
-                            This poll uses <a href="https://www.electionscience.org/approval-voting">approval voting</a>, instead of the more common plurality system.
-                            <br />
+            </nav>
+        </header>
+        <main class="container my-5">
+            {% block content %}
+            {% endblock content %}
+        </main>
+        <footer class="bg-light py-4 mt-5">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-8 text-center">
+                        <p>
+                            This election uses <a href="https://www.electionscience.org/approval-voting">approval voting</a>, instead of the more common plurality system.
+                            <br>
                             <a href="https://www.electionscience.org/approval-voting">Learn why it's better</a> and
-                            <a href="{% url 'create' %}" target="_top">create your own poll</a>.
+                            <a href="{% url 'create' %}">create your own election</a>.
                         </p>
-                        <div class="container mt-5">
-                            <div class="row justify-content-center">
-                                <div class="col-12 col-sm-10 col-md-8 col-lg-6 text-center">
-                                    <a href="https://www.electionscience.org"
-                                       target="_blank"
-                                       rel="noopener noreferrer">
-                                        <img src="{% static 'images/ces-horizontal-stack.png' %}"
-                                             class="img-fluid mx-auto d-block"
-                                             alt="Election Science Logo"
-                                             style="max-width: 100%;
-                                                    min-width: 200px">
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                        <a href="https://www.electionscience.org"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            <img src="{% static 'images/ces-horizontal-stack.png' %}"
+                                 class="img-fluid"
+                                 alt="Election Science Logo"
+                                 style="max-width: 200px">
+                        </a>
                     </div>
                 </div>
             </div>
-        </div>
+        </footer>
+        <!-- Add your scripts here -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+                integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+                crossorigin="anonymous"></script>
+        <script>
+            $(function () {
+                $('[data-toggle="tooltip"]').tooltip();
+                $('[data-toggle="popover"]').popover();
+            });
+        </script>
+        {% block extra_js %}{% endblock %}
     </body>
 </html>
