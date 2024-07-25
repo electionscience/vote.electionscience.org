@@ -37,11 +37,11 @@
                     <div class="progress" style="height: 25px;">
                         <div class="progress-bar {% if choice in leading_choices %}bg-success{% endif %}"
                              role="progressbar"
-                             style="width: {% widthratio choice.vote_count poll.total_votes 100 %}%"
-                             aria-valuenow="{% widthratio choice.vote_count poll.total_votes 100 %}"
+                             style="width: {% widthratio choice.vote_count poll.total_ballots 100 %}%"
+                             aria-valuenow="{% widthratio choice.vote_count poll.total_ballots 100 %}"
                              aria-valuemin="0"
-                             aria-valuemax="100">
-                            <span class="font-weight-bold">{% widthratio choice.vote_count poll.total_votes 100 %}%</span>
+                             aria-valuemax="{{ poll.total_ballots }}">
+                            <span class="font-weight-bold">{% widthratio choice.vote_count poll.total_ballots 100 %}%</span>
                         </div>
                     </div>
                 </div>
