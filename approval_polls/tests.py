@@ -462,7 +462,9 @@ class UpdatePollTests(TestCase):
         self.client.logout()
         User.objects.create_user("user2", "user2@example.com", "password123")
         self.client.login(
-            username="user2", email="user2@example.com", password="password123"
+            username="user2",
+            email="user2@example.com",
+            password="password123",
         )
         response = self.client.get("/1/")
         self.assertContains(response, "Vote", status_code=200)
@@ -484,7 +486,9 @@ class UpdatePollTests(TestCase):
             close_date=timezone.now() + datetime.timedelta(days=-10),
         )
         self.client.login(
-            username="user2", email="user2@example.com", password="password123"
+            username="user2",
+            email="user2@example.com",
+            password="password123",
         )
         response = self.client.get(reverse("detail", args=(poll_closed.id,)))
         self.assertContains(response, "Sorry! This poll is closed.", status_code=200)
@@ -507,7 +511,7 @@ class DeletePollTests(TestCase):
         self.client.login(username="user1", email="user1@example.com", password="test")
 
     def test_delete_one_poll(self):
-        self.client.delete("/1/", follow=True)
+        self.client.delete("/1/delete", follow=True)
         response = self.client.get(reverse("my_polls"))
         self.assertEqual(response.status_code, 200)
 
@@ -530,8 +534,8 @@ class DeletePollTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_delete_all_polls(self):
-        self.client.delete("/1/", follow=True)
-        self.client.delete("/2/", follow=True)
+        self.client.delete("/1/delete", follow=True)
+        self.client.delete("/2/delete", follow=True)
         response = self.client.get(reverse("my_polls"))
         self.assertEqual(response.status_code, 200)
         self.assertQuerySetEqual(response.context["latest_poll_list"], [])
@@ -602,168 +606,6 @@ class PollVisibilityTests(TestCase):
         )
 
 
-class PollEditTests(TestCase):
-
-    def setUp(self):
-        self.client = Client()
-
-        self.poll = create_poll(
-            question="Create Sample Poll.",
-            close_date=timezone.now() + datetime.timedelta(days=3),
-            vtype=3,
-        )
-        self.client.login(username="user1", password="test")
-
-        create_vote_invitation(self.poll, email="test1@test1.com")
-        self.choice = self.poll.choice_set.create(choice_text="Choice 1.")
-
-    def test_edit_view_with_invalid_poll(self):
-        """
-        Requesting the edit page of a non-existent poll should
-        return a 404 not found error.
-        """
-        response = self.client.get(reverse("edit", args=(10000,)))
-        self.assertEqual(response.status_code, 404)
-
-    def test_edit_view_visible_to_other_user(self):
-        """
-        The edit page of a poll belonging to one user should not be
-        visible to another user. It should return a permission denied (403) error.
-        """
-        User.objects.create_user("user2", "user2@example.com", "test")
-        self.client.logout()
-        self.client.login(username="user2", password="test")
-        response = self.client.get(reverse("edit", args=(self.poll.id,)))
-        self.assertEqual(response.status_code, 403)
-
-    def test_email_invitees_are_returned(self):
-        """
-        The poll's edit page should list email invitees if poll.vtype is 3
-        """
-        response = self.client.get(reverse("edit", args=(self.poll.id,)))
-        self.assertEqual(response.context["invited_emails"], "test1@test1.com")
-
-    def test_new_choices_are_added(self):
-        """
-        New choices should be added to the poll and existing ones should be updated.
-        """
-        self.client.post(
-            reverse("edit", args=(self.poll.id,)),
-            {
-                "choice1": "xxx",
-                "linkurl-choice1": "xxx",
-                "choice1000": "BBBBB",
-                "linkurl-choice1000": "BBBBBBBB",
-                "close-datetime": "bb",
-                "question": "q",
-                "token-tags": "",
-            },
-        )
-
-        # Refresh poll and choice objects from the database
-        self.poll.refresh_from_db()
-        self.choice.refresh_from_db()
-
-        # Check if the existing choice was updated
-        self.assertEqual(self.choice.choice_text, "xxx")
-
-        # Check if the new choice was added
-        new_choice = self.poll.choice_set.get(choice_text="BBBBB")
-        self.assertIsNotNone(new_choice)
-        self.assertEqual(new_choice.choice_text, "BBBBB")
-
-        # Verify the response contains the expected HTML elements
-        response = self.client.get(reverse("edit", args=(self.poll.id,)))
-
-        logger.info(response.content)
-
-        self.assertContains(
-            response,
-            "<span class='glyphicon glyphicon-link text-success'>",
-            None,
-            200,
-            "",
-            html=True,
-        )
-
-    def test_can_not_edit_poll(self):
-        """
-        If ballots are on the poll, editing should not happen
-        """
-        create_ballot(self.poll)
-        response = self.client.get(reverse("edit", args=(1,)))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["can_edit_poll"], False)
-        self.assertContains(
-            response,
-            "You cannot edit the questions and choices as this poll has got ballots on it!",
-        )
-        self.client.post(
-            reverse("edit", args=(1,)),
-            {
-                "choice1": "xxx",
-                "linkurl-choice1": "xxx",
-                "choice1000": "BBBBB",
-                "linkurl-choice1000": "BBBBBBBB",
-                "close-datetime": "bb",
-                "question": "q",
-                "token-tags": "",
-            },
-        )
-        self.assertEqual(Poll.objects.get(id=self.poll.id).choice_set.count(), 1)
-        self.assertEqual(Choice.objects.get(id=self.choice.id).choice_text, "Choice 1.")
-
-
-# class SuspendPollTests(TestCase):
-#     def setUp(self):
-#         self.client = Client()
-#         self.poll = create_poll(
-#             question="Create Sample Poll.",
-#             close_date=timezone.now() + datetime.timedelta(days=3),
-#             vtype=3,
-#             is_suspended=True,
-#         )
-#         self.poll.choice_set.create(choice_text="Choice 1.")
-#         self.choice = Choice.objects.get(poll_id=self.poll.id)
-#         self.client.login(username="user1", email="user1@example.com", password="test")
-
-#     def test_suspend_tests(self):
-#         response = self.client.get(reverse("my_polls"))
-#         self.assertEqual(response.status_code, 200)
-
-#         # Debugging: print response content
-#         print(response.content.decode())
-
-#         self.assertContains(response, "id='unsuspend-poll-1'> unsuspend </a>")
-
-#         # Unsuspend the poll and check again
-#         self.poll.is_suspended = False
-#         self.poll.save()
-
-#         response = self.client.get(reverse("my_polls"))
-
-#         # Debugging: print response content
-#         print(response.content.decode())
-
-#         self.assertContains(response, "id='suspend-poll-1'> suspend </a>")
-
-#     def test_suspended_tests_cannot_vote(self):
-#         response = self.client.get(reverse("detail", args=(self.poll.id,)))
-#         self.assertEqual(response.status_code, 200)
-
-#         # Debugging: print response content
-#         print(response.content.decode())
-
-#         self.assertContains(
-#             response, "Sorry! This poll has been temporarily suspended."
-#         )
-#         self.assertContains(
-#             response,
-#             "<button class='btn btn-success' type='submit' disabled>Vote</button>",
-#             html=True,
-#         )
-
-
 class TagCloudTests(TestCase):
     def setUp(self):
         self.client = Client()
@@ -780,16 +622,19 @@ class TagCloudTests(TestCase):
     def test_poll_tag_exists(self):
         response = self.client.get(reverse("detail", args=(1,)))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "<a href='/tag/new%20york/'>new york</a>")
+        self.assertContains(response, "/tag/new%20york/")
+        self.assertContains(response, "new york")
 
     def test_poll_tags_index(self):
         # print [pt.tag_text for pt in self.poll.polltag_set.all()]
         response = self.client.get(reverse("tagged_polls", args=("New York",)))
         self.assertEqual(response.status_code, 200)
+        print(response.content)
         self.assertContains(response, '<a href="/1/">Create Sample Poll.</a>')
 
     def test_poll_delete(self):
         self.poll.polltag_set.clear()
         response = self.client.get(reverse("detail", args=(1,)))
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "<a href='/tag/new%20york/'>new york</a>")
+        self.assertNotContains(response, "<a href='/tag/new%20york/'")
+        self.assertNotContains(response, "new york")

@@ -1,183 +1,134 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load filters %}
-{% block head %}
-    {% load static %}
+{% block extra_css %}
     <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.css"
-          integrity="sha512-bYPO5jmStZ9WI2602V2zaivdAnbAhtfzmxnEGh9RwtlI00I9s8ulGe4oBa5XxiC6tCITJH/QG70jswBhbLkxPw=="
-          crossorigin="anonymous"
-          referrerpolicy="no-referrer" />
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tokenfield/0.12.0/css/bootstrap-tokenfield.min.css"
-          integrity="sha512-YWDtZYKUekuPMIzojX205b/D7yCj/ZM82P4hkqc9ZctHtQjvq3ei11EvAmqxQoyrIFBd9Uhfn/X6nJ1Nnp+F7A=="
-          crossorigin="anonymous"
-          referrerpolicy="no-referrer" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"
-            integrity="sha512-AIOTidJAcHBH2G/oZv9viEGXRqDNmfdPVPYOYKGy3fti0xIplnlgMHUGfuNRzC6FkzIo0iIxgFnr9RikFxK+sw=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tokenfield/0.12.0/bootstrap-tokenfield.min.js"
-            integrity="sha512-lUZZrGg8oiRBygP81yUZ4XkAbmeJn7u7HW5nq7npQ+ZXTRvj3ErL6y1XXDq6fujbiJlu6gHsgNUZLKE6eSDm8w=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"></script>
+          href="https://cdn.jsdelivr.net/npm/bootstrap-tokenfield@0.12.0/dist/css/bootstrap-tokenfield.min.css">
+{% endblock %}
+{% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-tokenfield@0.12.0/dist/bootstrap-tokenfield.min.js"></script>
     <script src="{% static 'create.js' %}"></script>
 {% endblock %}
 {% block content %}
     <div class="container">
-        <form action="{% url 'create' %}" method="post" class="mt-4">
-            <fieldset>
-                <h5>Create a Poll</h5>
-                <div class="form-group {% if question_error %}has-error{% endif %}">
-                    {% if question_error %}<label class="control-label" for="question">{{ question_error }}</label>{% endif %}
-                    <label for="question" class="form-label mt-4">
-                        <b>Poll Question</b>
-                    </label>
-                    <input type="text"
-                           class="form-control"
-                           value="{{ question }}"
-                           name="question"
-                           placeholder="Who do you approve of?">
-                </div>
-                {% for i in 5|get_range %}
-                    <div class="form-group {% if i == 1 and choice_error %}has-error{% endif %}">
-                        {% if i == 1 and choice_error %}<label class="control-label" for="choice{{ i }}">{{ choice_error }}</label>{% endif %}
-                        <label for="choice{{ i }}" class="form-label mt-4">Option {{ i }}</label>
-                        <div class="input-group">
-                            <input class="form-control"
-                                   type="text"
-                                   maxlength="100"
-                                   name="choice{{ i }}"
-                                   id="choice{{ i }}"
-                                   placeholder="...">
-                            <span class="input-group-btn">
-                                <button class="btn btn-default remove-choice"
-                                        type="button"
-                                        id="remove-choice{{ i }}"
-                                        title="Remove Choice">
-                                    <i class="fa fa-times"></i>
-                                </button>
-                            </span>
-                        </div>
+        <h1 class="mb-4">Create a Poll</h1>
+        <form action="{% url 'create' %}" method="post">
+            {% csrf_token %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title h5 mb-3">Poll Question</h2>
+                    <div class="mb-3">
+                        <label for="question" class="form-label">Enter your poll question:</label>
+                        <input type="text"
+                               class="form-control {% if question_error %}is-invalid{% endif %}"
+                               id="question"
+                               name="question"
+                               value="{{ question }}"
+                               placeholder="Who do you approve of?">
+                        {% if question_error %}<div class="invalid-feedback">{{ question_error }}</div>{% endif %}
                     </div>
-                {% endfor %}
-                <button type="button"
-                        class="btn btn-primary mt-2 mb-5"
-                        id="add-choice"
-                        title="Add choice">
-                    <i class="fa fa-plus"></i> Add
-                </button>
-                <div class="accordion" id="accordionPollSettings">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingPollSettings">
-                            <button class="accordion-button"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#collapsePollSettings"
-                                    aria-expanded="true"
-                                    aria-controls="collapsePollSettings">Poll Settings</button>
-                        </h2>
-                        <div id="collapsePollSettings"
-                             class="accordion-collapse collapse show"
-                             aria-labelledby="headingPollSettings">
-                            <div class="accordion-body">
-                                <h5>Who should be allowed to vote in this poll?</h5>
-                                <div class="form-check">
-                                    <input type="radio"
-                                           class="form-check-input"
-                                           name="radio-poll-type"
-                                           checked
-                                           value="1"
-                                           id="anyoneVote">
-                                    <label class="form-check-label" for="anyoneVote">Anyone (No restriction on the number of ballots per user).</label>
-                                </div>
-                                <div class="form-check">
-                                    <input type="radio"
-                                           class="form-check-input"
-                                           name="radio-poll-type"
-                                           value="2"
-                                           id="registeredVote">
-                                    <label class="form-check-label" for="registeredVote">
-                                        Only users with registered accounts (restricted to one ballot per user, requires
-                                        login).
-                                    </label>
-                                </div>
-                                <hr>
-                                <h5>Poll Visibility</h5>
-                                <div class="form-check">
-                                    <input class="form-check-input"
-                                           type="checkbox"
-                                           id="pollVisibility"
-                                           name="public-poll-visibility"
-                                           checked>
-                                    <label class="form-check-label" for="pollVisibility">List this poll on the home page.</label>
-                                </div>
-                                <hr>
-                                <div class="datetimepicker">
-                                    <h5>Closing date and time for this poll, if any</h5>
-                                    <label for="datetimepicker"></label>
-                                    <input id="datetimepicker"
-                                           type="text"
-                                           class="form-control"
-                                           name="close-datetime"
-                                           placeholder="Poll Closing Date"
-                                           style="background-color: white"
-                                           readonly>
-                                </div>
-                                <div class="form-check">
-                                    <input type="checkbox"
-                                           class="form-check-input"
-                                           name="show-close-date"
-                                           id="showCloseDate">
-                                    <label class="form-check-label" for="showCloseDate">Display Poll Closing Date with this poll.</label>
-                                </div>
-                                <div class="form-check">
-                                    <input type="checkbox"
-                                           class="form-check-input"
-                                           name="show-countdown"
-                                           id="showCountdown">
-                                    <label class="form-check-label" for="showCountdown">Display Poll Closing Countdown with this poll.</label>
-                                </div>
-                                <hr>
-                                <h5>Customize Poll</h5>
-                                <div class="form-check">
-                                    <input type="checkbox"
-                                           class="form-check-input"
-                                           name="show-write-in"
-                                           id="showWriteIn">
-                                    <label class="form-check-label" for="showWriteIn">Permit Write-in option with this poll.</label>
-                                </div>
-                                <div class="form-check">
-                                    <input type="checkbox"
-                                           class="form-check-input"
-                                           name="show-lead-color"
-                                           id="showLeadColor"
-                                           checked>
-                                    <label class="form-check-label" for="showLeadColor">Show Leading option in different color.</label>
-                                </div>
-                                <div class="form-check">
-                                    <input type="checkbox"
-                                           class="form-check-input"
-                                           name="show-email-opt-in"
-                                           id="showEmailOptIn">
-                                    <label class="form-check-label" for="showEmailOptIn">Display option to opt-in for email communication.</label>
-                                </div>
-                                <hr>
-                                <div id="tagInput">
-                                    <h6>(Enter a comma after each tag)</h6>
-                                    <label for="tokenTagField"></label>
+                    <h2 class="card-title h5 mb-3">Poll Options</h2>
+                    <div id="poll-options">
+                        {% for i in 3|get_range %}
+                            <div class="mb-3 poll-option">
+                                <label for="choice{{ i }}" class="form-label">Option {{ i }}</label>
+                                <div class="input-group">
                                     <input type="text"
-                                           name="token-tags"
-                                           class="form-control"
-                                           id="tokenTagField"
-                                           placeholder="Enter keywords">
+                                           class="form-control {% if i == 1 and choice_error %}is-invalid{% endif %}"
+                                           id="choice{{ i }}"
+                                           name="choice{{ i }}"
+                                           maxlength="100"
+                                           placeholder="Option Name">
+                                    <button class="btn btn-outline-primary remove-choice"
+                                            type="button"
+                                            title="Remove Choice">
+                                        <i class="fa fa-times"></i>
+                                    </button>
                                 </div>
+                                {% if i == 1 and choice_error %}<div class="invalid-feedback">{{ choice_error }}</div>{% endif %}
                             </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="btn btn-outline-primary" id="add-choice">
+                        <i class="fa fa-plus"></i> Add Option
+                    </button>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">Poll Settings</h2>
+                </div>
+                <div class="card-body">
+                    <h3 class="h6 mb-3">Who should be allowed to vote in this poll?</h3>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="radio"
+                                   name="radio-poll-type"
+                                   id="anyoneVote"
+                                   value="1"
+                                   checked>
+                            <label class="form-check-label" for="anyoneVote">Anyone (No restriction on the number of ballots per user)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="radio"
+                                   name="radio-poll-type"
+                                   id="registeredVote"
+                                   value="2">
+                            <label class="form-check-label" for="registeredVote">
+                                Only registered users (One ballot per user, requires login)
+                            </label>
                         </div>
                     </div>
+                    <h3 class="h6 mb-3">Poll Visibility</h3>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="pollVisibility"
+                               name="public-poll-visibility"
+                               checked>
+                        <label class="form-check-label" for="pollVisibility">List this poll on the home page</label>
+                    </div>
+                    <h3 class="h6 mb-3">Customize Poll</h3>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   id="showWriteIn"
+                                   name="show-write-in">
+                            <label class="form-check-label" for="showWriteIn">Permit Write-in option</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   id="showLeadColor"
+                                   name="show-lead-color"
+                                   checked>
+                            <label class="form-check-label" for="showLeadColor">Show Leading option in different color</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   id="showEmailOptIn"
+                                   name="show-email-opt-in">
+                            <label class="form-check-label" for="showEmailOptIn">Display option to opt-in for email communication</label>
+                        </div>
+                    </div>
+                    <h3 class="h6 mb-3">Tags</h3>
+                    <div class="mb-3">
+                        <label for="tokenTagField" class="form-label">Enter keywords (comma-separated):</label>
+                        <input type="text"
+                               class="form-control"
+                               id="tokenTagField"
+                               name="token-tags"
+                               placeholder="Enter keywords">
+                    </div>
                 </div>
-                {% csrf_token %}
-                <button type="submit" class="btn btn-success mt-4 float-end">Create</button>
-            </fieldset>
+            </div>
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">Create Poll</button>
+            </div>
         </form>
     </div>
 {% endblock %}

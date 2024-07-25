@@ -27,4 +27,5 @@ jobs:
       - run: poetry install
       - name: Run Tests
         run: |
+          poetry run python manage.py compress
           poetry run pytest

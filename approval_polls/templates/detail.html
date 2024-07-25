@@ -1,109 +1,74 @@
-{% extends 'base.html' %}
-{% block head %}
-    {% load static %}
+{% extends "base.html" %}
+{% load static %}
+{% block extra_js %}
     <script src='{% static 'detail.js' %}'></script>
-{% endblock %}
+{% endblock extra_js %}
 {% block content %}
-    <div class='row-fluid'>
-        <div class='col-md-12'>
-            <h3>{{ poll.question }}</h3>
-        </div>
-    </div>
-    {% if error_message %}
-        <div class='row-fluid top-buffer'>
-            <div class='col-md-12 text-danger'>{{ error_message }}</div>
-        </div>
-    {% endif %}
-    <div class='row-fluid top-buffer full-height'>
-        <div class='col-md-12'>
-            <form action='{% url 'vote' poll.id %}' method='post'>
-                {% csrf_token %}
-                <em>Choose as many options as you wish</em>
-                {% for choice in poll.choice_set.all %}
-                    <div class='checkbox'>
-                        <label>
-                            <input type='checkbox'
-                                   name='choice{{ forloop.counter }}'
-                                   id='choice{{ forloop.counter }}'
-                                   {% if checked_choices %} {% if choice in checked_choices %}checked{% endif %}
-                                   {% endif %}>
-                            {{ choice.choice_text }}
-                        </label>
-                    </div>
-                {% endfor %}
-                {% if poll.show_write_in and not poll.is_closed %}
-                    <p>
-                        <button type='button'
-                                class='btn btn-primary btn-sm'
-                                id='add-option'
-                                title='Add Option'
-                                data-toggle='tooltip'
-                                data-placement='bottom'>
+    <div class="container">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">{{ poll.question }}</h3>
+            </div>
+            <div class="card-body">
+                {% if error_message %}<div class="alert alert-danger">{{ error_message }}</div>{% endif %}
+                <form action='{% url 'vote' poll.id %}' method='post'>
+                    {% csrf_token %}
+                    <p class="text-muted">
+                        <em>Choose as many options as you wish</em>
+                    </p>
+                    {% for choice in poll.choice_set.all %}
+                        <div class="form-check mb-2">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="choice{{ forloop.counter }}"
+                                   id="choice{{ forloop.counter }}"
+                                   {% if choice in checked_choices %}checked{% endif %}>
+                            <label class="form-check-label" for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label>
+                        </div>
+                    {% endfor %}
+                    {% if poll.show_write_in and not poll.is_closed %}
+                        <button type="button"
+                                class="btn btn-outline-primary btn-sm mt-3"
+                                id="add-option">
                             <i class="bi bi-plus"></i> Add Option
                         </button>
-                    </p>
-                {% endif %}
-                <div class='text-center'>
+                    {% endif %}
                     {% if poll.vtype == 3 and not poll.is_closed %}
                         {% if vote_invitation %}
-                            <input type='hidden' name='invitation_key' value={{ vote_invitation.key }}>
-                            <input type='hidden' name='invitation_email' value={{ vote_invitation.email }}>
+                            <input type="hidden" name="invitation_key" value="{{ vote_invitation.key }}">
+                            <input type="hidden"
+                                   name="invitation_email"
+                                   value="{{ vote_invitation.email }}">
+                        {% elif not vote_authorized %}
+                            <div class="alert alert-danger mt-3">Sorry! You are not authorized to vote in this poll.</div>
                         {% else %}
-                            <!-- Fallback to the default user email -->
-                            {% if not vote_authorized %}
-                                <div class='row-fluid top-buffer'>
-                                    <div class='col-md-12 text-danger'>Sorry! You are not authorized to vote in this poll.</div>
-                                </div>
-                            {% else %}
-                                <input type='hidden' name='invitation_email' value={{ request.user.email }}>
-                            {% endif %}
+                            <input type="hidden"
+                                   name="invitation_email"
+                                   value="{{ request.user.email }}">
                         {% endif %}
                     {% endif %}
-                    {% if poll.vtype == 2  and not user.is_authenticated %}
-                        <button class='btn btn-success' type='submit'>Login to Vote</button>
-                    {% else %}
-                        {% if poll.is_closed %}
-                            <div class='row-fluid top-buffer'>
-                                <div class='col-md-12 text-danger'>Sorry! This poll is closed.</div>
-                            </div>
-                        {% endif %}
-                        {% if poll.is_suspended %}
-                            <div class='row-fluid top-buffer'>
-                                <div class='col-md-12 text-danger'>Sorry! This poll has been temporarily suspended.</div>
-                            </div>
-                        {% endif %}
-                        {% with message="Sign me up to receive email communication about efforts to create fairer, more representative <br> elections through approval voting." %}
-                        {% if poll.vtype == 3 %}
-                            {% if poll.show_email_opt_in %}
-                                <div>
-                                    <input type='checkbox'
-                                           name='email_opt_in'
-                                           {% if permit_email %}checked{% endif %} />
-                                    <small>{{ message }}</small>
-                                </div>
-                                <br>
-                            {% endif %}
-                            <button class='btn btn-success'
-                                    type='submit'
-                                    {% if poll.is_closed or not vote_authorized or poll.is_suspended %}disabled{% endif %}>
-                                {% if checked_choices %}
-                                    Update Vote
-                                {% else %}
-                                    Vote
-                                {% endif %}
-                            </button>
-                        {% elif poll.vtype == 2 %}
-                            {% if poll.show_email_opt_in %}
-                                <div>
-                                    <input type='checkbox'
-                                           name='email_opt_in'
-                                           {% if permit_email %}checked{% endif %} />
-                                    <small>{{ message }}</small>
-                                </div>
-                                <br>
-                            {% endif %}
-                            <button class='btn btn-success'
-                                    type='submit'
+                    {% if poll.is_closed %}<div class="alert alert-warning mt-3">Sorry! This poll is closed.</div>{% endif %}
+                    {% if poll.is_suspended %}
+                        <div class="alert alert-warning mt-3">Sorry! This poll has been temporarily suspended.</div>
+                    {% endif %}
+                    {% if poll.show_email_opt_in %}
+                        <div class="form-check mt-3">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="email_opt_in"
+                                   id="email_opt_in"
+                                   {% if permit_email %}checked{% endif %}>
+                            <label class="form-check-label" for="email_opt_in">
+                                <small>Sign me up to receive email communication about efforts to create fairer, more representative elections through approval voting.</small>
+                            </label>
+                        </div>
+                    {% endif %}
+                    <div class="text-center mt-4">
+                        {% if poll.vtype == 2 and not user.is_authenticated %}
+                            <button class="btn btn-primary" type="submit">Login to Vote</button>
+                        {% else %}
+                            <button class="btn btn-success"
+                                    type="submit"
                                     {% if poll.is_closed or poll.is_suspended %}disabled{% endif %}>
                                 {% if checked_choices %}
                                     Update Vote
@@ -111,86 +76,34 @@
                                     Vote
                                 {% endif %}
                             </button>
-                        {% elif poll.vtype == 1 %}
-                            {% if already_voted %}
-                                <div class='row-fluid top-buffer'>
-                                    <div class='col-md-12 text-danger'>You have already voted on this poll.</div>
-                                </div>
-                            {% elif poll.show_email_opt_in %}
-                                <div>
-                                    <input type='checkbox' name='email_opt_in' checked />
-                                    <small> {{ message }} My email address is
-                                        <input class='text-align-center'
-                                               type='email'
-                                               size="25"
-                                               name='email_address'
-                                               placeholder='<Enter your email here>' />
-                                    </small>
-                                </div>
-                                <br>
-                            {% endif %}
-                            <button class='btn btn-success'
-                                    type='submit'
-                                    {% if poll.is_closed or poll.is_suspended or already_voted %}disabled{% endif %}>
-                                {% if checked_choices %}
-                                    Update Vote
-                                {% else %}
-                                    Vote
-                                {% endif %}
-                            </button>
                         {% endif %}
-                    {% endwith %}
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer">
+                {% if num_tags > 0 %}
+                    <p>
+                        Tags:
+                        {% for tag in tags %}
+                            <a href='{% url 'tagged_polls' tag %}'
+                               class="badge bg-primary text-decoration-none">{{ tag }}</a>
+                        {% endfor %}
+                    </p>
                 {% endif %}
+                {% if poll.show_close_date %}
+                    <p class="text-muted">Closing Date: {{ poll.close_date|date:"N j, Y, P e" }}</p>
+                {% endif %}
+                {% if poll.show_countdown and time_difference %}
+                    <p id="timer" class="text-warning"></p>
+                    <input type="hidden" id="time_difference" value="{{ time_difference }}">
+                {% endif %}
+                <p class="text-muted">Creator: {{ poll.user.username }}</p>
+                <div class="text-center mt-4">
+                    <a href='{% url 'results' poll.id %}'
+                       class="btn btn-outline-primary text-decoration-none"
+                       role="button">See Results</a>
+                </div>
             </div>
-        </form>
-    </div>
-</div>
-<div class='row-fluid top-buffer'>
-    <div class='col-md-12'>
-        {% if num_tags > 0 %}
-            <p>
-                Tags:
-                {% for tag in tags %}
-                    <a href='{% url 'tagged_polls' tag %}'>{{ tag }}</a>
-                {% endfor %}
-            {% endif %}
-        </p>
-    </div>
-</div>
-<div class='row-fluid top-buffer'>
-    <div class='col-md-12'>
-        {% if poll.show_close_date %}
-            <div class='text-center'>
-                <p class='label label-info'>Closing Date: {{ poll.close_date|date:"N j, Y, P e" }}</p>
-            </div>
-        {% endif %}
-        {% if poll.show_countdown and time_difference %}
-            <div class='text-center'>
-                <p class='label label-warning' id='timer'></p>
-                <input type='hidden'
-                       id='time_difference'
-                       value='{{ time_difference }}'
-                       readonly>
-            </div>
-        {% endif %}
-        <div class='text-center form-group'>
-            <p class='label label-default'>Creator: {{ poll.user.username }}</p>
         </div>
-        <p class='text-center'>
-            <a href='{% url 'results' poll.id %}'>See Results</a>
-        </p>
     </div>
-</div>
-<div class='row-fluid top-buffer'>
-    <div class='col-md-12'>
-        <p class='text-center'>
-            This poll uses approval voting, instead of the more common plurality system.
-            <a href='http://www.electionscience.org/approval-voting'>Learn why it's better</a> and
-            <a href='{% url 'create' %}' target='_top'>create your own poll</a>.
-        </p>
-    </div>
-</div>
-<div class='row-fluid top-buffer'>
-    <div id='share' align='center'></div>
-</div>
-{% endblock %}
+{% endblock content %}

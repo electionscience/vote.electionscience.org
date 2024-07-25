@@ -1,120 +1,63 @@
 $(function () {
-  var csrfSafeMethod;
-
-  csrfSafeMethod = function (method) {
-    // these HTTP methods do not require CSRF protection
+  var csrfSafeMethod = function (method) {
     return /^(GET|HEAD|OPTIONS|TRACE)$/.test(method);
   };
 
-  $('a[id^="delete-poll-"]').click(function (event) {
+  $('button[id^="delete-poll-"]').click(function (event) {
     disableAction(event.target, "Delete");
-  });
-  $('a[id^="suspend-poll-"]').click(function (event) {
-    disableAction(event.target, "Suspend");
-  });
-  $('a[id^="unsuspend-poll-"]').click(function (event) {
-    disableAction(event.target, "Unsuspend");
   });
 
   function disableAction(target, action) {
-    _action = action.toLowerCase();
-    var alertDiv, alertDivId;
-    alertDivId = $(target).attr("id");
-    alertDivId = alertDivId.split("-").pop();
-
-    alertDiv =
+    var pollId = $(target).attr("id").split("-").pop();
+    var alertDiv =
       "<div class='alert alert-danger' id='alert" +
-      alertDivId +
+      pollId +
       "'>" +
-      "<p>This poll will be " +
-      verbalizeAction(_action) +
-      "." +
-      (action == "Suspend"
-        ? "Suspending the poll will not allow any voting on it."
-        : "") +
-      " <button id='confirm-" +
-      _action +
-      "-" +
-      alertDivId +
-      "' type='button' class='btn btn-danger btn-xs'>" +
-      action +
-      "</button>" +
-      " <button id='cancel-" +
-      _action +
-      "-" +
-      alertDivId +
+      "<p>This poll will be permanently deleted. " +
+      "<button id='confirm-delete-" +
+      pollId +
+      "' type='button' class='btn btn-danger btn-xs'>Delete</button> " +
+      "<button id='cancel-delete-" +
+      pollId +
       "' type='button' class='btn btn-primary btn-xs'>Cancel</button>" +
       "</p></div>";
 
-    if ($("#alert" + alertDivId).length == 0) {
-      $(".well").css("border-color", "#dcdcdc");
-      $(".alert").remove();
-      $("#well" + alertDivId).before(alertDiv);
-      $("#well" + alertDivId).css("border-color", "red");
+    if ($("#alert" + pollId).length == 0) {
+      $("#poll-" + pollId).before(alertDiv);
     }
 
-    function confirmAction() {
-      var csrfToken, buttonId;
-      buttonId = $(target).attr("id");
-      buttonId = buttonId.split("-").pop();
-      csrfToken = $("#csrfmiddlewaretoken").val();
-      $("#well" + buttonId).css("border-color", "#dcdcdc");
-      $("#alert" + buttonId).remove();
-      if (action == "Delete") {
-        $.ajax({
-          method: "DELETE",
-          url: "/approval_polls/" + buttonId + "/",
-          beforeSend: function (xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-              xhr.setRequestHeader("X-CSRFToken", csrfToken);
-            }
-          },
-          success: function (data) {
-            $("#well" + buttonId).remove();
-            window.location.reload();
-          },
-          error: function (data) {},
-        });
-      } else {
-        $.ajax({
-          method: "PUT",
-          url: "/approval_polls/" + buttonId + "/change_suspension/",
-          beforeSend: function (xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-              xhr.setRequestHeader("X-CSRFToken", csrfToken);
-            }
-          },
-          success: function (data) {
-            window.location.reload();
-          },
-        });
-      }
-    }
-    $('button[id^="confirm-delete-"]').click(confirmAction);
-    $('button[id^="confirm-suspend-"]').click(confirmAction);
-    $('button[id^="confirm-unsuspend-"]').click(confirmAction);
+    $("#confirm-delete-" + pollId).click(function () {
+      confirmAction(pollId);
+    });
 
-    $('button[id^="cancel-delete-"]').click(cancelAction);
-    $('button[id^="cancel-suspend-"]').click(cancelAction);
-    $('button[id^="cancel-unsuspend-"]').click(cancelAction);
+    $("#cancel-delete-" + pollId).click(function () {
+      cancelAction(pollId);
+    });
   }
 
-  function cancelAction() {
-    var buttonId;
-    buttonId = $(this).attr("id");
-    buttonId = buttonId.split("-").pop();
-    $("#well" + buttonId).css("border-color", "#dcdcdc");
-    $("#alert" + buttonId).remove();
+  function confirmAction(pollId) {
+    var csrfToken = $("#csrfmiddlewaretoken").val();
+    console.info(csrfToken);
+    $.ajax({
+      method: "POST",
+      url: "/" + pollId + "/delete/",
+      headers: {
+        "X-CSRFToken": csrfToken,
+      },
+      success: function (data) {
+        if (data.status === "success") {
+          $("#poll-" + pollId).remove();
+          $("#alert" + pollId).remove();
+        }
+      },
+      error: function (xhr, status, error) {
+        console.error("Error deleting poll:", error);
+        alert("An error occurred while deleting the poll.");
+      },
+    });
   }
 
-  function verbalizeAction(action) {
-    switch (action) {
-      case "delete":
-        return "permanently deleted";
-      case "unsuspend":
-        return "unsuspended";
-      case "suspend":
-        return "suspended";
-    }
+  function cancelAction(pollId) {
+    $("#alert" + pollId).remove();
   }
 });

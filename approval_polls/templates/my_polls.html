@@ -19,12 +19,6 @@
                                 </h5>
                                 <p class="card-text">Published on {{ poll.pub_date|date:"N j, Y, P e" }}</p>
                                 <div class="d-flex justify-content-end">
-                                    <a href="{% url 'edit' poll.id %}" class="btn btn-primary btn-sm me-2">Edit</a>
-                                    {% comment %}
-                                {% with suspend_text=poll.is_suspended|get_suspend_text %}
-                                    <button class="btn btn-warning btn-sm me-2" id="{{ suspend_text }}-poll-{{ poll.id }}">{{ suspend_text }}</button>
-                                {% endwith %}
-                                    {% endcomment %}
                                     <button class="btn btn-danger btn-sm" id="delete-poll-{{ poll.id }}">Remove</button>
                                 </div>
                             </div>

@@ -37,3 +37,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "approval_polls.settings"
 python_files = "tests.py test_*.py *_tests.py"
+
+[tool.bandit]
+exclude_dirs = ['*_test.py', '*/test_*.py', '*/tests.py']
+skips = ["B106"]

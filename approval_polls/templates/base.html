@@ -105,13 +105,14 @@
                             <a href="https://www.electionscience.org/approval-voting">Learn why it's better</a> and
                             <a href="{% url 'create' %}">create your own election</a>.
                         </p>
+                        <div class="text-center mb-4" id="share"></div>
                         <a href="https://www.electionscience.org"
                            target="_blank"
                            rel="noopener noreferrer">
                             <img src="{% static 'images/ces-horizontal-stack.png' %}"
                                  class="img-fluid"
                                  alt="Election Science Logo"
-                                 style="max-width: 200px">
+                                 style="max-width: 200px" />
                         </a>
                     </div>
                 </div>
@@ -127,6 +128,7 @@
                 $('[data-toggle="popover"]').popover();
             });
         </script>
-        {% block extra_js %}{% endblock %}
+        {% block extra_js %}
+        {% endblock extra_js %}
     </body>
 </html>

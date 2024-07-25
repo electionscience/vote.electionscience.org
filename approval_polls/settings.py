@@ -25,17 +25,40 @@ DEBUG = env("DEBUG")
 SECRET_KEY = env("SECRET_KEY")
 
 db_path = "/data/prod.sqlite3"
+
+# Hosts/domain names that are valid for this site; required if DEBUG is False
+# See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+APP_NAME = env("FLY_APP_NAME", str, "")
+ALLOWED_HOSTS = [f"{APP_NAME}.fly.dev", "vote.electionscience.org"]  # ← Updated!
+
 if DEBUG:
     db_path = os.path.join(BASE_DIR, "db.sqlite3")
+    CSRF_TRUSTED_ORIGINS = ["http://localhost:8000", "http://127.0.0.1:8000"]
+    CSRF_ALLOWED_ORIGINS = ["http://localhost:8000", "http://127.0.0.1:8000"]
+    CORS_ORIGINS_WHITELIST = ["http://localhost:8000", "http://127.0.0.1:8000"]
+    ALLOWED_HOSTS.extend(["localhost", "0.0.0.0", "127.0.0.1"])  # trunk-ignore(bandit)
 
 if not DEBUG:
     COMPRESS_OFFLINE = True
     LIBSASS_OUTPUT_STYLE = "compressed"
+    sentry_sdk.init(
+        dsn="https://78856604267db99554868743d5eb61e5@o4506681396625408.ingest.sentry.io/4506681396756480",
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        traces_sample_rate=1.0,
+        # Set profiles_sample_rate to 1.0 to profile 100%
+        # of sampled transactions.
+        # We recommend adjusting this value in production.
+        profiles_sample_rate=1.0,
+    )
+    CSRF_TRUSTED_ORIGINS = ["https://vote.electionscience.org"]
+    CSRF_ALLOWED_ORIGINS = ["https://vote.electionscience.org"]
+    CORS_ORIGINS_WHITELIST = ["https://vote.electionscience.org"]
 
-if "test" in sys.argv:
+
+if "test" in sys.argv or "pytest" in sys.argv:
     COMPRESS_OFFLINE = False
     COMPRESS_ENABLED = False
-
 
 DATABASES = {
     "default": {
@@ -45,16 +68,6 @@ DATABASES = {
     }
 }
 
-# Hosts/domain names that are valid for this site; required if DEBUG is False
-# See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-APP_NAME = env("FLY_APP_NAME", str, "")
-ALLOWED_HOSTS = [f"{APP_NAME}.fly.dev", "vote.electionscience.org"]  # ← Updated!
-if DEBUG:
-    ALLOWED_HOSTS.extend(["localhost", "0.0.0.0", "127.0.0.1"])
-
-CSRF_TRUSTED_ORIGINS = ["https://vote.electionscience.org"]
-CSRF_ALLOWED_ORIGINS = ["https://vote.electionscience.org"]
-CORS_ORIGINS_WHITELIST = ["https://vote.electionscience.org"]
 
 # The following settings are required for the activation emails in the
 # registration module to work.
@@ -136,7 +149,7 @@ LOGIN_REDIRECT_URL = "/"
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
-    "django.template.loaders.filesystem.Loader",
+    "django.template.loaders.filesystem.Loader"
     "django.template.loaders.app_directories.Loader",
 )
 
@@ -149,6 +162,7 @@ MIDDLEWARE = (
     "django_ajax.middleware.AJAXMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
 )
 
 ROOT_URLCONF = "approval_polls.urls"
@@ -274,15 +288,3 @@ ACCOUNT_DEFAULT_HTTP_PROTOCOL = env(
 # ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5  # or any reasonable number
 ACCOUNT_RATE_LIMITS = False
 ACCOUNT_FORMS = {"signup": "approval_polls.forms.CustomSignupForm"}
-
-
-sentry_sdk.init(
-    dsn="https://78856604267db99554868743d5eb61e5@o4506681396625408.ingest.sentry.io/4506681396756480",
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    traces_sample_rate=1.0,
-    # Set profiles_sample_rate to 1.0 to profile 100%
-    # of sampled transactions.
-    # We recommend adjusting this value in production.
-    profiles_sample_rate=1.0,
-)
