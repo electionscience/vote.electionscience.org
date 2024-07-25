@@ -2,7 +2,7 @@
 $primary: #000000;
 $secondary: #ffffff;
 $success: #000000;
-$info: #ffffff;
+$info: #f8f9fa; // Light gray for info messages.
 $warning: #aa4a44;
 $danger: #aa4a44;
 $light: #ffffff;
@@ -133,7 +133,6 @@ body {
 @each $color, $value in $theme-colors {
   .alert-#{$color} {
     color: $primary;
-    background-color: $value;
     border-color: $primary;
   }
 }

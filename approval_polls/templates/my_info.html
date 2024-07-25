@@ -11,14 +11,6 @@
             <div class="card-body">
                 <h2 class="card-title h4">Personal Information</h2>
                 <dl class="row">
-                    <dt class="col-sm-3">First Name:</dt>
-                    <dd class="col-sm-9">
-                        {{ current_user.first_name }}
-                    </dd>
-                    <dt class="col-sm-3">Last Name:</dt>
-                    <dd class="col-sm-9">
-                        {{ current_user.last_name }}
-                    </dd>
                     <dt class="col-sm-3">Username:</dt>
                     <dd class="col-sm-9">
                         {{ current_user.username }}
@@ -50,13 +42,6 @@
             </div>
         </div>
         <h2 class="mb-3">My Polls</h2>
-        {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-                {% endfor %}
-            </div>
-        {% endif %}
         {% if latest_poll_list %}
             {% for poll in latest_poll_list %}
                 <div class="card mb-3" id="poll-{{ poll.id }}">
@@ -84,7 +69,7 @@
                             <a class="page-link"
                                href="?page={{ latest_poll_list.previous_page_number }}"
                                aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span> Previous
+                                <span aria-hidden="true">«</span> Previous
                             </a>
                         </li>
                     {% endif %}
@@ -96,7 +81,7 @@
                             <a class="page-link"
                                href="?page={{ latest_poll_list.next_page_number }}"
                                aria-label="Next">
-                                Next <span aria-hidden="true">&raquo;</span>
+                                Next <span aria-hidden="true">»</span>
                             </a>
                         </li>
                     {% endif %}

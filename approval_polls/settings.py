@@ -13,6 +13,7 @@ env = environ.Env(
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 environ.Env.read_env(os.path.join(os.path.dirname(BASE_DIR), ".env"))
 DEBUG = env("DEBUG")
+print(DEBUG)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -33,9 +34,6 @@ ALLOWED_HOSTS = [f"{APP_NAME}.fly.dev", "vote.electionscience.org"]  # ← Updat
 
 if DEBUG:
     db_path = os.path.join(BASE_DIR, "db.sqlite3")
-    CSRF_TRUSTED_ORIGINS = ["http://localhost:8000", "http://127.0.0.1:8000"]
-    CSRF_ALLOWED_ORIGINS = ["http://localhost:8000", "http://127.0.0.1:8000"]
-    CORS_ORIGINS_WHITELIST = ["http://localhost:8000", "http://127.0.0.1:8000"]
     ALLOWED_HOSTS.extend(["localhost", "0.0.0.0", "127.0.0.1"])  # trunk-ignore(bandit)
 
 if not DEBUG:
@@ -276,7 +274,7 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = "username"
 ACCOUNT_USERNAME_REQUIRED = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
-ACCOUNT_EMAIL_VERIFICATION = "optional"
+ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 ACCOUNT_EMAIL_REQUIRED = True
@@ -285,6 +283,4 @@ ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = env(
     "ACCOUNT_DEFAULT_HTTP_PROTOCOL", str, default="https"
 )
-# ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5  # or any reasonable number
-ACCOUNT_RATE_LIMITS = False
 ACCOUNT_FORMS = {"signup": "approval_polls.forms.CustomSignupForm"}
