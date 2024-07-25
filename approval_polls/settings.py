@@ -283,4 +283,4 @@ ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = env(
     "ACCOUNT_DEFAULT_HTTP_PROTOCOL", str, default="https"
 )
-ACCOUNT_FORMS = {"signup": "approval_polls.forms.CustomSignupForm"}
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
