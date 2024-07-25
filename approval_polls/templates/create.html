@@ -11,14 +11,14 @@
 {% endblock %}
 {% block content %}
     <div class="container">
-        <h1 class="mb-4">Create a Poll</h1>
+        <h1 class="mb-4">Create an Election</h1>
         <form action="{% url 'create' %}" method="post">
             {% csrf_token %}
             <div class="card mb-4">
                 <div class="card-body">
-                    <h2 class="card-title h5 mb-3">Poll Question</h2>
+                    <h2 class="card-title h5 mb-3">Election Question</h2>
                     <div class="mb-3">
-                        <label for="question" class="form-label">Enter your poll question:</label>
+                        <label for="question" class="form-label">Enter your question:</label>
                         <input type="text"
                                class="form-control {% if question_error %}is-invalid{% endif %}"
                                id="question"
@@ -27,7 +27,7 @@
                                placeholder="Who do you approve of?">
                         {% if question_error %}<div class="invalid-feedback">{{ question_error }}</div>{% endif %}
                     </div>
-                    <h2 class="card-title h5 mb-3">Poll Options</h2>
+                    <h2 class="card-title h5 mb-3">Options</h2>
                     <div id="poll-options">
                         {% for i in 3|get_range %}
                             <div class="mb-3 poll-option">
@@ -56,7 +56,7 @@
             </div>
             <div class="card mb-4">
                 <div class="card-header">
-                    <h2 class="h5 mb-0">Poll Settings</h2>
+                    <h2 class="h5 mb-0">Settings</h2>
                 </div>
                 <div class="card-body">
                     <h3 class="h6 mb-3">Who should be allowed to vote in this poll?</h3>
@@ -81,7 +81,7 @@
                             </label>
                         </div>
                     </div>
-                    <h3 class="h6 mb-3">Poll Visibility</h3>
+                    <h3 class="h6 mb-3">Visibility</h3>
                     <div class="form-check mb-3">
                         <input class="form-check-input"
                                type="checkbox"
@@ -90,7 +90,7 @@
                                checked>
                         <label class="form-check-label" for="pollVisibility">List this poll on the home page</label>
                     </div>
-                    <h3 class="h6 mb-3">Customize Poll</h3>
+                    <h3 class="h6 mb-3">Customize</h3>
                     <div class="mb-3">
                         <div class="form-check">
                             <input class="form-check-input"
@@ -127,7 +127,7 @@
                 </div>
             </div>
             <div class="text-end">
-                <button type="submit" class="btn btn-primary">Create Poll</button>
+                <button type="submit" class="btn btn-primary">Create Election</button>
             </div>
         </form>
     </div>

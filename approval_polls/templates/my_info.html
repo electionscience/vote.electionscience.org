@@ -27,7 +27,7 @@
                     <dd class="col-sm-9">
                         {{ current_user.last_login|date:"F j, Y" }}
                     </dd>
-                    <dt class="col-sm-3">Polls created:</dt>
+                    <dt class="col-sm-3">Elections created:</dt>
                     <dd class="col-sm-9">
                         <a href="{% url 'my_polls' %}">{{ current_user.poll_set.all.count }}</a>
                     </dd>
@@ -41,7 +41,7 @@
                 </div>
             </div>
         </div>
-        <h2 class="mb-3">My Polls</h2>
+        <h2 class="mb-3">My Elections</h2>
         {% if latest_poll_list %}
             {% for poll in latest_poll_list %}
                 <div class="card mb-3" id="poll-{{ poll.id }}">
@@ -62,7 +62,7 @@
                     </div>
                 </div>
             {% endfor %}
-            <nav aria-label="Poll list pagination" class="mt-4">
+            <nav aria-label="Election list pagination" class="mt-4">
                 <ul class="pagination justify-content-center">
                     {% if latest_poll_list.has_previous %}
                         <li class="page-item">

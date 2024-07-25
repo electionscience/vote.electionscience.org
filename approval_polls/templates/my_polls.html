@@ -7,7 +7,7 @@
 {% endblock %}
 {% block content %}
     <div class="container">
-        <h1 class="mb-4">My Polls</h1>
+        <h1 class="mb-4">My Elections</h1>
         {% if latest_poll_list %}
             <div class="row">
                 <div class="col-12">
@@ -26,7 +26,7 @@
                     {% endfor %}
                 </div>
             </div>
-            <nav aria-label="Poll list pagination">
+            <nav aria-label="Election list pagination">
                 <ul class="pagination justify-content-center">
                     {% if latest_poll_list.has_previous %}
                         <li class="page-item">

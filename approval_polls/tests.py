@@ -381,7 +381,7 @@ class UserProfileTests(TestCase):
         content = response.content.decode("utf-8")
         self.assertRegex(
             content,
-            r'<dt class="col-sm-3">Polls created:</dt>\s*<dd class="col-sm-9">\s*<a href="/my-polls/">0</a>',
+            r'<dt class="col-sm-3">Elections created:</dt>\s*<dd class="col-sm-9">\s*<a href="/my-polls/">0</a>',
         )
 
         # Create a poll
@@ -397,7 +397,7 @@ class UserProfileTests(TestCase):
         content = response.content.decode("utf-8")
         self.assertRegex(
             content,
-            r'<dt class="col-sm-3">Polls created:</dt>\s*<dd class="col-sm-9">\s*<a href="/my-polls/">1</a>',
+            r'<dt class="col-sm-3">Elections created:</dt>\s*<dd class="col-sm-9">\s*<a href="/my-polls/">1</a>',
         )
 
     def test_user_profile_links(self):
