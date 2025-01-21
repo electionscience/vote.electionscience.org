@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.http import HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -277,29 +277,53 @@ class ResultsView(generic.DetailView):
         context = super().get_context_data(**kwargs)
         poll = self.object
 
-        # Annotate choices with vote count and order by votes
-        choices = poll.choice_set.annotate(vote_count=Count("vote")).order_by(
-            "-vote_count"
-        )
+        # Annotate choices with vote count (approval logic)
+        choices = poll.choice_set.annotate(vote_count=Count("vote")).order_by("-vote_count")
 
-        # Calculate max votes
+        # Calculate max votes for leading choices (approval logic)
         max_votes = choices.first().vote_count if choices.exists() else 0
-
-        # Determine leading choices
         leading_choices = [
             choice for choice in choices if choice.vote_count == max_votes
         ]
 
+        # Prefetch ballots and votes for proportional voting calculations
+        ballots = poll.ballot_set.prefetch_related(
+            Prefetch("vote_set", queryset=Vote.objects.select_related("choice"))
+        )
+
+        # Initialize proportional vote counts
+        proportional_votes = {choice.id: 0 for choice in poll.choice_set.all()}
+        total_proportional_votes = 0
+
+        # Calculate proportional votes
+        for ballot in ballots:
+            approved_choices = ballot.vote_set.all().values_list("choice_id", flat=True)
+            num_approved = len(approved_choices)
+            if num_approved > 0:
+                weight = 1 / num_approved
+                for choice_id in approved_choices:
+                    proportional_votes[choice_id] += weight
+                    total_proportional_votes += weight
+
+        # Add proportional data to choices
+        for choice in choices:
+            choice.proportional_votes = proportional_votes[choice.id]
+            choice.proportional_percentage = (
+                proportional_votes[choice.id] / total_proportional_votes * 100
+                if total_proportional_votes > 0
+                else 0
+            )
+
+        # Add data to context
         context.update(
             {
                 "choices": choices,
                 "leading_choices": leading_choices,
                 "max_votes": max_votes,
+                "total_proportional_votes": total_proportional_votes,
             }
         )
-
         return context
-
 
 @require_http_methods(["POST"])
 def vote(request, poll_id):

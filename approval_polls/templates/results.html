@@ -1,58 +1,43 @@
 {% extends 'base.html' %}
 {% load filters %}
 {% block content %}
-    <div class="container">
-        <h1 class="mb-4">{{ poll.question }}</h1>
-        <div class="mb-4">
-            <h2 class="h4 text-muted">
-                {{ poll.total_ballots }} ballot{{ poll.total_ballots|pluralize }}
-                {% if poll.is_closed and poll.total_votes == 0 %}<small class="d-block mt-2">No votes in this poll</small>{% endif %}
-            </h2>
-        </div>
-        <div class="mb-4">
-            {% for choice in choices %}
-                <div class="mb-4 {% if choice in leading_choices %}border border-success rounded p-3{% endif %}">
-                    <h3 class="h5 {% if choice in leading_choices %}text-success font-weight-bold{% endif %}">
-                        {{ choice.choice_text }}
-                        {% if choice in leading_choices %}
-                            <span class="badge bg-success ms-2">
-                                {% if poll.is_closed %}
-                                    Winner
-                                {% else %}
-                                    Leading
-                                {% endif %}
-                                <i class="bi bi-trophy-fill ms-1"></i>
-                            </span>
-                        {% endif %}
-                    </h3>
-                    <p class="text-muted">
-                        {{ choice.vote_count }} vote{{ choice.vote_count|pluralize }}
-                        ({{ choice.percentage|to_percent_str }})
-                        {% if choice in leading_choices %}
-                            <span class="text-success font-weight-bold">
-                                <i class="bi bi-arrow-up-circle-fill"></i>
-                            </span>
-                        {% endif %}
-                    </p>
-                    <div class="progress" style="height: 25px;">
-                        <div class="progress-bar {% if choice in leading_choices %}bg-success{% endif %}"
-                             role="progressbar"
-                             style="width: {% widthratio choice.vote_count poll.total_ballots 100 %}%"
-                             aria-valuenow="{% widthratio choice.vote_count poll.total_ballots 100 %}"
-                             aria-valuemin="0"
-                             aria-valuemax="{{ poll.total_ballots }}">
-                            <span class="font-weight-bold">{% widthratio choice.vote_count poll.total_ballots 100 %}%</span>
-                        </div>
+<div class="container">
+    <h1>{{ poll.question }}</h1>
+    <p>Total Ballots: {{ poll.total_ballots }}</p>
+
+    <div class="choices">
+        {% for choice in choices %}
+            <div class="choice {% if choice in leading_choices %}border-success{% endif %}">
+                <h3>
+                    {{ choice.choice_text }}
+                    {% if choice in leading_choices %}
+                        <span class="badge bg-success">Leading</span>
+                    {% endif %}
+                </h3>
+                <p>
+                    Approval Votes: {{ choice.vote_count }}
+                    ({{ choice.vote_count|divisibleby:poll.total_ballots|floatformat:2 }}%)
+                    <br>
+                    Proportional Votes: {{ choice.proportional_votes|floatformat:2 }}
+                    ({{ choice.proportional_percentage|floatformat:2 }}%)
+                </p>
+                <div class="progress">
+                    <!-- Approval Votes Progress Bar -->
+                    <div class="progress-bar bg-primary"
+                         role="progressbar"
+                         style="width: {{ choice.vote_count|divisibleby:poll.total_ballots|floatformat:2 }}%;">
+                        Approval: {{ choice.vote_count|divisibleby:poll.total_ballots|floatformat:2 }}%
+                    </div>
+
+                    <!-- Proportional Votes Progress Bar -->
+                    <div class="progress-bar bg-secondary"
+                         role="progressbar"
+                         style="width: {{ choice.proportional_percentage|floatformat:2 }}%;">
+                        Proportional: {{ choice.proportional_percentage|floatformat:2 }}%
                     </div>
                 </div>
-            {% endfor %}
-        </div>
-        <div class="text-center mt-4">
-            {% if 'invitation' in request.META.HTTP_REFERER %}
-                <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-primary">Back to poll</a>
-            {% else %}
-                <a href="{% url 'detail' poll.id %}" class="btn btn-primary">Back to poll</a>
-            {% endif %}
-        </div>
+            </div>
+        {% endfor %}
     </div>
+</div>
 {% endblock %}
