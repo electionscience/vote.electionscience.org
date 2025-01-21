@@ -17,7 +17,14 @@ from django.utils.decorators import method_decorator
 from django.views import generic
 from django.views.decorators.http import require_http_methods
 
-from approval_polls.models import Ballot, Poll, PollTag, Subscription, VoteInvitation, Vote
+from approval_polls.models import (
+    Ballot,
+    Poll,
+    PollTag,
+    Subscription,
+    Vote,
+    VoteInvitation,
+)
 
 from .forms import ManageSubscriptionsForm, NewUsernameForm
 
@@ -266,8 +273,6 @@ def delete_poll(request, poll_id):
         return HttpResponseServerError(f"An error occurred: {str(e)}")
 
 
-from django.db.models import Count, Prefetch
-
 class ResultsView(generic.DetailView):
     model = Poll
     template_name = "results.html"
@@ -280,9 +285,13 @@ class ResultsView(generic.DetailView):
         poll = self.object
 
         # Approval voting logic (original)
-        choices = poll.choice_set.annotate(vote_count=Count("vote")).order_by("-vote_count")
+        choices = poll.choice_set.annotate(vote_count=Count("vote")).order_by(
+            "-vote_count"
+        )
         max_votes = choices.first().vote_count if choices.exists() else 0
-        leading_choices = [choice for choice in choices if choice.vote_count == max_votes]
+        leading_choices = [
+            choice for choice in choices if choice.vote_count == max_votes
+        ]
 
         # Proportional voting logic (separate)
         ballots = poll.ballot_set.prefetch_related(
@@ -325,6 +334,7 @@ class ResultsView(generic.DetailView):
             }
         )
         return context
+
 
 @require_http_methods(["POST"])
 def vote(request, poll_id):
