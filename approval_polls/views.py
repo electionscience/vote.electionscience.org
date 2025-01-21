@@ -131,11 +131,9 @@ def my_info(request):
         pub_date__lte=timezone.now(), user_id=request.user
     ).order_by("-pub_date")
     paginator = Paginator(poll_list, 5)
-    page = request.GET.get("page")
+    page = request.GET.get("page", 1)
     try:
         polls = paginator.page(page)
-    except PageNotAnInteger:
-        polls = paginator.page(1)
     except EmptyPage:
         polls = paginator.page(paginator.num_pages)
     return render(
