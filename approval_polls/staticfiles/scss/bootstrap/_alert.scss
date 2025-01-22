@@ -10,7 +10,8 @@
   --#{$prefix}alert-margin-bottom: #{$alert-margin-bottom};
   --#{$prefix}alert-color: inherit;
   --#{$prefix}alert-border-color: transparent;
-  --#{$prefix}alert-border: #{$alert-border-width} solid var(--#{$prefix}alert-border-color);
+  --#{$prefix}alert-border: #{$alert-border-width} solid
+    var(--#{$prefix}alert-border-color);
   --#{$prefix}alert-border-radius: #{$alert-border-radius};
   --#{$prefix}alert-link-color: inherit;
   // scss-docs-end alert-css-vars

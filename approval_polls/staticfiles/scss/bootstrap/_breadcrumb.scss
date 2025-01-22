@@ -35,10 +35,12 @@
           --#{$prefix}breadcrumb-divider,
           escape-svg($breadcrumb-divider)
         )
-        #{"/* rtl:"} var(
+        #{"/* rtl:"}
+        var(
           --#{$prefix}breadcrumb-divider,
           escape-svg($breadcrumb-divider-flipped)
-        ) #{"*/"};
+        )
+        #{"*/"};
     }
   }
 

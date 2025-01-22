@@ -266,8 +266,7 @@ $enable-important-utilities: false;
               color-saturation: 0.25,
             ),
             values: (
-              blue:
-                hsla(
+              blue: hsla(
                   192deg,
                   var(--bs-color-saturation),
                   0,

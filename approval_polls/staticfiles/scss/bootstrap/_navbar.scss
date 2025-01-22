@@ -280,7 +280,9 @@
   --#{$prefix}navbar-brand-color: #{$navbar-dark-brand-color};
   --#{$prefix}navbar-brand-hover-color: #{$navbar-dark-brand-hover-color};
   --#{$prefix}navbar-toggler-border-color: #{$navbar-dark-toggler-border-color};
-  --#{$prefix}navbar-toggler-icon-bg: #{escape-svg($navbar-dark-toggler-icon-bg)};
+  --#{$prefix}navbar-toggler-icon-bg: #{escape-svg(
+      $navbar-dark-toggler-icon-bg
+    )};
   // scss-docs-end navbar-dark-css-vars
 }
 
