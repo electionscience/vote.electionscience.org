@@ -51,9 +51,18 @@ if not DEBUG:
         # We recommend adjusting this value in production.
         profiles_sample_rate=1.0,
     )
-    CSRF_TRUSTED_ORIGINS = ["https://vote.electionscience.org", f"{APP_NAME}.fly.dev"]
-    CSRF_ALLOWED_ORIGINS = ["https://vote.electionscience.org", f"{APP_NAME}.fly.dev"]
-    CORS_ORIGINS_WHITELIST = ["https://vote.electionscience.org", f"{APP_NAME}.fly.dev"]
+    CSRF_TRUSTED_ORIGINS = [
+        "https://vote.electionscience.org",
+        f"https://{APP_NAME}.fly.dev",
+    ]
+    CSRF_ALLOWED_ORIGINS = [
+        "https://vote.electionscience.org",
+        f"https://{APP_NAME}.fly.dev",
+    ]
+    CORS_ORIGINS_WHITELIST = [
+        "https://vote.electionscience.org",
+        f"https://{APP_NAME}.fly.dev",
+    ]
 
 
 if "test" in sys.argv or "pytest" in sys.argv:
