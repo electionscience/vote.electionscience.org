@@ -31,12 +31,13 @@ db_path = "/data/prod.sqlite3"
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 APP_NAME = env("FLY_APP_NAME", str, "")
 ALLOWED_HOSTS = [f"{APP_NAME}.fly.dev", "vote.electionscience.org"]  # ← Updated!
+print("Allowed Hosts: ", ALLOWED_HOSTS)
+print("APP_NAME: ", APP_NAME)
 
 if DEBUG:
     db_path = os.path.join(BASE_DIR, "db.sqlite3")
     ALLOWED_HOSTS.extend(["localhost", "0.0.0.0", "127.0.0.1"])  # trunk-ignore(bandit)
-    print("Allowed Hosts: ", ALLOWED_HOSTS)
-    print("APP_NAME: ", APP_NAME)
+
 
 if not DEBUG:
     COMPRESS_OFFLINE = True
