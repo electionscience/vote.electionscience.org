@@ -30,9 +30,7 @@
                         {{ choice.vote_count }} vote{{ choice.vote_count|pluralize }}
                         ({{ choice.percentage|to_percent_str }})
                         {% if choice in leading_choices %}
-                            <span class="text-success font-weight-bold">
-                                <i class="bi bi-arrow-up-circle-fill"></i>
-                            </span>
+                            <span class="text-success font-weight-bold"><i class="bi bi-arrow-up-circle-fill"></i></span>
                         {% endif %}
                     </p>
                     <div class="progress" style="height: 25px;">
@@ -49,34 +47,54 @@
             {% endfor %}
         </div>
         <!-- Proportional Voting Results Section -->
-        <div class="mt-5">
-            <h2 class="h4">Proportional Voting Results</h2>
-            {% if proportional_results %}
-                <div class="mb-4">
-                    {% for result in proportional_results %}
-                        <div class="mb-4">
-                            <h3 class="h5">{{ result.choice_text }}</h3>
-                            <p class="text-muted">
-                                Proportional Votes: {{ result.proportional_votes|floatformat:2 }}
-                                ({{ result.proportional_percentage|floatformat:2 }}%)
-                            </p>
-                            <div class="progress" style="height: 25px;">
-                                <div class="progress-bar {% if choice in leading_choices %}bg-success{% endif %}"
-                                     role="progressbar"
-                                     style="width: {{ result.proportional_percentage|floatformat:2 }}%"
-                                     aria-valuenow="{{ result.proportional_percentage|floatformat:2 }}"
-                                     aria-valuemin="0"
-                                     aria-valuemax="100">
-                                    <span class="font-weight-bold">{{ result.proportional_percentage|floatformat:2 }}%</span>
+        {% if proportional_results and poll.total_votes != 0 %}
+            <div class="mt-5">
+                <div class="accordion" id="proportionalResultsAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingProportional">
+                            <button class="accordion-button collapsed"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#collapseProportional"
+                                    aria-expanded="false"
+                                    aria-controls="collapseProportional">View Proportional Voting Results</button>
+                        </h2>
+                        <div id="collapseProportional"
+                             class="accordion-collapse collapse"
+                             aria-labelledby="headingProportional"
+                             data-bs-parent="#proportionalResultsAccordion">
+                            <div class="accordion-body">
+                                <p>
+                                    When electing multiple candidates to a board or committee <a href="https://en.wikipedia.org/wiki/Sequential_proportional_approval_voting">Proportional Approval Voting</a> ensures that no single voting group dominates the outcome, promoting fair representation and reflecting the diverse preferences of all voters.
+                                </p>
+                                <!-- Pie Chart Container -->
+                                <div style="width: 50%; max-width: 400px; margin: 20px auto;">
+                                    <canvas id="proportionalChart"></canvas>
                                 </div>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Choice</th>
+                                            <th>Proportional Votes</th>
+                                            <th>Percentage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for result in proportional_results %}
+                                            <tr>
+                                                <td>{{ result.choice_text }}</td>
+                                                <td>{{ result.proportional_votes|floatformat:2 }}</td>
+                                                <td>{{ result.proportional_percentage|floatformat:2 }}%</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                    {% endfor %}
+                    </div>
                 </div>
-            {% else %}
-                <p>No proportional voting results available.</p>
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
         <!-- Back to Poll Button -->
         <div class="text-center mt-4">
             {% if 'invitation' in request.META.HTTP_REFERER %}
@@ -86,4 +104,41 @@
             {% endif %}
         </div>
     </div>
+    <!-- JavaScript for Pie Chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('proportionalChart').getContext('2d');
+        const data = {
+            labels: [
+                {% for result in proportional_results %}"{{ result.choice_text }}",{% endfor %}
+            ],
+            datasets: [{
+                data: [
+                    {% for result in proportional_results %}{{ result.proportional_percentage|floatformat:2 }},{% endfor %}
+                ],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+        const config = {
+            type: 'pie',
+            data: data,
+        };
+        const proportionalChart = new Chart(ctx, config);
+    </script>
 {% endblock %}

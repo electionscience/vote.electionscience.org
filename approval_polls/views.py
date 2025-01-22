@@ -284,7 +284,7 @@ class ResultsView(generic.DetailView):
         context = super().get_context_data(**kwargs)
         poll = self.object
 
-        # Approval voting logic (original)
+        # Approval voting logic
         choices = poll.choice_set.annotate(vote_count=Count("vote")).order_by(
             "-vote_count"
         )
@@ -293,7 +293,7 @@ class ResultsView(generic.DetailView):
             choice for choice in choices if choice.vote_count == max_votes
         ]
 
-        # Proportional voting logic (separate)
+        # Proportional voting logic
         ballots = poll.ballot_set.prefetch_related(
             Prefetch("vote_set", queryset=Vote.objects.select_related("choice"))
         )
@@ -309,10 +309,9 @@ class ResultsView(generic.DetailView):
                     proportional_votes[choice_id] += weight
                     total_proportional_votes += weight
 
-        # Create a separate list for proportional results
         proportional_results = [
             {
-                "choice": choice,
+                "choice_text": choice.choice_text,
                 "proportional_votes": proportional_votes[choice.id],
                 "proportional_percentage": (
                     proportional_votes[choice.id] / total_proportional_votes * 100
@@ -323,7 +322,7 @@ class ResultsView(generic.DetailView):
             for choice in poll.choice_set.all()
         ]
 
-        # Add both approval and proportional data to context
+        # Add data to context
         context.update(
             {
                 "choices": choices,  # Approval results
