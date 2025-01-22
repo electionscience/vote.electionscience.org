@@ -1,4 +1,7 @@
 name: Fly Deploy
+permissions:
+  contents: read # Restrict to read-only permissions for repository contents
+
 on:
   push:
     branches:
@@ -9,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: deploy-group # optional: ensure only one action runs at a time
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: flyctl deploy --remote-only
         env:

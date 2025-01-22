@@ -1,4 +1,6 @@
 name: Django Tests
+permissions:
+  contents: read # Restrict to read-only permissions for repository contents
 
 on:
   push:
