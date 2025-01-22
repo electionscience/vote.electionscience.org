@@ -27,3 +27,7 @@ memory_mb = 256
 [[statics]]
 guest_path = '/code/static'
 url_prefix = '/static/'
+
+[mounts]
+source = "litefs"
+destination = "/data"

@@ -38,4 +38,4 @@ jobs:
         with:
           name: vote-es-pr-${{ github.event.number }}
           config: fly.pr-review.toml
-          secrets: DEBUG=true DJANGO_SETTINGS_MODULE=approval_polls.settings
+          secrets: DJANGO_SETTINGS_MODULE=approval_polls.settings
