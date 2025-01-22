@@ -47,54 +47,40 @@
             {% endfor %}
         </div>
         <!-- Proportional Voting Results Section -->
-        {% if proportional_results and poll.total_votes != 0 %}
-            <div class="mt-5">
-                <div class="accordion" id="proportionalResultsAccordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingProportional">
-                            <button class="accordion-button collapsed"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#collapseProportional"
-                                    aria-expanded="false"
-                                    aria-controls="collapseProportional">View Proportional Voting Results</button>
-                        </h2>
-                        <div id="collapseProportional"
-                             class="accordion-collapse collapse"
-                             aria-labelledby="headingProportional"
-                             data-bs-parent="#proportionalResultsAccordion">
-                            <div class="accordion-body">
-                                <p>
-                                    When electing multiple candidates to a board or committee <a href="https://en.wikipedia.org/wiki/Sequential_proportional_approval_voting">Proportional Approval Voting</a> ensures that no single voting group dominates the outcome, promoting fair representation and reflecting the diverse preferences of all voters.
-                                </p>
-                                <!-- Pie Chart Container -->
-                                <div style="width: 50%; max-width: 400px; margin: 20px auto;">
-                                    <canvas id="proportionalChart"></canvas>
-                                </div>
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Choice</th>
-                                            <th>Proportional Votes</th>
-                                            <th>Percentage</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for result in proportional_results %}
-                                            <tr>
-                                                <td>{{ result.choice_text }}</td>
-                                                <td>{{ result.proportional_votes|floatformat:2 }}</td>
-                                                <td>{{ result.proportional_percentage|floatformat:2 }}%</td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+        <div class="mt-5">
+            <h2 class="h4">Proportional Voting Results</h2>
+            <p>
+                Proportional results distribute each voter’s approval equally among all the choices they selected. This method
+                provides a more nuanced representation of voter preferences and can highlight choices with broad but not majority
+                support, which might differ from the approval results.
+            </p>
+            {% if proportional_results %}
+                <!-- Pie Chart Container -->
+                <div style="width: 50%; max-width: 300px; margin: auto;">
+                    <canvas id="proportionalChart"></canvas>
                 </div>
-            </div>
-        {% endif %}
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Choice</th>
+                            <th>Proportional Votes</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in proportional_results %}
+                            <tr>
+                                <td>{{ result.choice_text }}</td>
+                                <td>{{ result.proportional_votes|floatformat:2 }}</td>
+                                <td>{{ result.proportional_percentage|floatformat:2 }}%</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No proportional voting results available.</p>
+            {% endif %}
+        </div>
         <!-- Back to Poll Button -->
         <div class="text-center mt-4">
             {% if 'invitation' in request.META.HTTP_REFERER %}
