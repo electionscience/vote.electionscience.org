@@ -36,6 +36,6 @@ jobs:
         id: deploy
         uses: superfly/fly-pr-review-apps@1.2.1
         with:
-          app-name: pr-${{ github.event.number }}-${{ github.repository }} # Generates a valid app name
+          app-name: pr-${{ github.event.number }}-vote-electionscience-org # Generates a valid app name
           app-name-sanitizer: "[^a-z0-9-]" # Ensures invalid characters are replaced
           secrets: DEBUG=true
