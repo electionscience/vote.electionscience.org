@@ -152,7 +152,8 @@ class Vote(models.Model):
     choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
-        assert self.ballot.poll == self.choice.poll
+        if self.ballot.poll != self.choice.poll:
+            raise ValueError("The ballot and choice must belong to the same poll.")
         super(Vote, self).save(*args, **kwargs)
 
     def __unicode__(self):

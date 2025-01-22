@@ -13,7 +13,7 @@ env = environ.Env(
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 environ.Env.read_env(os.path.join(os.path.dirname(BASE_DIR), ".env"))
 DEBUG = env("DEBUG")
-print(DEBUG)
+print("Debug?: ", DEBUG)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -192,6 +192,7 @@ INSTALLED_APPS = (
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.admin",
+    "django.contrib.humanize",
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     "approval_polls",

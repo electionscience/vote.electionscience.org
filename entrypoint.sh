@@ -7,9 +7,9 @@ set -e
 echo "Starting entrypoint script..."
 
 # Ensure the necessary environment variables are set
-if [ -z "$DJANGO_SETTINGS_MODULE" ]; then
-  echo "Error: DJANGO_SETTINGS_MODULE is not set."
-  exit 1
+if [ -z "${DJANGO_SETTINGS_MODULE}" ]; then
+	echo "Error: DJANGO_SETTINGS_MODULE is not set."
+	exit 1
 fi
 
 # Run Django migrations
