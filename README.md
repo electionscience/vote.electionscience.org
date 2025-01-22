@@ -10,6 +10,7 @@ The project, taken as a whole, will serve these approval-based webpolls, or the 
 ## Development Setup
 
 ```sh
+cp .env.dist .env
 docker-compose up
 docker-compose exec web python manage.py migrate
 docker-compose exec web python manage.py test
@@ -23,32 +24,45 @@ open http://localhost:8000
 
 2. Clone this repository. `git clone git@github.com:electionscience/vote.electionscience.org.git`.
 
-Configure your environment with .env file. You can copy the .env.dist file and fill in the required values.
+   Configure your environment with .env file. You can copy the .env.dist file and fill in the required values.
 
-1. Before you run the Django server for the first time, you'll need to create the database tables:
+   `cp .env.dist .env`
 
-   `python manage.py syncdb`
+3. Install dependencies
+
+   ```shell
+   brew install pyenv poetry
+   pyenv install 3.11.7
+   pyenv local 3.11.7
+   pyenv init
+   poetry install
+   eval $(poetry env activate)
+   ```
+
+4. Before you run the Django server for the first time, you'll need to create the database tables:
+
+   `python manage.py migrate`
 
    This will ask you to create a superuser account, which is necessary if you want to use the Django admin interface.
    But also, you'll need a user account in order to create polls in the system, and it's easiest to do that here.
    (If you don't create an account here, you'll have to mess around copying urls from the server output to fake confirming an email address in order to create a user account later... so just do it now.)
 
-2. Start the Django server:
+5. Start the Django server:
 
-`python manage.py runserver`
+   `python manage.py runserver`
 
-8. Change the domain name of the site `example.com` to `yourdomainname` in the admin panel (`https://localhost:8000/admin`) so that the activation emails have the correct url.
+6. Change the domain name of the site `example.com` to `yourdomainname` in the admin panel (`https://localhost:8000/admin`) so that the activation emails have the correct url.
 
-9. Finally, see how it looks. In your favorite browser, go to the link:
+7. Finally, see how it looks. In your favorite browser, go to the link:
 
-`<your domain name>:<port>`
+   `<your domain name>:<port>`
 
-If you're running the server locally then this would be
+   If you're running the server locally then this would be
 
-`http://localhost:8000/`
+   `http://localhost:8000/`
 
-There won't be any polls yet, but you can login with the superuser account you created, or register a new one.
-Then you should be able to create polls, vote in them, and see the results.
+   There won't be any polls yet, but you can login with the superuser account you created, or register a new one.
+   Then you should be able to create polls, vote in them, and see the results.
 
 ## Contributing
 
@@ -64,7 +78,7 @@ All contributions are welcome.
 
 ## Coding Style
 
-We use Trunk.io to enforce a consistent coding style. You can install it by running `npm install -g @trunk/cli` and then running `trunk check` in the root of the project.
+We use [Trunk](trunk.io) to enforce a consistent coding style. You can install it by running `npm install -g @trunk/cli` and then running `trunk check` in the root of the project.
 
 ## Testing the code
 
@@ -80,4 +94,4 @@ This repo is deployed in production on `fly.io` from [Felix Sargent](felix@elect
 
 Deployment is as easy as running `fly deploy` from the root of the project, if you have it configured.
 
-Ideally, this automatically deploys on push to the Github `main` branch!
+This automatically deploys to production on push to the Github `main` branch!

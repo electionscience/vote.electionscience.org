@@ -3,10 +3,10 @@ services:
     build: .
     entrypoint: gunicorn
     command:
-      - "approval_polls.wsgi:application"
-      - "-b 0.0.0.0:8000"
+      - approval_polls.wsgi:application
+      - -b 0.0.0.0:8000
     ports:
-      - "8000:8000"
+      - 8000:8000
     volumes:
       - ./:/code
       - ./db.sqlite3:/data/db.sqlite3
