@@ -29,14 +29,6 @@ RUN poetry install --no-dev --no-root
 # Copy the rest of the project files into the working directory
 COPY . /code/
 
-# Create a non-root user and switch to it
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
-USER appuser
-
-# Expose the port your app runs on
-EXPOSE 8000
-
-# Healthcheck for Fly.io
 HEALTHCHECK CMD curl --fail http://localhost:8000/ || exit 1
 
 # Use a script as the entrypoint
