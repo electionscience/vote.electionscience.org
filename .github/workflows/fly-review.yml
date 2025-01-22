@@ -37,4 +37,5 @@ jobs:
         uses: superfly/fly-pr-review-apps@1.2.1
         with:
           name: vote-es-pr-${{ github.event.number }}
+          config: fly.pr-review.toml
           secrets: DEBUG=true
