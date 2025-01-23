@@ -90,7 +90,7 @@ We use [Trunk](trunk.io) to enforce a consistent coding style. You can install i
 
 ## Deploying in production
 
-This repo is deployed in production on `fly.io` from [Felix Sargent](felix@electionscience.org)'s account.
+This repo is deployed in production on `fly.io` from an account managed by [Felix Sargent](https://github.com/fsargent).
 
 Deployment is as easy as running `fly deploy` from the root of the project, if you have it configured.
 
