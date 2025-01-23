@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.http import HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -17,7 +17,14 @@ from django.utils.decorators import method_decorator
 from django.views import generic
 from django.views.decorators.http import require_http_methods
 
-from approval_polls.models import Ballot, Poll, PollTag, Subscription, VoteInvitation
+from approval_polls.models import (
+    Ballot,
+    Poll,
+    PollTag,
+    Subscription,
+    Vote,
+    VoteInvitation,
+)
 
 from .forms import ManageSubscriptionsForm, NewUsernameForm
 
@@ -277,27 +284,54 @@ class ResultsView(generic.DetailView):
         context = super().get_context_data(**kwargs)
         poll = self.object
 
-        # Annotate choices with vote count and order by votes
+        # Approval voting logic
         choices = poll.choice_set.annotate(vote_count=Count("vote")).order_by(
             "-vote_count"
         )
-
-        # Calculate max votes
         max_votes = choices.first().vote_count if choices.exists() else 0
-
-        # Determine leading choices
         leading_choices = [
             choice for choice in choices if choice.vote_count == max_votes
         ]
 
+        # Proportional voting logic
+        ballots = poll.ballot_set.prefetch_related(
+            Prefetch("vote_set", queryset=Vote.objects.select_related("choice"))
+        )
+        proportional_votes = {choice.id: 0 for choice in poll.choice_set.all()}
+        total_proportional_votes = 0
+
+        for ballot in ballots:
+            approved_choices = ballot.vote_set.all().values_list("choice_id", flat=True)
+            num_approved = len(approved_choices)
+            if num_approved > 0:
+                weight = 1 / num_approved
+                for choice_id in approved_choices:
+                    proportional_votes[choice_id] += weight
+                    total_proportional_votes += weight
+
+        proportional_results = [
+            {
+                "choice_text": choice.choice_text,
+                "proportional_votes": proportional_votes[choice.id],
+                "proportional_percentage": (
+                    proportional_votes[choice.id] / total_proportional_votes * 100
+                    if total_proportional_votes > 0
+                    else 0
+                ),
+            }
+            for choice in poll.choice_set.all()
+        ]
+
+        # Add data to context
         context.update(
             {
-                "choices": choices,
+                "choices": choices,  # Approval results
                 "leading_choices": leading_choices,
                 "max_votes": max_votes,
+                "proportional_results": proportional_results,  # Proportional results
+                "total_proportional_votes": total_proportional_votes,
             }
         )
-
         return context
 
 
