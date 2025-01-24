@@ -309,18 +309,24 @@ class ResultsView(generic.DetailView):
                     proportional_votes[choice_id] += weight
                     total_proportional_votes += weight
 
-        proportional_results = [
-            {
-                "choice_text": choice.choice_text,
-                "proportional_votes": proportional_votes[choice.id],
-                "proportional_percentage": (
-                    proportional_votes[choice.id] / total_proportional_votes * 100
-                    if total_proportional_votes > 0
-                    else 0
-                ),
-            }
-            for choice in poll.choice_set.all()
-        ]
+        proportional_results = sorted(
+            [
+                {
+                    "choice_text": choice.choice_text,
+                    "proportional_votes": proportional_votes[choice.id],
+                    "proportional_percentage": (
+                        proportional_votes[choice.id] / total_proportional_votes * 100
+                        if total_proportional_votes > 0
+                        else 0
+                    ),
+                }
+                for choice in poll.choice_set.all()
+            ],
+            key=lambda x: x[
+                "proportional_percentage"
+            ],  # Sort by proportional_percentage
+            reverse=True,  # Highest percentage first
+        )
 
         # Add data to context
         context.update(
