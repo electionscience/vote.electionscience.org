@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Count, Prefetch
-from django.http import HttpResponseRedirect, HttpResponseServerError
+from django.http import HttpResponseRedirect, HttpResponseServerError, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -339,6 +339,27 @@ class ResultsView(generic.DetailView):
             }
         )
         return context
+
+
+def raw_ballots(request, poll_id):
+    poll = get_object_or_404(Poll, pk=poll_id, pub_date__lte=timezone.now())
+
+    ballots = poll.ballot_set.prefetch_related("vote_set")
+    raw_ballots_data = []
+    for ballot in ballots:
+        approved_choice_ids = list(ballot.vote_set.values_list("choice_id", flat=True))
+        raw_ballots_data.append(approved_choice_ids)
+
+    # We must also return choices if we're trying to consume them in JS
+    # 'choice_text' is used for the Chart.js labels, so send them along:
+    choices_data = list(poll.choice_set.values("id", "choice_text"))
+
+    return JsonResponse(
+        {
+            "ballots": raw_ballots_data,
+            "choices": choices_data,  # <--- Make sure we're returning this!
+        }
+    )
 
 
 @require_http_methods(["POST"])

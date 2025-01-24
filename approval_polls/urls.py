@@ -17,6 +17,7 @@ urlpatterns = [
         name="embed_instructions",
     ),
     path("<int:poll_id>/vote/", views.vote, name="vote"),
+    path("polls/<int:poll_id>/raw/", views.raw_ballots, name="raw"),
     # path("<int:poll_id>/edit/", views.EditView.as_view(), name="edit"),
     path(
         "<int:poll_id>/change_suspension/",

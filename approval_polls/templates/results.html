@@ -47,98 +47,242 @@
             {% endfor %}
         </div>
         <!-- Proportional Voting Results Section -->
-        {% if proportional_results and poll.total_votes != 0 %}
-            <div class="mt-5">
-                <div class="accordion" id="proportionalResultsAccordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingProportional">
-                            <button class="accordion-button collapsed"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#collapseProportional"
-                                    aria-expanded="false"
-                                    aria-controls="collapseProportional">View Proportional Voting Results</button>
-                        </h2>
-                        <div id="collapseProportional"
-                             class="accordion-collapse collapse"
-                             aria-labelledby="headingProportional"
-                             data-bs-parent="#proportionalResultsAccordion">
-                            <div class="accordion-body">
-                                <p>
-                                    When electing multiple candidates to a board or committee <a href="https://en.wikipedia.org/wiki/Sequential_proportional_approval_voting">Proportional Approval Voting</a> ensures that no single voting group dominates the outcome, promoting fair representation and reflecting the diverse preferences of all voters.
-                                </p>
-                                <!-- Pie Chart Container -->
-                                <div style="width: 50%; max-width: 400px; margin: 20px auto;">
-                                    <canvas id="proportionalChart"></canvas>
-                                </div>
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Choice</th>
-                                            <th>Proportional Votes</th>
-                                            <th>Percentage</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for result in proportional_results %}
-                                            <tr>
-                                                <td>{{ result.choice_text }}</td>
-                                                <td>{{ result.proportional_votes|floatformat:2 }}</td>
-                                                <td>{{ result.proportional_percentage|floatformat:2 }}%</td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+        <div class="mt-5">
+            <div class="accordion" id="proportionalResultsAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingProportional">
+                        <button class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#collapseProportional"
+                                aria-expanded="false"
+                                aria-controls="collapseProportional">View Proportional Voting Results</button>
+                    </h2>
+                    <div id="collapseProportional"
+                         class="accordion-collapse collapse"
+                         aria-labelledby="headingProportional"
+                         data-bs-parent="#proportionalResultsAccordion">
+                        <div class="accordion-body">
+                            <p>
+                                When electing multiple candidates to a board or committee <a href="https://en.wikipedia.org/wiki/Sequential_proportional_approval_voting">Proportional Approval Voting</a>
+                                ensures that no single voting group dominates the outcome, promoting fair representation and reflecting the diverse preferences of all voters.
+                            </p>
+                            <!-- Slider to pick the number of seats -->
+                            <label for="seatsSlider" class="form-label mt-3">
+                                Number of seats: <span id="seatsValue">5</span>
+                            </label>
+                            <input type="range"
+                                   class="form-range"
+                                   min="1"
+                                   max="100"
+                                   value="5"
+                                   id="seatsSlider" />
+                            <!-- Chart.js Pie Chart -->
+                            <canvas id="spavChart"
+                                    class="my-4"
+                                    style="max-width: 600px;
+                                           height: 400px;
+                                           margin: 20px auto"></canvas>
+                            <!-- Dynamic winners list -->
+                            <div id="winnersList"></div>
+                            <!-- SPAV Debug Log -->
+                            <h3 class="mt-4">Allocation Steps</h3>
+                            <div id="allocationLog"
+                                 style="white-space: pre;
+                                        background: #f8f9fa;
+                                        border: 1px solid #ddd;
+                                        padding: 1rem;
+                                        max-height: 300px;
+                                        overflow:auto">
+                                <!-- The SPAV debug log text will appear here -->
                             </div>
+                            <!-- Votes Table for debugging (optional) -->
+                            <h3 class="mt-5">Cast Vote Record</h3>
+                            <div id="votesTable"></div>
                         </div>
                     </div>
                 </div>
             </div>
-        {% endif %}
-        <!-- Back to Poll Button -->
-        <div class="text-center mt-4">
-            {% if 'invitation' in request.META.HTTP_REFERER %}
-                <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-primary">Back to poll</a>
-            {% else %}
-                <a href="{% url 'detail' poll.id %}" class="btn btn-primary">Back to poll</a>
-            {% endif %}
         </div>
     </div>
-    <!-- JavaScript for Pie Chart -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const ctx = document.getElementById('proportionalChart').getContext('2d');
-        const data = {
-            labels: [
-                {% for result in proportional_results %}"{{ result.choice_text }}",{% endfor %}
-            ],
-            datasets: [{
-                data: [
-                    {% for result in proportional_results %}{{ result.proportional_percentage|floatformat:2 }},{% endfor %}
-                ],
-                backgroundColor: [
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
-                ],
-                borderWidth: 1
-            }]
-        };
-        const config = {
-            type: 'pie',
-            data: data,
-        };
-        const proportionalChart = new Chart(ctx, config);
-    </script>
+</div>
+<!-- Load Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async function () {
+      const pollId = '{{ poll.id }}'
+      const seatsSlider = document.getElementById('seatsSlider')
+      const seatsValue = document.getElementById('seatsValue')
+      const winnersList = document.getElementById('winnersList')
+      const votesTableDiv = document.getElementById('votesTable')
+      const allocationLogDiv = document.getElementById('allocationLog')
+
+      let rawBallots = []
+      let choices = []
+
+      // 1. Fetch raw ballots + choices from /raw endpoint once
+      try {
+        const response = await fetch(`/polls/${pollId}/raw`)
+        const data = await response.json()
+        rawBallots = data.ballots // e.g. [[1,2], [2,3], ...]
+        choices = data.choices // e.g. [{ id:1, choice_text:'Party A'}, ...]
+      } catch (error) {
+        console.error('Error fetching raw data:', error)
+        return
+      }
+
+      // Build a debug table of ballots (optional)
+      buildVotesTable(rawBallots, choices)
+
+      // 2. Create Chart.js pie chart
+      const ctx = document.getElementById('spavChart').getContext('2d')
+      const spavChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: choices.map((c) => c.choice_text),
+          datasets: [
+            {
+              data: choices.map(() => 0),
+              backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)', 'rgba(255, 206, 86, 0.6)', 'rgba(54, 162, 235, 0.6)', 'rgba(153, 102, 255, 0.6)', 'rgba(255, 159, 64, 0.6)'],
+              borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 206, 86, 1)', 'rgba(54, 162, 235, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)'],
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      })
+
+
+      // 3. SPAV allowing multiple seats, now with a debug log
+      function spav(choices, ballots, seats) {
+        const debugLines = []
+
+        // Each choice gets a seatCount property
+        const results = choices.map((c) => ({
+          id: c.id,
+          text: c.choice_text,
+          seatCount: 0
+        }))
+
+        // For each ballot, track how many seats they've contributed to so far
+        const ballotWinnerCounts = new Array(ballots.length).fill(0)
+
+        for (let seat = 0; seat < seats; seat++) {
+          const seatNumber = seat + 1
+          debugLines.push(`\nSEAT #${seatNumber} Calculation:`)
+
+          // 3.1 Calculate total weight for each choice
+          const weights = new Map() // choiceId -> sum of ballot weights
+          results.forEach((r) => weights.set(r.id, 0))
+
+          ballots.forEach((approvedChoices, bIndex) => {
+            // Weighted by 1 / (1 + ballotWinnerCounts[bIndex])
+            const ballotWeight = 1 / (1 + ballotWinnerCounts[bIndex])
+
+            approvedChoices.forEach((choiceId) => {
+              // This is SPAV, so a choice can keep winning multiple seats
+              const prev = weights.get(choiceId) || 0
+              weights.set(choiceId, prev + ballotWeight)
+            })
+          })
+
+          // Log each choice's weight
+          for (const r of results) {
+            const w = weights.get(r.id).toFixed(3)
+            debugLines.push(`  "${r.text}" => weight: ${w}`)
+          }
+
+          // 3.2 Find the choice with the highest weight
+          let bestChoiceId = null
+          let bestWeight = -1
+          for (const [choiceId, totalWeight] of weights.entries()) {
+            if (totalWeight > bestWeight) {
+              bestWeight = totalWeight
+              bestChoiceId = choiceId
+            }
+          }
+
+          // 3.3 Allocate seat
+          if (bestChoiceId !== null) {
+            const winner = results.find((r) => r.id === bestChoiceId)
+            winner.seatCount += 1
+            debugLines.push(`  ==> Winner for seat #${seatNumber}: "${winner.text}" (ID=${winner.id}) with weight=${bestWeight.toFixed(3)}`)
+
+            // Increase 'winner count' for each ballot that approved the winner
+            ballots.forEach((approvedChoices, bIndex) => {
+              if (approvedChoices.includes(bestChoiceId)) {
+                ballotWinnerCounts[bIndex] += 1
+              }
+            })
+          } else {
+            debugLines.push(`  No candidates can win seat #${seatNumber} - stopping early.`)
+            break
+          }
+        }
+
+        return { results, debugLines }
+      }
+
+      // 4. Update chart + winners + debug log
+      function updateAllocation() {
+        const seats = parseInt(seatsSlider.value)
+        seatsValue.textContent = seats
+
+        // Compute SPAV results
+        const { results, debugLines } = spav(choices, rawBallots, seats)
+
+        // Update chart data
+        spavChart.data.labels = results.map((a) => a.text)
+        spavChart.data.datasets[0].data = results.map((a) => a.seatCount)
+        spavChart.update()
+
+        // Update winners list
+        const winners = results.filter((a) => a.seatCount > 0)
+        let html = '<h4>Winners</h4><ul>'
+        winners.forEach((w) => {
+          html += `<li>${w.text} (Seats: ${w.seatCount})</li>`
+        })
+        html += '</ul>'
+        winnersList.innerHTML = html
+
+        // Display debug log in the page
+        allocationLogDiv.textContent = debugLines.join('\n')
+      }
+
+      // Listen to slider
+      seatsSlider.addEventListener('input', updateAllocation)
+
+      // Initial run
+      updateAllocation()
+
+      // (Optional) Build a table for debugging the raw ballots
+      function buildVotesTable(ballots, allChoices) {
+        let html = '<table class="table table-striped">'
+        html += '<thead><tr><th>Ballot #</th><th>Approved IDs</th><th>Approved Text</th></tr></thead>'
+        html += '<tbody>'
+
+        ballots.forEach((approvedChoices, index) => {
+          const approvedTexts = approvedChoices.map((cid) => {
+            const c = allChoices.find((ch) => ch.id === cid)
+            return c ? c.choice_text : `Unknown(${cid})`
+          })
+          html += `<tr>
+            <td>${index + 1}</td>
+            <td>${approvedChoices.join(', ')}</td>
+            <td>${approvedTexts.join(', ')}</td>
+          </tr>`
+        })
+
+        html += '</tbody></table>'
+        votesTableDiv.innerHTML = html
+      }
+    })
+</script>
 {% endblock %}
