@@ -106,7 +106,7 @@ def index(request):
     poll_list = Poll.objects.filter(
         pub_date__lte=timezone.now(),
         is_private=False,
-    ).order_by("-pub_date")
+    ).order_by("-pub_date")[:100]
     return get_polls(request, poll_list, "index.html")
 
 

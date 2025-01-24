@@ -14,11 +14,16 @@
                     {% for poll in latest_poll_list %}
                         <div class="card mb-3">
                             <div class="card-body">
-                                <h2 class="card-title h5">
+                                <h2 class="card-title h5 d-flex justify-content-between align-items-center">
                                     <a href="{% url 'detail' poll.id %}">{{ poll.question }}</a>
+                                    <a href="{% url 'results' poll.id %}" class="btn btn-sm btn-primary">Results</a>
                                 </h2>
                                 <p class="card-text">
-                                    Published on {{ poll.pub_date|date:"N j, Y, P e" }} by {% firstof poll.user.username poll.user.first_name %}
+                                    <span>Published on: {{ poll.pub_date|date:"Y-m-d" }}</span>
+                                    <br>
+                                    <span>Authored by: {% firstof poll.user.username poll.user.first_name %}</span>
+                                    <br>
+                                    <span>{{ poll.total_ballots }} ballots, {{ poll.total_votes }} votes</span>
                                 </p>
                             </div>
                         </div>
