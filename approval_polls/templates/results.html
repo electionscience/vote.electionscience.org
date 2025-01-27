@@ -123,11 +123,15 @@
       // 1. Fetch raw ballots + choices from /raw endpoint once
       try {
         const response = await fetch(`/polls/${pollId}/raw`)
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`))
+        }
         const data = await response.json()
         rawBallots = data.ballots // e.g. [[1,2], [2,3], ...]
         choices = data.choices // e.g. [{ id:1, choice_text:'Party A'}, ...]
       } catch (error) {
-        console.error('Error fetching raw data:', error)
+        console.error('Error fetching raw data:', error);
+        allocationLogDiv.textContent = 'Error loading ballot data. Please try refreshing the page.'
         return
       }
 
@@ -230,22 +234,41 @@
         return { results, debugLines }
       }
 
-      const spavCache = new Map();
+      class SPAVCache {
+        constructor(maxSize = 100) {
+          this.cache = new Map()
+          this.maxSize = maxSize
+        }
 
+        get(seats) {
+          return this.cache.get(seats)
+        }
+
+        set(seats, value) {
+          if (this.cache.size >= this.maxSize) {
+            // Remove oldest entry
+            const firstKey = this.cache.keys().next().value
+            this.cache.delete(firstKey)
+          }
+          this.cache.set(seats, value)
+        }
+      }
+
+      const spavCache = new SPAVCache(100)
       // 4. Update chart + winners + debug log
       function updateAllocation() {
         const seats = parseInt(seatsSlider.value);
         seatsValue.textContent = seats;
 
         // 1) Check if we have a cached result
-        let cached = spavCache[seats]; // or spavCache.get(seats) if using a Map
+        let cached = spavCache.get(seats); // or spavCache.get(seats) if using a Map
 
         if (!cached) {
           // 2) Not in cache; compute
           const { results, debugLines } = spav(choices, rawBallots, seats);
           // 3) Store it
           cached = { results, debugLines };
-          spavCache[seats] = cached; // or spavCache.set(seats, cached)
+          spavCache.set(seats, cached); // or spavCache.set(seats, cached)
         }
 
         // 4) Use the cached results
