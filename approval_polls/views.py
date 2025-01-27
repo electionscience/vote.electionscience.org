@@ -343,6 +343,23 @@ class ResultsView(generic.DetailView):
 
 def raw_ballots(request, poll_id):
     poll = get_object_or_404(Poll, pk=poll_id, pub_date__lte=timezone.now())
+    # Check if the poll is private
+    if poll.is_private:
+        if not request.user.is_authenticated:
+            return JsonResponse({"error": "Authentication required"}, status=401)
+        if request.user != poll.user:
+            return JsonResponse({"error": "Access denied"}, status=403)
+    # Check for polls with invitation-only access (vtype=3)
+    if poll.vtype == 3:
+        if not request.user.is_authenticated:
+            return JsonResponse({"error": "Authentication required"}, status=401)
+        if request.user != poll.user:
+            invitations = VoteInvitation.objects.filter(
+                email=request.user.email, poll_id=poll.id
+            )
+
+            if not invitations:
+                return JsonResponse({"error": "Access denied"}, status=403)
 
     ballots = poll.ballot_set.prefetch_related("vote_set")
     raw_ballots_data = []
