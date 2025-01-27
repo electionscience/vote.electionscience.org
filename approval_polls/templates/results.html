@@ -65,7 +65,7 @@
                         <div class="accordion-body">
                             <p>
                                 When electing multiple candidates to a board or committee <a href="https://en.wikipedia.org/wiki/Sequential_proportional_approval_voting">Proportional Approval Voting</a>
-                                ensures that no single voting group dominates the outcome, promoting fair representation and reflecting the diverse preferences of all voters.
+                                ensures that no single voting group dominates the outcome, promoting fair representation and reflecting the diverse preferences of all voters. In scenarios where there are more seats than choices available and where each choice represents a party—this method can allow a popular party to be allocated multiple seats proportionally, mirroring the party’s share of overall support.
                             </p>
                             <!-- Slider to pick the number of seats -->
                             <label for="seatsSlider" class="form-label mt-3">
@@ -196,7 +196,7 @@
           // Log each choice's weight
           for (const r of results) {
             const w = weights.get(r.id).toFixed(3)
-            debugLines.push(`  "${r.text}" => weight: ${w}`)
+            debugLines.push(`  "${r.text}" => sum weighted votes: ${w}`)
           }
 
           // 3.2 Find the choice with the highest weight
@@ -213,7 +213,7 @@
           if (bestChoiceId !== null) {
             const winner = results.find((r) => r.id === bestChoiceId)
             winner.seatCount += 1
-            debugLines.push(`  ==> Winner for seat #${seatNumber}: "${winner.text}" (ID=${winner.id}) with weight=${bestWeight.toFixed(3)}`)
+            debugLines.push(`  ==> Winner for seat #${seatNumber}: "${winner.text}" (ID=${winner.id}) with ${bestWeight.toFixed(3)} votes`)
 
             // Increase 'winner count' for each ballot that approved the winner
             ballots.forEach((approvedChoices, bIndex) => {
@@ -230,30 +230,43 @@
         return { results, debugLines }
       }
 
+      const spavCache = new Map();
+
       // 4. Update chart + winners + debug log
       function updateAllocation() {
-        const seats = parseInt(seatsSlider.value)
-        seatsValue.textContent = seats
+        const seats = parseInt(seatsSlider.value);
+        seatsValue.textContent = seats;
 
-        // Compute SPAV results
-        const { results, debugLines } = spav(choices, rawBallots, seats)
+        // 1) Check if we have a cached result
+        let cached = spavCache[seats]; // or spavCache.get(seats) if using a Map
 
-        // Update chart data
-        spavChart.data.labels = results.map((a) => a.text)
-        spavChart.data.datasets[0].data = results.map((a) => a.seatCount)
-        spavChart.update()
+        if (!cached) {
+          // 2) Not in cache; compute
+          const { results, debugLines } = spav(choices, rawBallots, seats);
+          // 3) Store it
+          cached = { results, debugLines };
+          spavCache[seats] = cached; // or spavCache.set(seats, cached)
+        }
+
+        // 4) Use the cached results
+        const { results, debugLines } = cached;
+
+        // Now update chart data
+        spavChart.data.labels = results.map(a => a.text);
+        spavChart.data.datasets[0].data = results.map(a => a.seatCount);
+        spavChart.update();
 
         // Update winners list
-        const winners = results.filter((a) => a.seatCount > 0)
-        let html = '<h4>Winners</h4><ul>'
+        const winners = results.filter(a => a.seatCount > 0);
+        let html = '<h4>Winners</h4><ul>';
         winners.forEach((w) => {
-          html += `<li>${w.text} (Seats: ${w.seatCount})</li>`
-        })
-        html += '</ul>'
-        winnersList.innerHTML = html
+          html += `<li>${w.text} (Seats: ${w.seatCount})</li>`;
+        });
+        html += '</ul>';
+        winnersList.innerHTML = html;
 
         // Display debug log in the page
-        allocationLogDiv.textContent = debugLines.join('\n')
+        allocationLogDiv.textContent = debugLines.join('\n');
       }
 
       // Listen to slider
