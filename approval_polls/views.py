@@ -4,7 +4,6 @@ import re
 
 import structlog
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -17,89 +16,9 @@ from django.utils.decorators import method_decorator
 from django.views import generic
 from django.views.decorators.http import require_http_methods
 
-from approval_polls.models import (
-    Ballot,
-    Poll,
-    PollTag,
-    Subscription,
-    Vote,
-    VoteInvitation,
-)
-
-from .forms import ManageSubscriptionsForm, NewUsernameForm
+from approval_polls.models import Ballot, Poll, PollTag, Vote, VoteInvitation
 
 logger = structlog.get_logger(__name__)
-
-
-@login_required
-def changeUsername(request):
-    if request.method == "POST":
-        form = NewUsernameForm(request.POST)
-
-        if form.is_valid():
-            newusername = form.cleaned_data["new_username"]
-            owner = request.user
-            owner.username = newusername
-            owner.save()
-            return HttpResponseRedirect("/accounts/username/change/done/")
-    else:
-        form = NewUsernameForm()
-
-    return render(request, "registration/username_change_form.html", {"form": form})
-
-
-@login_required
-def changeUsernameDone(request):
-    return render(
-        request,
-        "registration/username_change_done.html",
-        {"new_username": request.user},
-    )
-
-
-@login_required
-def manageSubscriptions(request):
-    current_user = request.user
-    if request.method == "POST":
-        form = ManageSubscriptionsForm(request.POST)
-        if form.is_valid():
-            zipcode = form.cleaned_data.get("zipcode")
-            is_subscribed = form.cleaned_data.get("newslettercheckbox")
-            if current_user.subscription_set.count() > 0:
-                if not is_subscribed:
-                    current_user.subscription_set.first().delete()
-            else:
-                subscr = Subscription(user=current_user, zipcode=zipcode)
-                subscr.save()
-
-            return HttpResponseRedirect("/accounts/subscription/change/done/")
-        else:
-            is_subscribed = False
-    else:
-        if current_user.subscription_set.count() > 0:
-            subscr = current_user.subscription_set.first()
-            form = ManageSubscriptionsForm(
-                initial={"user": request.user, "zipcode": subscr.zipcode}
-            )
-            is_subscribed = True
-        else:
-            form = ManageSubscriptionsForm()
-            is_subscribed = False
-
-    return render(
-        request,
-        "registration/subscription_preferences.html",
-        {"form": form, "boxchecked": is_subscribed},
-    )
-
-
-@login_required
-def manageSubscriptionsDone(request):
-    return render(
-        request,
-        "registration/subscription_change_done.html",
-        {"new_username": request.user},
-    )
 
 
 def index(request):
@@ -127,9 +46,9 @@ def my_polls(request):
 
 
 def tagged_polls(request, tag):
-    t = PollTag.objects.get(tag_text=tag.lower())
+    t = get_object_or_404(PollTag, tag_text=tag.lower())
     poll_list = t.polls.all()
-    return get_polls(request, poll_list, "index.html", tag=t)
+    return get_polls(request, poll_list, "index.html", tag=t.tag_text)
 
 
 @login_required
@@ -591,25 +510,24 @@ def vote(request, poll_id):
 
 
 def handle_write_ins(ballot, poll, request):
-    for key, value in list(request.POST.items()):
-        if key + "txt" in request.POST:
-            choice_txt = request.POST[key + "txt"].strip()
-            if choice_txt:
-                choice = poll.choice_set.filter(choice_text=choice_txt)
-                if not choice:
-                    if "linkurl-" + key in request.POST:
-                        choicelink_txt = request.POST["linkurl-" + key].strip()
-                        if choicelink_txt:
-                            choice = poll.choice_set.create(
-                                choice_text=choice_txt,
-                                choice_link=choicelink_txt,
-                            )
-                        else:
-                            choice = poll.choice_set.create(choice_text=choice_txt)
-                    ballot_exist = ballot.vote_set.filter(choice=choice)
-                    if not ballot_exist:
-                        ballot.vote_set.create(choice=choice)
-                        ballot.save()
+    for key, value in request.POST.items():
+        choice_txt = request.POST.get(f"{key}txt", "").strip()
+        if not choice_txt:
+            continue
+
+        choice, created = poll.choice_set.get_or_create(
+            choice_text=choice_txt, defaults={}
+        )
+
+        if created:
+            choicelink_txt = request.POST.get(f"linkurl-{key}", "").strip()
+            if choicelink_txt:
+                choice.choice_link = choicelink_txt
+                choice.save()
+
+        if not ballot.vote_set.filter(choice=choice).exists():
+            ballot.vote_set.create(choice=choice)
+            ballot.save()
 
 
 def embed_instructions(request, poll_id):
@@ -744,190 +662,3 @@ class CreateView(generic.View):
                 p.send_vote_invitations(request.POST["token-emails"])
 
             return HttpResponseRedirect(reverse("embed_instructions", args=(p.id,)))
-
-
-# class EditView(generic.View):
-#     @method_decorator(login_required)
-#     def get(self, request, *args, **kwargs):
-#         try:
-#             poll = Poll.objects.get(id=kwargs["poll_id"])
-#         except Poll.DoesNotExist:
-#             raise Http404("Poll does not exist")
-
-#         if request.user != poll.user and not request.user.is_staff:
-#             raise PermissionDenied
-
-#         choices = Choice.objects.filter(poll=kwargs["poll_id"])
-#         # convert closedatetime to localtime.
-#         if poll.close_date:
-#             closedatetime = timezone.localtime(poll.close_date)
-#         return render(
-#             request,
-#             "edit.html",
-#             {
-#                 "poll": poll,
-#                 "choices": choices,
-#                 "closedatetime": (
-#                     closedatetime.strftime("%Y/%m/%d %H:%M") if poll.close_date else ""
-#                 ),
-#                 "can_edit_poll": poll.can_edit(),
-#                 "choices_count": Choice.objects.last().id,
-#                 "blank_choices": [],
-#                 "choice_blank_error": False,
-#                 "existing_choice_texts": {"new": {}, "existing": {}},
-#                 "existing_choice_links": {"new": {}, "existing": {}},
-#                 "invited_emails": ",".join([str(r) for r in poll.invited_emails()]),
-#                 "all_tags": poll.all_tags(),
-#             },
-#         )
-
-#     @method_decorator(login_required)
-#     def post(self, request, *args, **kwargs):
-#         existing_choice_texts = {}
-#         existing_choice_links = {}
-#         tags_to_add = []
-#         tags_to_delete = []
-#         poll = Poll.objects.get(id=kwargs["poll_id"])
-#         closedatetime = request.POST["close-datetime"]
-#         try:
-#             original_close_date = poll.close_date
-#             closedatetime = datetime.datetime.strptime(closedatetime, "%Y/%m/%d %H:%M")
-#             current_datetime = timezone.localtime(timezone.now())
-#             current_tzinfo = current_datetime.tzinfo
-#             closedatetime = closedatetime.replace(tzinfo=current_tzinfo)
-#             poll.close_date = closedatetime
-#         except ValueError:
-#             poll.close_date = original_close_date
-#         poll.show_close_date = "show-close-date" in request.POST
-#         poll.show_countdown = "show-countdown" in request.POST
-#         poll.is_private = "public-poll-visibility" not in request.POST
-#         poll.show_write_in = "show-write-in" in request.POST
-#         poll.show_lead_color = "show-lead-color" in request.POST
-#         poll.show_email_opt_in = "show-email-opt-in" in request.POST
-#         if "radio-poll-type" in request.POST:
-#             poll.vtype = int(request.POST["radio-poll-type"])
-#         poll.save()
-#         if "token-emails" in request.POST:
-#             poll.send_vote_invitations(request.POST["token-emails"])
-#         existing_tags_set = set(poll.all_tags().split(","))
-#         if len(request.POST["token-tags"]) > 0:
-#             request_tags_set = set(
-#                 [tag.strip() for tag in request.POST["token-tags"].split(",")]
-#             )
-#         else:
-#             request_tags_set = set([])
-#         tags_to_add = list(request_tags_set - existing_tags_set)
-#         tags_to_delete = list(existing_tags_set - request_tags_set)
-#         if len(tags_to_add) > 0:
-#             poll.add_tags(tags_to_add)
-#         if len(tags_to_delete) > 0:
-#             poll.delete_tags(tags_to_delete)
-#         if poll.can_edit():
-#             if poll.question != request.POST["question"]:
-#                 poll.question = request.POST["question"].strip()
-#             choices = Choice.objects.filter(poll=kwargs["poll_id"])
-#             request_choice_ids = []
-#             create_data_for_text = {}
-#             create_data_for_link = {}
-#             update_data_for_text = {}
-#             update_data_for_link = {}
-#             choice_blank = False
-#             for k in list(request.POST.keys()):
-#                 m = re.search(r"choice(\d+)", k)
-#                 if m and m.group(1):
-#                     id = m.group(1)
-#                     request_choice_ids.append(int(id))
-#             poll_choice_ids = [choice.id for choice in choices]
-#             request_choice_ids_set = set(request_choice_ids)
-#             poll_choice_ids_set = set(poll_choice_ids)
-#             choice_ids_for_create = request_choice_ids_set - poll_choice_ids_set
-#             choice_ids_for_delete = poll_choice_ids_set - request_choice_ids_set
-#             choice_ids_for_update = poll_choice_ids_set & request_choice_ids_set
-#             new_choice_len = len(choice_ids_for_create)
-#             update_choice_len = len(choice_ids_for_update)
-#             delete_choice_len = len(choice_ids_for_delete)
-#             if new_choice_len > 0:
-#                 choice_ids_for_create_dup = choice_ids_for_create.copy()
-#                 for i in choice_ids_for_create_dup:
-#                     create_text = request.POST["choice" + (str(i))]
-#                     if len(create_text) == 0:
-#                         choice_ids_for_create.remove(i)
-#                         continue
-#                     else:
-#                         create_data_for_text[i] = create_text
-#                         create_data_for_link[i] = request.POST[
-#                             "linkurl-choice" + (str(i))
-#                         ]
-#                 existing_choice_texts["new"] = create_data_for_text
-#                 existing_choice_links["new"] = create_data_for_link
-#             if update_choice_len > 0:
-#                 blank_choices = []
-#                 for i in choice_ids_for_update:
-#                     update_text = request.POST["choice" + (str(i))]
-#                     if len(update_text) == 0:
-#                         choice_blank = True
-#                         blank_choices.append(i)
-#                     else:
-#                         update_data_for_text[i] = update_text
-#                         update_data_for_link[i] = request.POST[
-#                             "linkurl-choice" + (str(i))
-#                         ]
-#                 existing_choice_texts["existing"] = update_data_for_text
-#                 existing_choice_links["existing"] = update_data_for_link
-#             # If any current poll choices are left blank by user
-#             if choice_blank:
-#                 ccount = Choice.objects.last().id + new_choice_len
-#                 return render(
-#                     request,
-#                     "edit.html",
-#                     {
-#                         "poll": poll,
-#                         "choices": choices,
-#                         "choice_blank_error": choice_blank,
-#                         "choices_count": ccount,
-#                         "can_edit_poll": poll.can_edit(),
-#                         "blank_choices": blank_choices,
-#                         "existing_choice_texts": existing_choice_texts,
-#                         "existing_choice_links": existing_choice_links,
-#                         "invited_emails": ",".join(
-#                             [str(r) for r in poll.invited_emails()]
-#                         ),
-#                         "all_tags": poll.all_tags(),
-#                     },
-#                 )
-
-#             # No current poll choices are blank, so go ahead and update, create, delete choices
-#             if new_choice_len > 0:
-#                 poll.add_choices(
-#                     choice_ids_for_create, create_data_for_text, create_data_for_link
-#                 )
-#             if update_choice_len > 0:
-#                 poll.update_choices(
-#                     choice_ids_for_update, update_data_for_text, update_data_for_link
-#                 )
-#             if delete_choice_len > 0:
-#                 poll.delete_choices(choice_ids_for_delete)
-
-#             poll.save()
-
-#         return HttpResponseRedirect(reverse("my_polls"))
-
-
-def logoutView(request):
-    logout(request)
-    return HttpResponseRedirect("/")
-
-
-def loginView(request):
-    context = {}
-    if request.method == "POST":
-        user = authenticate(
-            request,
-            username=request.POST["username"],
-            password=request.POST["password"],
-        )
-        if user:
-            login(request, user)
-            return HttpResponseRedirect("/")
-        context["invalid"] = True
-    return render(request, "registration/login.html", context)
