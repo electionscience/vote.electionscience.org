@@ -5,7 +5,6 @@ import re
 import structlog
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Count, Prefetch
 from django.http import HttpResponseRedirect, HttpResponseServerError, JsonResponse
@@ -16,7 +15,7 @@ from django.utils.decorators import method_decorator
 from django.views import generic
 from django.views.decorators.http import require_http_methods
 
-from approval_polls.models import Ballot, Poll, PollTag, Vote, VoteInvitation
+from approval_polls.models import Poll, PollTag, Vote, VoteInvitation
 
 logger = structlog.get_logger(__name__)
 
@@ -298,215 +297,64 @@ def raw_ballots(request, poll_id):
     )
 
 
+def create_ballot(poll, user=None, permit_email=False):
+    return poll.ballot_set.create(
+        timestamp=timezone.now(), user=user, permit_email=permit_email
+    )
+
+
+def update_ballot_votes(ballot, poll, request):
+    for counter, choice in enumerate(poll.choice_set.all()):
+        choice_key = f"choice{counter + 1}"
+        if choice_key in request.POST:
+            if not ballot.vote_set.filter(choice=choice).exists():
+                ballot.vote_set.create(choice=choice)
+        else:
+            ballot.vote_set.filter(choice=choice).delete()
+    handle_write_ins(ballot, poll, request)
+
+
+def handle_email_opt_in(request):
+    return "email_opt_in" in request.POST
+
+
 @require_http_methods(["POST"])
 def vote(request, poll_id):
     poll = get_object_or_404(Poll, pk=poll_id)
+    if poll.is_closed():
+        return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
 
-    # Get the type of vote method required for this poll.
-    # Type 1 - No restriction on the number of ballots.
-    # Type 2 - Only users with registered accounts are allowed to vote.
-    # Type 3 - Only users with the invitation email link (& poll owner) are allowed to vote.
     poll_vtype = poll.vtype
+    user = request.user if request.user.is_authenticated else None
+    ballot = None
 
     if poll_vtype == 1:
-        if not poll.is_closed():
-            ballot = poll.ballot_set.create(timestamp=timezone.now())
-
-            if "email_opt_in" and "email_address" in request.POST:
-                permit_email = True
-                email_address = request.POST["email_address"]
-                ballot.permit_email = permit_email
-                ballot.email = email_address
-                ballot.save()
-
-            for counter, choice in enumerate(poll.choice_set.all()):
-                if "choice" + str(counter + 1) in request.POST:
-                    ballot.vote_set.create(choice=choice)
-                    ballot.save()
-            for key, value in list(request.POST.items()):
-                if key + "txt" in request.POST:
-                    choice_txt = request.POST[key + "txt"].strip()
-                    if choice_txt:
-                        choice = poll.choice_set.filter(choice_text=choice_txt)
-                        if not choice:
-                            if "linkurl-" + key in request.POST:
-                                choicelink_txt = request.POST["linkurl-" + key].strip()
-                                if choicelink_txt:
-                                    choice = poll.choice_set.create(
-                                        choice_text=choice_txt,
-                                        choice_link=choicelink_txt,
-                                    )
-                                else:
-                                    choice = poll.choice_set.create(
-                                        choice_text=choice_txt
-                                    )
-                            ballot_exist = ballot.vote_set.filter(choice=choice)
-                            if not ballot_exist:
-                                ballot.vote_set.create(choice=choice)
-                                ballot.save()
-            poll.save()
-            response = HttpResponseRedirect(reverse("results", args=(poll.id,)))
-            value = request.COOKIES.get("polls_voted")
-            if value:
-                try:
-                    polls_voted_list = json.loads(value)
-                    polls_voted_list.append(poll.id)
-                except ValueError:
-                    polls_voted_list = [poll.id]
-            else:
-                polls_voted_list = [poll.id]
-
-            response.set_cookie("polls_voted", json.dumps(polls_voted_list))
-            return response
-        else:
-            return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
-    elif poll_vtype == 2:
-        # Type 2 poll - the user is required to login to vote.
-        if request.user.is_authenticated:
-            # Check if a poll is closed
-            if not poll.is_closed():
-                # Check if a ballot exists under the users name.
-                existing_ballots = Ballot.objects.filter(
-                    poll_id=poll_id, user_id=request.user
-                )
-                if not existing_ballots:
-                    # Check if email_opt_in is permitted.
-                    permit_email = False
-                    if "email_opt_in" in request.POST:
-                        permit_email = True
-
-                    # Add the user as the foreign key
-                    ballot = poll.ballot_set.create(
-                        timestamp=timezone.now(),
-                        user=request.user,
-                        permit_email=permit_email,
-                    )
-
-                    for counter, choice in enumerate(poll.choice_set.all()):
-                        if "choice" + str(counter + 1) in request.POST:
-                            ballot.vote_set.create(choice=choice)
-                            ballot.save()
-                    handle_write_ins(ballot, poll, request)
-                    poll.save()
-                    return HttpResponseRedirect(reverse("results", args=(poll.id,)))
-                else:
-                    ballot = poll.ballot_set.get(user=request.user)
-
-                    # Ensure that email opt in is updated as required.
-                    permit_email = False
-                    if "email_opt_in" in request.POST:
-                        permit_email = True
-
-                    if ballot.permit_email != permit_email:
-                        ballot.permit_email = permit_email
-                        ballot.save()
-
-                    # Ensure that votes are updated if required.
-                    for counter, choice in enumerate(poll.choice_set.all()):
-                        if "choice" + str(counter + 1) in request.POST:
-                            ballot_exist = ballot.vote_set.filter(choice=choice)
-                            if not ballot_exist:
-                                ballot.vote_set.create(choice=choice)
-                                ballot.save()
-                        else:
-                            ballot_exist = ballot.vote_set.filter(choice=choice)
-                            if ballot_exist:
-                                ballot_exist.delete()
-                                ballot.save()
-                    # Ensure that choice options are updated if required.
-                    handle_write_ins(ballot, poll, request)
-                    poll.save()
-                    return HttpResponseRedirect(reverse("results", args=(poll.id,)))
-            else:
-                return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
-        else:
-            return HttpResponseRedirect(
-                reverse("account_login") + "?next=" + reverse("detail", args=(poll.id,))
-            )
+        ballot = create_ballot(poll, permit_email=handle_email_opt_in(request))
+    elif poll_vtype == 2 and user:
+        ballot, created = poll.ballot_set.get_or_create(
+            user=user, defaults={"permit_email": handle_email_opt_in(request)}
+        )
     elif poll_vtype == 3:
-        # Type 3 - Vote through the email invitation link.
-        invitations = []
-        auth_user = None
-        ballot = None
-
-        # Find the appropriate ballot and user
-        if "invitation_key" in request.POST and "invitation_email" in request.POST:
-            invitations = VoteInvitation.objects.filter(
-                key=request.POST["invitation_key"],
-                email=request.POST["invitation_email"],
-                poll_id=poll.id,
+        invitation_key = request.POST.get("invitation_key")
+        invitation_email = request.POST.get("invitation_email")
+        invitations = VoteInvitation.objects.filter(
+            key=invitation_key, email=invitation_email, poll_id=poll.id
+        )
+        if invitations.exists():
+            ballot = invitations.first().ballot
+        elif user:
+            ballot, created = poll.ballot_set.get_or_create(
+                user=user, defaults={"permit_email": handle_email_opt_in(request)}
             )
-            if invitations:
-                ballot = invitations[0].ballot
 
-            # Check for the same email for an existing user in the database.
-            users = User.objects.filter(email=request.POST["invitation_email"])
-            if users:
-                auth_user = users[0]
+    if ballot:
+        update_ballot_votes(ballot, poll, request)
+        poll.save()
+        return HttpResponseRedirect(reverse("results", args=(poll.id,)))
 
-        elif request.user.is_authenticated:
-            auth_user = request.user
-            invitations = VoteInvitation.objects.filter(
-                email=request.user.email,
-                poll_id=poll.id,
-            )
-            if invitations:
-                ballot = invitations[0].ballot
-            elif request.user == poll.user:
-                # The owner of this poll is allowed to vote by default
-                ballots = poll.ballot_set.filter(user=auth_user)
-                if ballots:
-                    ballot = ballots[0]
-
-        if invitations or request.user == poll.user:
-            if not poll.is_closed():
-                if ballot is None:
-                    # Check if email_opt_in is permitted.
-                    permit_email = False
-                    if "email_opt_in" in request.POST:
-                        permit_email = True
-
-                    ballot = poll.ballot_set.create(
-                        timestamp=timezone.now(),
-                        user=auth_user,
-                        permit_email=permit_email,
-                    )
-                    for counter, choice in enumerate(poll.choice_set.all()):
-                        if "choice" + str(counter + 1) in request.POST:
-                            ballot.vote_set.create(choice=choice)
-                            ballot.save()
-                else:
-                    # Ensure that email opt in is updated as required.
-                    permit_email = False
-                    if "email_opt_in" in request.POST:
-                        permit_email = True
-
-                    if ballot.permit_email != permit_email:
-                        ballot.permit_email = permit_email
-                        ballot.save()
-
-                    for counter, choice in enumerate(poll.choice_set.all()):
-                        if "choice" + str(counter + 1) in request.POST:
-                            ballot_exist = ballot.vote_set.filter(choice=choice)
-                            if not ballot_exist:
-                                ballot.vote_set.create(choice=choice)
-                                ballot.save()
-                        else:
-                            ballot_exist = ballot.vote_set.filter(choice=choice)
-                            if ballot_exist:
-                                ballot_exist.delete()
-                                ballot.save()
-                if poll.show_write_in:
-                    handle_write_ins(ballot, poll, request)
-                poll.save()
-                if invitations:
-                    invitations[0].ballot = ballot
-                    invitations[0].save()
-                return HttpResponseRedirect(reverse("results", args=(poll.id,)))
-            else:
-                return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
-        else:
-            return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
+    return HttpResponseRedirect(
+        reverse("account_login") + "?next=" + reverse("detail", args=(poll.id,))
+    )
 
 
 def handle_write_ins(ballot, poll, request):
