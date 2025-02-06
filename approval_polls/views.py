@@ -68,13 +68,6 @@ def my_info(request):
     )
 
 
-def set_user_timezone(request):
-    user_timezone = request.GET.get("timezone")
-    request.session["django_timezone"] = user_timezone
-    redirect_url = request.GET.get("current_path")
-    return HttpResponseRedirect(redirect_url)
-
-
 def get_polls(request, poll_list, render_page, tag: str = ""):
     paginator = Paginator(poll_list, 5)
     page = request.GET.get("page")

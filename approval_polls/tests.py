@@ -314,7 +314,7 @@ class PollCreateTests(TestCase):
         response = self.client.post("/create/", poll_data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "embed_instructions.html")
-        self.assertTrue("/1" in response.context["link"])
+        self.assertEqual("/1" in response.context["link"], True)
 
     def test_create_with_no_question(self):
         """

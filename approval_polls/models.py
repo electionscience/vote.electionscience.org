@@ -97,7 +97,7 @@ class Poll(models.Model):
     def add_tags(self, tags):
         for tagtext in tags:
             text = tagtext.strip().lower()
-            if text is not None or text != "":
+            if text is not None:
                 tag = PollTag.objects.filter(tag_text=text).first()
                 if tag is None:
                     tag = PollTag(tag_text=str(text.strip()))

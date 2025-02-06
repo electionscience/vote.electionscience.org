@@ -1,4 +1,4 @@
-FROM python:3.11.7
+FROM python:3.14.0a4
 
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -11,7 +11,7 @@ WORKDIR /code
 
 # Install Poetry
 # Note: Consider locking the Poetry version for consistent builds
-ENV POETRY_VERSION=1.7
+ENV POETRY_VERSION=1.8.4
 RUN pip install "poetry==$POETRY_VERSION" --no-cache-dir
 
 # Copy the project files into the working directory

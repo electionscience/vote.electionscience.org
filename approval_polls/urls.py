@@ -27,7 +27,6 @@ urlpatterns = [
     path("create/", views.CreateView.as_view(), name="create"),
     path("my-polls/", views.my_polls, name="my_polls"),
     path("my-info/", views.my_info, name="my_info"),
-    path("set-user-timezone/", views.set_user_timezone, name="set-user-timezone"),
     path("invitation/<int:pk>/", views.DetailView.as_view(), name="invitation"),
     path("tag/<path:tag>/", views.tagged_polls, name="tagged_polls"),
     path("all_tags/", views.all_tags, name="all_tags"),
