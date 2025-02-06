@@ -1,6 +1,6 @@
 version: 0.1
 cli:
-  version: 1.22.9
+  version: 1.22.10
 plugins:
   sources:
     - id: trunk
@@ -16,11 +16,11 @@ lint:
     - shellcheck@0.10.0
     - shfmt@3.6.0
     - bandit@1.8.2
-    - checkov@3.2.361
+    - checkov@3.2.367
     - osv-scanner@1.9.2
     - terrascan@1.19.1
-    - trivy@0.59.0
-    - trufflehog@3.88.4
+    - trivy@0.59.1
+    - trufflehog@3.88.5
     - djlint@1.36.4
     - dotenv-linter@3.3.0
     - ruff@0.9.4

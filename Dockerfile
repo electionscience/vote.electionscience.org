@@ -24,7 +24,7 @@ ENV POETRY_VIRTUALENVS_CREATE=false
 ENV POETRY_NO_INTERACTION=1
 
 # Install runtime dependencies using Poetry
-RUN poetry install --no-dev --no-root
+RUN poetry install --only main --no-root
 
 # Copy the rest of the project files into the working directory
 COPY . /code/

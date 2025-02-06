@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{ include = "approval_polls" }]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.13.1"
 django = "^5"
 pytz = "^2023.4"
 django-extensions = "^3.2.3"
