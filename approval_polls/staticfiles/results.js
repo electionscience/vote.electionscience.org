@@ -31,8 +31,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   buildVotesTable(rawBallots, choices);
 
   // 2. Create Chart.js pie chart
-  const ctx = document.getElementById("spavChart").getContext("2d");
-  const spavChart = new Chart(ctx, {
+  const ctx = document.getElementById("pavChart").getContext("2d");
+  const pavChart = new Chart(ctx, {
     type: "pie",
     data: {
       labels: choices.map((c) => c.choice_text),
@@ -143,6 +143,38 @@ document.addEventListener("DOMContentLoaded", async function () {
     return { results, debugLines };
   }
 
+  function pav(choices, ballots, seats) {
+    const results = choices.map((c) => ({
+      id: c.id,
+      text: c.choice_text,
+      seatCount: 0,
+    }));
+    const weights = Array(ballots.length).fill(1);
+
+    for (let seat = 0; seat < seats; seat++) {
+      const scores = new Map(choices.map((c) => [c.id, 0]));
+
+      ballots.forEach((approvedChoices, i) => {
+        approvedChoices.forEach((choiceId) => {
+          scores.set(choiceId, scores.get(choiceId) + weights[i]);
+        });
+      });
+
+      const winnerId = [...scores.entries()].reduce((a, b) =>
+        b[1] > a[1] ? b : a,
+      )[0];
+      const winner = results.find((r) => r.id === winnerId);
+      winner.seatCount++;
+
+      ballots.forEach((approvedChoices, i) => {
+        if (approvedChoices.includes(winnerId)) {
+          weights[i] /= winner.seatCount + 1;
+        }
+      });
+    }
+    return results;
+  }
+
   class SPAVCache {
     constructor(maxSize = 100) {
       this.cache = new Map();
@@ -163,70 +195,39 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   }
 
-  const spavCache = new SPAVCache(100);
-
-  // 4. Update chart + winners + debug log
   function updateAllocation() {
     const seats = parseInt(seatsSlider.value);
     seatsValue.textContent = seats;
+    const results = pav(choices, rawBallots, seats);
 
-    // 1) Check if we have a cached result
-    let cached = spavCache.get(seats); // or spavCache.get(seats) if using a Map
+    pavChart.data.labels = results.map((a) => a.text);
+    pavChart.data.datasets[0].data = results.map((a) => a.seatCount);
+    pavChart.update();
 
-    if (!cached) {
-      // 2) Not in cache; compute
-      const { results, debugLines } = spav(choices, rawBallots, seats);
-      // 3) Store it
-      cached = { results, debugLines };
-      spavCache.set(seats, cached); // or spavCache.set(seats, cached)
-    }
-
-    // 4) Use the cached results
-    const { results, debugLines } = cached;
-
-    // Now update chart data
-    spavChart.data.labels = results.map((a) => a.text);
-    spavChart.data.datasets[0].data = results.map((a) => a.seatCount);
-    spavChart.update();
-
-    // Update winners list
-    const winners = results.filter((a) => a.seatCount > 0);
     let html = "<h4>Winners</h4><ul>";
-    winners.forEach((w) => {
-      html += `<li>${w.text} (Seats: ${w.seatCount})</li>`;
-    });
+    results
+      .filter((a) => a.seatCount > 0)
+      .forEach((w) => {
+        html += `<li>${w.text} (Seats: ${w.seatCount})</li>`;
+      });
     html += "</ul>";
     winnersList.innerHTML = html;
-
-    // Display debug log in the page
-    allocationLogDiv.textContent = debugLines.join("\n");
   }
 
-  // Listen to slider
   seatsSlider.addEventListener("input", updateAllocation);
-
-  // Initial run
   updateAllocation();
 
-  // (Optional) Build a table for debugging the raw ballots
   function buildVotesTable(ballots, allChoices) {
     let html = '<table class="table table-striped">';
     html +=
-      "<thead><tr><th>Ballot #</th><th>Approved IDs</th><th>Approved Text</th></tr></thead>";
-    html += "<tbody>";
-
+      "<thead><tr><th>Ballot #</th><th>Approved IDs</th><th>Approved Text</th></tr></thead><tbody>";
     ballots.forEach((approvedChoices, index) => {
       const approvedTexts = approvedChoices.map((cid) => {
         const c = allChoices.find((ch) => ch.id === cid);
         return c ? c.choice_text : `Unknown(${cid})`;
       });
-      html += `<tr>
-        <td>${index + 1}</td>
-        <td>${approvedChoices.join(", ")}</td>
-        <td>${approvedTexts.join(", ")}</td>
-      </tr>`;
+      html += `<tr><td>${index + 1}</td><td>${approvedChoices.join(", ")}</td><td>${approvedTexts.join(", ")}</td></tr>`;
     });
-
     html += "</tbody></table>";
     votesTableDiv.innerHTML = html;
   }
