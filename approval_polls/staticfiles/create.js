@@ -15,16 +15,47 @@ $(function () {
       updateOptionNumbers();
     });
 
-    pollOptions.addButton.on("click", addChoiceField);
+    // Handle paste events on option inputs
+    pollOptions.container.on("paste", "input[type=text]", function (e) {
+      // Get the pasted content
+      const pastedData = e.originalEvent.clipboardData.getData("text");
+
+      // Check if the pasted content contains newlines
+      if (pastedData.includes("\n")) {
+        e.preventDefault(); // Prevent default paste
+
+        // Split the pasted content into lines
+        const lines = pastedData
+          .split("\n")
+          .map((line) => line.replace(/^[-•*⁃◦▪︎●■]+/, "").trim())
+          .filter((line) => line.length > 0);
+
+        // Set the first line in the current input
+        $(this).val(lines[0]);
+
+        // Create new options for the remaining lines
+        lines.slice(1).forEach((line) => {
+          addChoiceField(line);
+        });
+      }
+    });
+
+    pollOptions.addButton.on("click", () => addChoiceField());
   };
 
-  const addChoiceField = () => {
+  const addChoiceField = (value = "") => {
     lastId++;
     const newOption = `
       <div class="mb-3 poll-option">
         <label for="choice${lastId}" class="form-label">Option ${lastId}</label>
         <div class="input-group">
-          <input type="text" class="form-control" id="choice${lastId}" name="choice${lastId}" maxlength="100" placeholder="Option Name">
+          <input type="text"
+                 class="form-control"
+                 id="choice${lastId}"
+                 name="choice${lastId}"
+                 maxlength="100"
+                 placeholder="Option Name"
+                 value="${value}">
           <button class="btn btn-outline-primary remove-choice" type="button" title="Remove Choice">
             <i class="fa fa-times"></i>
           </button>
