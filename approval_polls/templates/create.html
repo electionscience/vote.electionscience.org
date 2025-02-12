@@ -29,7 +29,7 @@
                     </div>
                     <h2 class="card-title h5 mb-3">Options</h2>
                     <div id="poll-options">
-                        {% for i in 3|get_range %}
+                        {% for i in 2|get_range %}
                             <div class="mb-3 poll-option">
                                 <label for="choice{{ i }}" class="form-label">{{ i }}.</label>
                                 <div class="input-group">
@@ -115,15 +115,11 @@
                             <label class="form-check-label" for="showEmailOptIn">Display option to opt-in for email communication</label>
                         </div>
                     </div>
-                    <h3 class="h6 mb-3">Tags</h3>
+                    {% comment %} <h3 class="h6 mb-3">Tags</h3>
                     <div class="mb-3">
                         <label for="tokenTagField" class="form-label">Enter keywords (comma-separated):</label>
-                        <input type="text"
-                               class="form-control"
-                               id="tokenTagField"
-                               name="token-tags"
-                               placeholder="Enter keywords">
-                    </div>
+                        <input type="text" class="form-control" id="tokenTagField" name="token-tags" placeholder="Enter keywords">
+                    </div> {% endcomment %}
                 </div>
             </div>
             <div class="text-end">

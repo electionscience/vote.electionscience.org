@@ -15,6 +15,17 @@ $(function () {
       updateOptionNumbers();
     });
 
+    // Handle Enter key in option inputs
+    pollOptions.container.on("keydown", "input[type=text]", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault(); // Prevent form submission
+        const currentOption = $(this).closest(".poll-option");
+        addChoiceField(); // Add new option
+        // Focus the input in the newly added option
+        currentOption.next().find("input").focus();
+      }
+    });
+
     // Handle paste events on option inputs
     pollOptions.container.on("paste", "input[type=text]", function (e) {
       // Get the pasted content
@@ -47,14 +58,14 @@ $(function () {
     lastId++;
     const newOption = `
       <div class="mb-3 poll-option">
-        <label for="choice${lastId}" class="form-label">Option ${lastId}</label>
+        <label for="choice${lastId}" class="form-label">${lastId}.</label>
         <div class="input-group">
           <input type="text"
                  class="form-control"
                  id="choice${lastId}"
                  name="choice${lastId}"
                  maxlength="100"
-                 placeholder="Option Name"
+                 placeholder=""
                  value="${value}">
           <button class="btn btn-outline-primary remove-choice" type="button" title="Remove Choice">
             <i class="fa fa-times"></i>
