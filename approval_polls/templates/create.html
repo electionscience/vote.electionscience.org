@@ -31,14 +31,14 @@
                     <div id="poll-options">
                         {% for i in 3|get_range %}
                             <div class="mb-3 poll-option">
-                                <label for="choice{{ i }}" class="form-label">Option {{ i }}</label>
+                                <label for="choice{{ i }}" class="form-label">{{ i }}.</label>
                                 <div class="input-group">
                                     <input type="text"
                                            class="form-control {% if i == 1 and choice_error %}is-invalid{% endif %}"
                                            id="choice{{ i }}"
                                            name="choice{{ i }}"
                                            maxlength="100"
-                                           placeholder="Option Name">
+                                           placeholder="Write or paste options">
                                     <button class="btn btn-outline-primary remove-choice"
                                             type="button"
                                             title="Remove Choice">
