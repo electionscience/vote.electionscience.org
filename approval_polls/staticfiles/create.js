@@ -27,7 +27,7 @@ $(function () {
         // Split the pasted content into lines
         const lines = pastedData
           .split("\n")
-          .map((line) => line.replace(/^[-•*⁃◦▪︎●■]+/, "").trim())
+          .map((line) => line.replace(/^(-|•|\*|⁃|◦|▪︎|●|■)+/, "").trim())
           .filter((line) => line.length > 0);
 
         // Set the first line in the current input
