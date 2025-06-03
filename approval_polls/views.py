@@ -497,7 +497,7 @@ class CreateView(generic.View):
             for choice in choices:
                 p.choice_set.create(choice_text=choice[1], choice_link=choice[2])
 
-            if len(str(request.POST["token-tags"])):
+            if "token-tags" in request.POST and len(str(request.POST["token-tags"])):
                 p.add_tags(request.POST["token-tags"].split(","))
             if vtype == "3":
                 p.send_vote_invitations(request.POST["token-emails"])

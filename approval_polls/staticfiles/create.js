@@ -1,4 +1,12 @@
 $(function () {
+  // Email validation configuration
+  const emailValidation = {
+    regex:
+      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+    tokenField: $("#token-emails"),
+    errorElement: $("#email-error"),
+  };
+
   const pollOptions = {
     container: $("#poll-options"),
     addButton: $("#add-choice"),
@@ -91,16 +99,22 @@ $(function () {
   const initializeTokenFields = () => {
     const allTags = $("#allTags").length ? $("#allTags").val().split(",") : [];
 
-    emailValidation.tokenField
-      .on("tokenfield:createtoken", tokenize)
-      .on("tokenfield:createdtoken", validateEmailToken)
-      .on("tokenfield:removedtoken", validateTokenField)
-      .tokenfield();
+    // Only initialize email validation if the token-emails field exists
+    if (emailValidation.tokenField.length) {
+      emailValidation.tokenField
+        .on("tokenfield:createtoken", tokenize)
+        .on("tokenfield:createdtoken", validateEmailToken)
+        .on("tokenfield:removedtoken", validateTokenField)
+        .tokenfield();
+    }
 
-    $("#tokenTagField")
-      .on("tokenfield:createtoken", tokenize)
-      .tokenfield()
-      .tokenfield("setTokens", allTags);
+    // Only initialize tag field if it exists
+    if ($("#tokenTagField").length) {
+      $("#tokenTagField")
+        .on("tokenfield:createtoken", tokenize)
+        .tokenfield()
+        .tokenfield("setTokens", allTags);
+    }
   };
 
   const tokenize = (e) => {
@@ -118,14 +132,19 @@ $(function () {
   };
 
   const validateTokenField = () => {
-    const existingTokens = emailValidation.tokenField.tokenfield("getTokens");
-    const tokensValid = existingTokens.every((token) =>
-      emailValidation.regex.test(token.value),
-    );
+    // Only validate if the token field exists
+    if (emailValidation.tokenField.length) {
+      const existingTokens = emailValidation.tokenField.tokenfield("getTokens");
+      const tokensValid = existingTokens.every((token) =>
+        emailValidation.regex.test(token.value),
+      );
 
-    emailValidation.errorElement.toggle(
-      !tokensValid && existingTokens.length > 0,
-    );
+      if (emailValidation.errorElement.length) {
+        emailValidation.errorElement.toggle(
+          !tokensValid && existingTokens.length > 0,
+        );
+      }
+    }
   };
 
   const initializeEmailPollDisplay = () => {
