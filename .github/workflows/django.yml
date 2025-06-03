@@ -20,14 +20,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Install poetry
-        run: pipx install poetry
+      - name: Install UV
+        run: pipx install uv
       - uses: actions/setup-python@v5
         with:
           python-version: 3.13
-          cache: poetry
-      - run: poetry install
+          cache: pip
+      - name: Install dependencies
+        run: uv pip install -e .
       - name: Run Tests
         run: |
-          poetry run python manage.py compress
-          poetry run pytest
+          python manage.py compress
+          pytest

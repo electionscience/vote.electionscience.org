@@ -1,4 +1,4 @@
-FROM python:3.14.0a4
+FROM python:3.13.2
 
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -9,25 +9,14 @@ ENV PYTHONUNBUFFERED=1
 # Set the working directory in the container
 WORKDIR /code
 
-# Install Poetry
-# Note: Consider locking the Poetry version for consistent builds
-ENV POETRY_VERSION=1.8.4
-RUN pip install "poetry==$POETRY_VERSION" --no-cache-dir
+# Install UV for dependency management
+RUN pip install uv --no-cache-dir
 
-# Copy the project files into the working directory
-COPY pyproject.toml poetry.lock* /code/
-
-# Configure Poetry
-# - Do not create a virtual environment inside the Docker container
-# - Do not ask any interactive question (like the confirmation of package installation)
-ENV POETRY_VIRTUALENVS_CREATE=false
-ENV POETRY_NO_INTERACTION=1
-
-# Install runtime dependencies using Poetry
-RUN poetry install --only main --no-root
-
-# Copy the rest of the project files into the working directory
+# Copy all project files into the working directory
 COPY . /code/
+
+# Install dependencies using UV with --system flag
+RUN uv pip install --system -e .
 
 HEALTHCHECK CMD curl --fail http://localhost:8000/ || exit 1
 
