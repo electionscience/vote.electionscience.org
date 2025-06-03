@@ -31,12 +31,13 @@ open http://localhost:8000
 3. Install dependencies
 
    ```shell
-   brew install pyenv poetry
-   pyenv install 3.11.7
-   pyenv local 3.11.7
+   brew install pyenv uv
+   pyenv install 3.13.2
+   pyenv local 3.13.2
    pyenv init
-   poetry install
-   eval $(poetry env activate)
+   uv venv
+   source .venv/bin/activate
+   uv pip install -e .
    ```
 
 4. Before you run the Django server for the first time, you'll need to create the database tables:
