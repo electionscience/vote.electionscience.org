@@ -9,6 +9,7 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.crypto import get_random_string
+from django.utils.functional import cached_property
 
 
 class Poll(models.Model):
@@ -32,6 +33,7 @@ class Poll(models.Model):
     def total_ballots(self):
         return self.ballot_set.count()
 
+    @cached_property
     def total_votes(self):
         return Vote.objects.filter(choice__poll=self).count()
 
@@ -45,8 +47,11 @@ class Poll(models.Model):
         return self.total_ballots() == 0
 
     def add_choices(self, ids, text_data, link_data):
-        for n in ids:
-            self.choice_set.create(choice_text=text_data[n], choice_link=link_data[n])
+        choices = [
+            Choice(poll=self, choice_text=text_data[n], choice_link=link_data[n])
+            for n in ids
+        ]
+        Choice.objects.bulk_create(choices)
 
     def update_choices(self, ids, text_data, link_data):
         choices = Choice.objects.filter(id__in=ids)
@@ -85,14 +90,29 @@ class Poll(models.Model):
         return list(self.voteinvitation_set.values_list("email", flat=True))
 
     def add_tags(self, tags):
-        for tagtext in tags:
-            text = tagtext.strip().lower()
-            if text is not None:
-                tag = PollTag.objects.filter(tag_text=text).first()
-                if tag is None:
-                    tag = PollTag(tag_text=str(text.strip()))
-                    tag.save()
-                self.polltag_set.add(tag)
+        # Clean and filter tags
+        cleaned_tags = {tag.strip().lower() for tag in tags if tag.strip()}
+
+        # Get existing tags
+        existing_tags = {
+            tag.tag_text: tag
+            for tag in PollTag.objects.filter(tag_text__in=cleaned_tags)
+        }
+
+        # Create new tags in bulk
+        new_tags = [
+            PollTag(tag_text=tag) for tag in cleaned_tags if tag not in existing_tags
+        ]
+        if new_tags:
+            PollTag.objects.bulk_create(new_tags)
+            # Update existing_tags with newly created tags
+            new_tag_objects = PollTag.objects.filter(
+                tag_text__in=[tag.tag_text for tag in new_tags]
+            )
+            existing_tags.update({tag.tag_text: tag for tag in new_tag_objects})
+
+        # Add all tags to the poll
+        self.polltag_set.add(*[existing_tags[tag] for tag in cleaned_tags])
 
     def delete_tags(self, tags):
         for tagtext in tags:
@@ -127,9 +147,8 @@ class Choice(models.Model):
         return self.vote_set.count()
 
     def percentage(self):
-        if self.poll.total_ballots() == 0:
-            return 0
-        return self.votes() / self.poll.total_ballots()
+        total = self.poll.total_ballots()
+        return self.votes() / total if total > 0 else 0
 
     def __unicode__(self):
         return self.choice_text
@@ -231,20 +250,21 @@ class PollTag(models.Model):
 
     @classmethod
     def topTagsPercent(cls, count):
-        from django.db.models import Count, F, FloatField
-        from django.db.models.functions import Cast
+        from django.db.models import Count, F, FloatField, Sum, Window
+        from django.db.models.functions import Cast, PercentRank
 
-        # Get top tags with their poll counts
-        top_tags = cls.objects.annotate(poll_count=Count("polls")).order_by(
-            "-poll_count"
-        )[:count]
+        # Calculate total polls in a subquery
+        total_polls = cls.objects.aggregate(total=Sum("polls"))["total"] or 0
 
-        # Calculate total polls for percentage
-        total_polls = sum(tag.poll_count for tag in top_tags)
+        if total_polls == 0:
+            return {}
 
-        # Calculate percentages
-        return (
-            {tag.tag_text: (tag.poll_count / total_polls * 100) for tag in top_tags}
-            if total_polls > 0
-            else {}
+        # Get top tags with percentages calculated at the database level
+        return dict(
+            cls.objects.annotate(
+                poll_count=Count("polls"),
+                percentage=Cast(F("poll_count") * 100.0 / total_polls, FloatField()),
+            )
+            .order_by("-poll_count")[:count]
+            .values_list("tag_text", "percentage")
         )
