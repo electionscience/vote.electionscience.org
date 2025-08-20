@@ -95,7 +95,14 @@ class DetailView(generic.DetailView):
     template_name = "detail.html"
 
     def get_queryset(self):
-        return Poll.objects.filter(pub_date__lte=timezone.now())
+        return Poll.objects.filter(pub_date__lte=timezone.now()).prefetch_related(
+            Prefetch(
+                "ballot_set",
+                queryset=Ballot.objects.prefetch_related(
+                    Prefetch("vote_set", queryset=Vote.objects.select_related("choice"))
+                ),
+            )
+        )
 
     def get_context_data(self, **kwargs):
         context = super(DetailView, self).get_context_data(**kwargs)
@@ -272,7 +279,9 @@ def raw_ballots(request, poll_id):
             if not invitations:
                 return JsonResponse({"error": "Access denied"}, status=403)
 
-    ballots = poll.ballot_set.prefetch_related("vote_set")
+    ballots = poll.ballot_set.prefetch_related(
+        Prefetch("vote_set", queryset=Vote.objects.select_related("choice"))
+    )
     raw_ballots_data = []
     for ballot in ballots:
         approved_choice_ids = list(ballot.vote_set.values_list("choice_id", flat=True))

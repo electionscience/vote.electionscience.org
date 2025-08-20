@@ -33,17 +33,10 @@ class Poll(models.Model):
         return self.ballot_set.count()
 
     def total_votes(self):
-        v = 0
-        for c in self.choice_set.all():
-            v += c.votes()
-        return v
+        return Vote.objects.filter(choice__poll=self).count()
 
     def voters(self):
-        v = []
-        ballots = self.ballot_set.all()
-        for ballot in ballots:
-            v.append(ballot.user)
-        return v
+        return list(self.ballot_set.values_list("user", flat=True).distinct())
 
     def __unicode__(self):
         return self.question
@@ -56,43 +49,40 @@ class Poll(models.Model):
             self.choice_set.create(choice_text=text_data[n], choice_link=link_data[n])
 
     def update_choices(self, ids, text_data, link_data):
-        for u in ids:
-            c = Choice.objects.get(id=u)
-            setattr(c, "choice_text", text_data[u])
-            if not (c.choice_link is None and len(link_data[u]) == 0):
-                setattr(c, "choice_link", link_data[u])
-            c.save()
+        choices = Choice.objects.filter(id__in=ids)
+        for choice in choices:
+            choice.choice_text = text_data[choice.id]
+            if not (choice.choice_link is None and len(link_data[choice.id]) == 0):
+                choice.choice_link = link_data[choice.id]
+        Choice.objects.bulk_update(choices, ["choice_text", "choice_link"])
 
     def delete_choices(self, ids):
-        for d in ids:
-            cho_d = Choice.objects.get(id=d)
-            cho_d.delete()
-            """
-              Recommended by RelatedManager, but hasn't worked locally
-              self.choice_set.remove(cho_d)
-            """
+        Choice.objects.filter(id__in=ids, poll=self).delete()
 
     def send_vote_invitations(self, emails):
-        # Get all the email Ids to store in the DB.
-        email_list = []
-        for email in emails.split(","):
-            if re.match(r"([^@|\s]+@[^@]+\.[^@|\s]+)", email.strip()):
-                email_list.append(email.strip())
-            email_list = list(set(email_list))
+        # Get unique valid email addresses
+        email_list = {
+            email.strip()
+            for email in emails.split(",")
+            if re.match(r"([^@|\s]+@[^@]+\.[^@|\s]+)", email.strip())
+        }
 
-        # Add in the vote invitation info, if any.
-        for email in email_list:
-            vi = VoteInvitation(
-                email=email,
-                sent_date=timezone.now(),
-                poll=self,
-                key=VoteInvitation.generate_key(),
+        # Create all invitations at once
+        now = timezone.now()
+        invitations = [
+            VoteInvitation(
+                email=email, sent_date=now, poll=self, key=VoteInvitation.generate_key()
             )
-            vi.save()
-            vi.send_email()
+            for email in email_list
+        ]
+        created_invitations = VoteInvitation.objects.bulk_create(invitations)
+
+        # Send emails after creation
+        for invitation in created_invitations:
+            invitation.send_email()
 
     def invited_emails(self):
-        return [str(vi.email) for vi in self.voteinvitation_set.all()]
+        return list(self.voteinvitation_set.values_list("email", flat=True))
 
     def add_tags(self, tags):
         for tagtext in tags:
@@ -110,7 +100,19 @@ class Poll(models.Model):
             self.polltag_set.remove(tag)
 
     def all_tags(self):
-        return (",").join([str(t.tag_text) for t in self.polltag_set.all()])
+        from django.db.models import CharField, Value
+        from django.db.models.functions import Concat
+
+        return (
+            self.polltag_set.annotate(
+                str_tag_text=Cast("tag_text", CharField())
+            ).aggregate(
+                tags=Concat("str_tag_text", output_field=CharField(), separator=",")
+            )[
+                "tags"
+            ]
+            or ""
+        )
 
     def __str__(self):
         return self.question
@@ -229,10 +231,20 @@ class PollTag(models.Model):
 
     @classmethod
     def topTagsPercent(cls, count):
-        pollTags = cls.objects.all()
-        topTags = sorted(pollTags, key=lambda x: x.polls.count(), reverse=True)[:count]
-        sumTotalPolls = sum([t.polls.count() for t in topTags])
-        topTagsDict = {}
-        for t in topTags:
-            topTagsDict[t.tag_text] = float(t.polls.count()) / sumTotalPolls * 100
-        return topTagsDict
+        from django.db.models import Count, F, FloatField
+        from django.db.models.functions import Cast
+
+        # Get top tags with their poll counts
+        top_tags = cls.objects.annotate(poll_count=Count("polls")).order_by(
+            "-poll_count"
+        )[:count]
+
+        # Calculate total polls for percentage
+        total_polls = sum(tag.poll_count for tag in top_tags)
+
+        # Calculate percentages
+        return (
+            {tag.tag_text: (tag.poll_count / total_polls * 100) for tag in top_tags}
+            if total_polls > 0
+            else {}
+        )
