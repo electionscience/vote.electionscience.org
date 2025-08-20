@@ -6,6 +6,7 @@ import structlog
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db import transaction
 from django.db.models import Count, Prefetch
 from django.http import HttpResponseRedirect, HttpResponseServerError, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -15,16 +16,21 @@ from django.utils.decorators import method_decorator
 from django.views import generic
 from django.views.decorators.http import require_http_methods
 
-from approval_polls.models import Poll, PollTag, Vote, VoteInvitation
+from approval_polls.models import Ballot, Poll, PollTag, Vote, VoteInvitation
 
 logger = structlog.get_logger(__name__)
 
 
 def index(request):
-    poll_list = Poll.objects.filter(
-        pub_date__lte=timezone.now(),
-        is_private=False,
-    ).order_by("-pub_date")[:100]
+    poll_list = (
+        Poll.objects.filter(
+            pub_date__lte=timezone.now(),
+            is_private=False,
+        )
+        .select_related("user")
+        .prefetch_related("choice_set", "polltag_set")
+        .order_by("-pub_date")[:100]
+    )
     return get_polls(request, poll_list, "index.html")
 
 
@@ -38,15 +44,23 @@ def tag_cloud(request):
 
 @login_required
 def my_polls(request):
-    poll_list = Poll.objects.filter(
-        pub_date__lte=timezone.now(), user_id=request.user
-    ).order_by("-pub_date")
+    poll_list = (
+        Poll.objects.filter(pub_date__lte=timezone.now(), user_id=request.user)
+        .select_related("user")
+        .prefetch_related("choice_set", "polltag_set")
+        .order_by("-pub_date")
+    )
     return get_polls(request, poll_list, "my_polls.html")
 
 
 def tagged_polls(request, tag):
     t = get_object_or_404(PollTag, tag_text=tag.lower())
-    poll_list = t.polls.all()
+    poll_list = (
+        t.polls.filter(pub_date__lte=timezone.now(), is_private=False)
+        .select_related("user")
+        .prefetch_related("choice_set", "polltag_set")
+        .order_by("-pub_date")
+    )
     return get_polls(request, poll_list, "index.html", tag=t.tag_text)
 
 
@@ -181,13 +195,29 @@ class DetailView(generic.DetailView):
 def delete_poll(request, poll_id):
     logger.debug(f"Attempting to delete poll {poll_id}")
     try:
-        poll = get_object_or_404(Poll, id=poll_id, user=request.user)
-        logger.debug(f"Found poll: {poll}")
-        poll.delete()
-        messages.success(request, "Poll deleted successfully.")
+        with transaction.atomic():
+            poll = get_object_or_404(Poll, id=poll_id, user=request.user)
+            logger.debug(f"Found poll: {poll}")
+
+            # Delete related objects first to avoid potential cascade issues
+            poll.choice_set.all().delete()
+            poll.ballot_set.all().delete()
+            poll.voteinvitation_set.all().delete()
+            poll.polltag_set.clear()  # Remove tag associations without deleting tags
+
+            poll.delete()
+            messages.success(request, "Poll deleted successfully.")
+
         return redirect("my_polls")  # Redirect to the list of user's polls
+    except Poll.DoesNotExist:
+        logger.warning(f"Poll {poll_id} not found or user not authorized")
+        messages.error(
+            request, "Poll not found or you are not authorized to delete it."
+        )
+        return redirect("my_polls")
     except Exception as e:
         logger.error(f"Error deleting poll: {str(e)}")
+        messages.error(request, "An error occurred while deleting the poll.")
         return HttpResponseServerError(f"An error occurred: {str(e)}")
 
 
@@ -322,37 +352,81 @@ def handle_email_opt_in(request):
 
 @require_http_methods(["POST"])
 def vote(request, poll_id):
-    poll = get_object_or_404(Poll, pk=poll_id)
-    if poll.is_closed():
+    try:
+        with transaction.atomic():
+            poll = get_object_or_404(Poll, pk=poll_id)
+
+            # Check if poll is closed
+            if poll.is_closed():
+                messages.error(request, "This poll is closed.")
+                return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
+
+            # Check if poll is suspended
+            if poll.is_suspended:
+                messages.error(request, "This poll is currently suspended.")
+                return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
+
+            poll_vtype = poll.vtype
+            user = request.user if request.user.is_authenticated else None
+            ballot = None
+
+            # Handle different voting types
+            if poll_vtype == 1:
+                ballot = create_ballot(poll, permit_email=handle_email_opt_in(request))
+            elif poll_vtype == 2:
+                if not user:
+                    messages.error(
+                        request, "You must be logged in to vote in this poll."
+                    )
+                    return HttpResponseRedirect(
+                        reverse("account_login")
+                        + "?next="
+                        + reverse("detail", args=(poll.id,))
+                    )
+                ballot, created = poll.ballot_set.get_or_create(
+                    user=user, defaults={"permit_email": handle_email_opt_in(request)}
+                )
+                if not created:
+                    messages.warning(
+                        request,
+                        "You have already voted in this poll. Your vote will be updated.",
+                    )
+            elif poll_vtype == 3:
+                invitation_key = request.POST.get("invitation_key")
+                invitation_email = request.POST.get("invitation_email")
+
+                if not invitation_key or not invitation_email:
+                    messages.error(request, "Invalid invitation details provided.")
+                    return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
+
+                invitations = VoteInvitation.objects.filter(
+                    key=invitation_key, email=invitation_email, poll_id=poll.id
+                )
+                if invitations.exists():
+                    ballot = invitations.first().ballot
+                elif user:
+                    if user.email not in poll.invited_emails():
+                        messages.error(
+                            request, "You are not invited to vote in this poll."
+                        )
+                        return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
+                    ballot, created = poll.ballot_set.get_or_create(
+                        user=user,
+                        defaults={"permit_email": handle_email_opt_in(request)},
+                    )
+
+            if ballot:
+                update_ballot_votes(ballot, poll, request)
+                messages.success(request, "Your vote has been recorded successfully.")
+                return HttpResponseRedirect(reverse("results", args=(poll.id,)))
+            else:
+                messages.error(request, "Unable to record your vote. Please try again.")
+                return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
+
+    except Exception as e:
+        logger.error(f"Error processing vote: {str(e)}")
+        messages.error(request, "An error occurred while processing your vote.")
         return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
-
-    poll_vtype = poll.vtype
-    user = request.user if request.user.is_authenticated else None
-    ballot = None
-
-    if poll_vtype == 1:
-        ballot = create_ballot(poll, permit_email=handle_email_opt_in(request))
-    elif poll_vtype == 2 and user:
-        ballot, created = poll.ballot_set.get_or_create(
-            user=user, defaults={"permit_email": handle_email_opt_in(request)}
-        )
-    elif poll_vtype == 3:
-        invitation_key = request.POST.get("invitation_key")
-        invitation_email = request.POST.get("invitation_email")
-        invitations = VoteInvitation.objects.filter(
-            key=invitation_key, email=invitation_email, poll_id=poll.id
-        )
-        if invitations.exists():
-            ballot = invitations.first().ballot
-        elif user:
-            ballot, created = poll.ballot_set.get_or_create(
-                user=user, defaults={"permit_email": handle_email_opt_in(request)}
-            )
-
-    if ballot:
-        update_ballot_votes(ballot, poll, request)
-        poll.save()
-        return HttpResponseRedirect(reverse("results", args=(poll.id,)))
 
     return HttpResponseRedirect(
         reverse("account_login") + "?next=" + reverse("detail", args=(poll.id,))
@@ -360,24 +434,38 @@ def vote(request, poll_id):
 
 
 def handle_write_ins(ballot, poll, request):
-    for key, value in request.POST.items():
-        choice_txt = request.POST.get(f"{key}txt", "").strip()
-        if not choice_txt:
-            continue
+    with transaction.atomic():
+        for key, value in request.POST.items():
+            choice_txt = request.POST.get(f"{key}txt", "").strip()
+            if not choice_txt:
+                continue
 
-        choice, created = poll.choice_set.get_or_create(
-            choice_text=choice_txt, defaults={}
-        )
+            # Validate write-in text length
+            if len(choice_txt) > 200:  # Match model's max_length
+                logger.warning(f"Write-in text too long: {choice_txt[:50]}...")
+                continue
 
-        if created:
-            choicelink_txt = request.POST.get(f"linkurl-{key}", "").strip()
-            if choicelink_txt:
-                choice.choice_link = choicelink_txt
-                choice.save()
+            try:
+                # Use select_for_update to prevent race conditions
+                choice = (
+                    poll.choice_set.select_for_update()
+                    .filter(choice_text=choice_txt)
+                    .first()
+                )
 
-        if not ballot.vote_set.filter(choice=choice).exists():
-            ballot.vote_set.create(choice=choice)
-            ballot.save()
+                if not choice:
+                    choice = poll.choice_set.create(
+                        choice_text=choice_txt,
+                        choice_link=request.POST.get(f"linkurl-{key}", "").strip(),
+                    )
+
+                # Create vote if it doesn't exist
+                if not ballot.vote_set.filter(choice=choice).exists():
+                    ballot.vote_set.create(choice=choice)
+
+            except Exception as e:
+                logger.error(f"Error processing write-in vote: {str(e)}")
+                continue
 
 
 def embed_instructions(request, poll_id):
@@ -503,8 +591,14 @@ class CreateView(generic.View):
             )
             p.save()
 
-            for choice in choices:
-                p.choice_set.create(choice_text=choice[1], choice_link=choice[2])
+            # Bulk create choices
+            choice_objects = [
+                Poll.choice_set.field.model(
+                    poll=p, choice_text=choice[1], choice_link=choice[2]
+                )
+                for choice in choices
+            ]
+            Poll.choice_set.field.model.objects.bulk_create(choice_objects)
 
             if "token-tags" in request.POST and len(str(request.POST["token-tags"])):
                 p.add_tags(request.POST["token-tags"].split(","))

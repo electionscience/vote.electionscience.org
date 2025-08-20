@@ -73,7 +73,7 @@ open http://localhost:8000
    In fact, through a happy coincidence, it uses a poll application as an example.
    This project is heavily based on that tutorial.
 3. If you're new to git, as mentioned above, the [Pro Git](http://git-scm.com/book/en/v2) book is very useful.
-4. In order to contribute, please follow the fork-and-pull-request model as documented [here](https://help.github.com/articles/fork-a-repo/). Also, do check out the coding style guidelines outlined in the next section.
+4. In order to contribute, please follow [the fork-and-pull-request model](https://help.github.com/articles/fork-a-repo/). Also, do check out the coding style guidelines outlined in the next section.
 
 All contributions are welcome.
 
@@ -87,7 +87,7 @@ We use [Trunk](trunk.io) to enforce a consistent coding style. You can install i
 
    `python manage.py test`
 
-2. Apart from adding new test cases to cover new functionality, it is always a good practice to keep a check of the code coverage with the tool [`coverage`](https://pypi.python.org/pypi/coverage) to make sure that the code is still well tested. Read more about this [here](https://docs.djangoproject.com/en/1.8/topics/testing/advanced/#integration-with-coverage-py) !
+2. Apart from adding new test cases to cover new functionality, it is always a good practice to [keep a check of the code coverage](https://pypi.python.org/pypi/coverage) to make sure that the code is still [well tested](https://docs.djangoproject.com/en/1.8/topics/testing/advanced/#integration-with-coverage-py)!
 
 ## Deploying in production
 

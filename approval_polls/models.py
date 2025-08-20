@@ -120,8 +120,8 @@ class Poll(models.Model):
             self.polltag_set.remove(tag)
 
     def all_tags(self):
-        from django.db.models import CharField, Value
-        from django.db.models.functions import Concat
+        from django.db.models import CharField
+        from django.db.models.functions import Cast, Concat
 
         return (
             self.polltag_set.annotate(
@@ -250,8 +250,8 @@ class PollTag(models.Model):
 
     @classmethod
     def topTagsPercent(cls, count):
-        from django.db.models import Count, F, FloatField, Sum, Window
-        from django.db.models.functions import Cast, PercentRank
+        from django.db.models import Count, F, FloatField, Sum
+        from django.db.models.functions import Cast
 
         # Calculate total polls in a subquery
         total_polls = cls.objects.aggregate(total=Sum("polls"))["total"] or 0

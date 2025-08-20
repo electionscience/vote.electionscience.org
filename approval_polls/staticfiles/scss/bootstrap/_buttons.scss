@@ -63,8 +63,8 @@
     outline: 0;
     // Avoid using mixin so we can pass custom focus shadow properly
     @if $enable-shadows {
-      box-shadow: var(--#{$prefix}btn-box-shadow),
-        var(--#{$prefix}btn-focus-box-shadow);
+      box-shadow:
+        var(--#{$prefix}btn-box-shadow), var(--#{$prefix}btn-focus-box-shadow);
     } @else {
       box-shadow: var(--#{$prefix}btn-focus-box-shadow);
     }
@@ -75,8 +75,8 @@
     outline: 0;
     // Avoid using mixin so we can pass custom focus shadow properly
     @if $enable-shadows {
-      box-shadow: var(--#{$prefix}btn-box-shadow),
-        var(--#{$prefix}btn-focus-box-shadow);
+      box-shadow:
+        var(--#{$prefix}btn-box-shadow), var(--#{$prefix}btn-focus-box-shadow);
     } @else {
       box-shadow: var(--#{$prefix}btn-focus-box-shadow);
     }
@@ -97,7 +97,8 @@
     &:focus-visible {
       // Avoid using mixin so we can pass custom focus shadow properly
       @if $enable-shadows {
-        box-shadow: var(--#{$prefix}btn-active-shadow),
+        box-shadow:
+          var(--#{$prefix}btn-active-shadow),
           var(--#{$prefix}btn-focus-box-shadow);
       } @else {
         box-shadow: var(--#{$prefix}btn-focus-box-shadow);
@@ -108,7 +109,8 @@
   .btn-check:checked:focus-visible + & {
     // Avoid using mixin so we can pass custom focus shadow properly
     @if $enable-shadows {
-      box-shadow: var(--#{$prefix}btn-active-shadow),
+      box-shadow:
+        var(--#{$prefix}btn-active-shadow),
         var(--#{$prefix}btn-focus-box-shadow);
     } @else {
       box-shadow: var(--#{$prefix}btn-focus-box-shadow);
