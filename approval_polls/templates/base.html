@@ -128,8 +128,15 @@
                 crossorigin="anonymous"></script>
         <script>
             $(function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('[data-toggle="popover"]').popover();
+                // Initialize tooltips and popovers with Bootstrap 5 syntax
+                var tooltipElements = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+                tooltipElements.forEach(function(element) {
+                    new bootstrap.Tooltip(element);
+                });
+                var popoverElements = document.querySelectorAll('[data-bs-toggle="popover"]');
+                popoverElements.forEach(function(element) {
+                    new bootstrap.Popover(element);
+                });
             });
         </script>
         {% block extra_js %}

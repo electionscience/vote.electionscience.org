@@ -16,10 +16,10 @@ $(function () {
       "<p>This poll will be permanently deleted. " +
       "<button id='confirm-delete-" +
       pollId +
-      "' type='button' class='btn btn-danger btn-xs'>Delete</button> " +
+      "' type='button' class='btn btn-danger btn-sm'>Delete</button> " +
       "<button id='cancel-delete-" +
       pollId +
-      "' type='button' class='btn btn-primary btn-xs'>Cancel</button>" +
+      "' type='button' class='btn btn-primary btn-sm'>Cancel</button>" +
       "</p></div>";
 
     if ($("#alert" + pollId).length == 0) {
