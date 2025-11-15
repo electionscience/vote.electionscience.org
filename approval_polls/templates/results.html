@@ -34,7 +34,7 @@
                             <span class="text-success font-weight-bold"><i class="bi bi-arrow-up-circle-fill"></i></span>
                         {% endif %}
                     </p>
-                    <div class="progress" style="height: 25px;">
+                    <div class="progress progress-results">
                         <div class="progress-bar {% if choice in leading_choices %}bg-success{% endif %}"
                              role="progressbar"
                              style="width: {% widthratio choice.vote_count poll.total_ballots 100 %}%"
@@ -47,6 +47,146 @@
                 </div>
             {% endfor %}
         </div>
+        <!-- Cast Vote Record Analysis Sections -->
+        {% if voting_patterns.totalBallots >= 2 and choices_list|length >= 2 %}
+            <!-- Approval Distribution Section -->
+            <div class="mt-5 mb-5">
+                <h2 class="h4 mb-3">Approval Distribution</h2>
+                {% if approval_distribution_matrix %}
+                    <div class="table-responsive">
+                        <table class="table table-sm cvr-matrix-table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    {% if max_approvals > 0 %}
+                                        {% with range_val=max_approvals|add:1 %}
+                                            <th colspan="{{ max_approvals }}" class="cvr-cols-label text-center">Number of Candidates Approved</th>
+                                        {% endwith %}
+                                    {% endif %}
+                                </tr>
+                                <tr>
+                                    <th class="cvr-row-label">Candidate</th>
+                                    {% if max_approvals > 0 %}
+                                        {% with range_val=max_approvals|add:1 %}
+                                            {% for num in range_val|get_range %}<th class="cvr-col-label text-center">{{ num }}</th>{% endfor %}
+                                        {% endwith %}
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in approval_distribution_matrix %}
+                                    <tr {% if row.is_overall %}class="cvr-overall-separator"{% endif %}>
+                                        <td class="cvr-row-label">
+                                            {% if row.is_overall %}<strong>{% endif %}
+                                                {{ row.name }}
+                                                {% if row.is_overall %}</strong>{% endif %}
+                                            <div class="cvr-voter-count">({{ row.total_voters }} voters)</div>
+                                        </td>
+                                        {% for dist in row.distributions %}
+                                            {% if dist.count > 0 %}
+                                                <td class="cvr-entry" style="--percentage: {{ dist.percentage }};">{{ dist.percentage|floatformat:1 }}%</td>
+                                            {% else %}
+                                                <td class="cvr-entry">—</td>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+            <!-- Co-Approval Matrix Section -->
+            <div class="mt-5 mb-5">
+                <h2 class="h4 mb-3">Co-Approval Matrix</h2>
+                {% if co_approval_matrix %}
+                    <p class="text-muted small mb-3">
+                        Percentage of voters who approved the row candidate also approved the column candidate
+                    </p>
+                    <div class="table-responsive">
+                        <table class="table table-sm cvr-matrix-table">
+                            <thead>
+                                <tr>
+                                    <th class="cvr-row-label">Approved</th>
+                                    {% for choice_name in choices_list %}<th class="cvr-col-label text-center">{{ choice_name }}</th>{% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for choice_a in choices_list %}
+                                    <tr>
+                                        <td class="cvr-row-label">{{ choice_a }}</td>
+                                        {% for choice_b in choices_list %}
+                                            {% if choice_a == choice_b %}
+                                                <td class="cvr-entry">—</td>
+                                            {% else %}
+                                                {% with row_data=co_approval_matrix|get_hash_item:choice_a %}
+                                                    {% if row_data %}
+                                                        {% with co_data=row_data|get_hash_item:choice_b %}
+                                                            {% if co_data %}
+                                                                <td class="cvr-entry"
+                                                                    style="--frac: {{ co_data.coApprovalRate }};
+                                                                           --max-frac: {{ max_co_approval_rate }}">
+                                                                    {{ co_data.coApprovalRate|floatformat:1 }}%
+                                                                </td>
+                                                            {% else %}
+                                                                <td class="cvr-entry">—</td>
+                                                            {% endif %}
+                                                        {% endwith %}
+                                                    {% else %}
+                                                        <td class="cvr-entry">—</td>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+            <!-- Anyone But Analysis Section -->
+            <div class="mt-5 mb-5">
+                <h2 class="h4 mb-3">Anyone But Analysis</h2>
+                {% if anyone_but_sorted %}
+                    <p class="text-muted small mb-3">Candidates excluded by voters who approved all other candidates</p>
+                    {% if total_exclusions > 0 %}
+                        <div class="cvr-anyone-but-chart">
+                            {% for choice_name, count in anyone_but_sorted %}
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="cvr-candidate-name">{{ choice_name }}</span>
+                                        <span class="cvr-exclusion-rate">
+                                            {% widthratio count total_exclusions 100 as exclusion_rate %}
+                                            {{ exclusion_rate|floatformat:1 }}%
+                                        </span>
+                                    </div>
+                                    <div class="progress progress-anyone-but">
+                                        {% widthratio count total_exclusions 100 as exclusion_rate %}
+                                        <div class="progress-bar bg-success"
+                                             role="progressbar"
+                                             style="width: {{ exclusion_rate }}%"
+                                             aria-valuenow="{{ exclusion_rate }}"
+                                             aria-valuemin="0"
+                                             aria-valuemax="100">
+                                            <span class="small">{{ count }} exclusion{{ count|pluralize }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-muted small mt-1">
+                                        {% widthratio count voting_patterns.totalBallots 100 as overall_rate %}
+                                        {{ overall_rate|floatformat:1 }}% of all ballots
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No "Anyone But" voting patterns detected (no ballots with exactly N-1 approvals)</p>
+                    {% endif %}
+                {% else %}
+                    <p class="text-muted">No "Anyone But" voting patterns detected (no ballots with exactly N-1 approvals)</p>
+                {% endif %}
+            </div>
+        {% endif %}
         <!-- Proportional Voting Results Section -->
         <div class="mt-5">
             <div class="accordion" id="proportionalResultsAccordion">
@@ -79,22 +219,12 @@
                                    value="5"
                                    id="seatsSlider" />
                             <!-- Chart.js Pie Chart -->
-                            <canvas id="spavChart"
-                                    class="my-4"
-                                    style="max-width: 600px;
-                                           height: 400px;
-                                           margin: 20px auto"></canvas>
+                            <canvas id="spavChart" class="my-4 spav-chart"></canvas>
                             <!-- Dynamic winners list -->
                             <div id="winnersList"></div>
                             <!-- SPAV Debug Log -->
                             <h3 class="mt-4">Allocation Steps</h3>
-                            <div id="allocationLog"
-                                 style="white-space: pre;
-                                        background: #f8f9fa;
-                                        border: 1px solid #ddd;
-                                        padding: 1rem;
-                                        max-height: 300px;
-                                        overflow:auto">
+                            <div id="allocationLog" class="allocation-log">
                                 <!-- The SPAV debug log text will appear here -->
                             </div>
                             <!-- Votes Table for debugging (optional) -->

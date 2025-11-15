@@ -1,6 +1,6 @@
 // Custom variables
 $primary: #000000;
-$secondary: #ffffff;
+$secondary: #6c757d; // Gray for secondary buttons
 $success: #000000;
 $info: #f8f9fa;
 $warning: #aa4a44;
@@ -11,8 +11,8 @@ $dark: #000000;
 $body-color: #000000;
 $body-bg: #ffffff;
 
-$link-color: #000000;
-$link-hover-color: #404040;
+$link-color: #437527; // Green theme color for light mode
+$link-hover-color: #365a1f; // Darker green on hover
 
 $border-color: #000000;
 
@@ -29,6 +29,55 @@ body {
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
+}
+
+// Link styling for light mode - using green theme
+a {
+  color: $link-color;
+  text-decoration: underline;
+  text-decoration-color: rgba(67, 117, 39, 0.3);
+  text-underline-offset: 2px;
+  transition:
+    color 0.2s ease,
+    text-decoration-color 0.2s ease;
+
+  &:hover {
+    color: $link-hover-color;
+    text-decoration-color: rgba(54, 90, 31, 0.5);
+  }
+
+  &:visited {
+    color: #5a8a37; // Lighter green for visited links
+    text-decoration-color: rgba(90, 138, 55, 0.3);
+  }
+
+  &:focus {
+    outline: 2px solid $link-color;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  // Button links should not be underlined
+  &.btn,
+  &.btn-link {
+    text-decoration: none;
+  }
+}
+
+// Button styling - ensure outline-secondary is visible in light mode
+.btn-outline-secondary {
+  color: #6c757d;
+  border-color: #6c757d;
+
+  &:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: #ffffff;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.25);
+  }
 }
 
 // Navbar brand styling with logo
@@ -109,4 +158,592 @@ body {
   text-align: right;
   margin-top: 0.375rem;
   margin-bottom: 0;
+}
+
+// Cast Vote Record Analysis Tables
+.cvr-matrix-table {
+  font-size: 11px;
+  margin: 20px auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  width: auto;
+  min-width: 100%;
+
+  thead {
+    background-color: #f8f9fa;
+  }
+
+  th,
+  td {
+    border: 1px solid #dee2e6;
+    padding: 8px 12px;
+  }
+
+  .cvr-cols-label {
+    text-align: center;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 12px 8px;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+  }
+
+  .cvr-col-label {
+    vertical-align: bottom;
+    text-align: center;
+    font-weight: 600;
+    font-size: 11px;
+    padding: 12px 8px;
+    background-color: #f8f9fa;
+    white-space: nowrap;
+    min-width: 60px;
+  }
+
+  .cvr-row-label {
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    padding: 10px 12px;
+    background-color: #f8f9fa;
+    white-space: nowrap;
+    min-width: 150px;
+    max-width: 200px;
+  }
+
+  .cvr-voter-count {
+    font-size: 9px;
+    color: #6c757d;
+    margin-top: 4px;
+    font-weight: normal;
+  }
+
+  .cvr-entry {
+    min-width: 60px;
+    height: 50px;
+    font-size: 10px;
+    vertical-align: middle;
+    text-align: center;
+    color: #000;
+    font-weight: 500;
+    padding: 8px 4px;
+    // Light mode: 0% = light background (95%), 100% = theme green (40%)
+    background: hsl(99, 41%, calc(95% - var(--percentage, 0) * 0.55%));
+    transition: background-color 0.2s ease;
+  }
+
+  .cvr-entry:empty {
+    background: #f8f9fa;
+  }
+
+  tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+
+  .cvr-overall-separator {
+    border-top: 3px solid #000;
+    border-bottom: 3px solid #000;
+
+    td {
+      border-top: 3px solid #000;
+      border-bottom: 3px solid #000;
+      background-color: #fff;
+      font-weight: 600;
+    }
+
+    .cvr-row-label {
+      background-color: #fff;
+    }
+  }
+}
+
+// Co-approval matrix specific styling
+.cvr-matrix-table {
+  .cvr-entry[style*="--frac"] {
+    // Light mode: 0% = light background (95%), 100% = theme green (40%)
+    background: hsl(
+      99,
+      41%,
+      calc(95% - (var(--frac, 0) / var(--max-frac, 1)) * 55%)
+    );
+  }
+}
+
+// Anyone But Analysis Chart
+.cvr-anyone-but-chart {
+  max-width: 800px;
+  margin: 20px 0;
+
+  .cvr-candidate-name {
+    font-weight: 600;
+    font-size: 14px;
+    min-width: 150px;
+  }
+
+  .cvr-exclusion-rate {
+    font-weight: 600;
+    font-size: 14px;
+    color: #495057;
+  }
+
+  .progress {
+    height: 28px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+
+  .progress-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 12px;
+    color: #fff;
+    background-color: #437527;
+  }
+
+  .text-muted {
+    font-size: 12px;
+    margin-top: 4px;
+  }
+}
+
+// Section headers
+.mt-5.mb-5 h2 {
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+// Progress bar heights
+.progress-results {
+  height: 25px;
+}
+
+.progress-anyone-but {
+  height: 20px;
+}
+
+// Chart styling
+.spav-chart {
+  max-width: 600px;
+  height: 400px;
+  margin: 20px auto;
+}
+
+// Allocation log styling
+.allocation-log {
+  white-space: pre;
+  background: var(--allocation-log-bg);
+  border: 1px solid var(--allocation-log-border);
+  padding: 1rem;
+  max-height: 300px;
+  overflow: auto;
+  color: var(--allocation-log-text);
+}
+
+// Footer logo
+.footer-logo {
+  max-width: 200px;
+}
+
+// Tag cloud
+#tagcloud {
+  height: 25em;
+  width: 100%;
+}
+
+// Alert margin utility
+.alert-margin-top {
+  margin-top: 10px;
+}
+
+// CSS Variables for dark mode support
+:root {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --card-bg: #ffffff;
+  --card-border: #dee2e6;
+  --footer-bg: #f8f9fa;
+  --footer-text: #000000;
+  --progress-bg: #e9ecef;
+  --allocation-log-bg: #f8f9fa;
+  --allocation-log-border: #ddd;
+  --allocation-log-text: #000000;
+  --table-striped-bg: rgba(0, 0, 0, 0.02);
+  --border-color-light: #dee2e6;
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #1a1a1a;
+    --text-color: #e0e0e0;
+    --card-bg: #2d2d2d;
+    --card-border: #444444;
+    --footer-bg: #1a1a1a;
+    --footer-text: #e0e0e0;
+    --progress-bg: #2d2d2d;
+    --allocation-log-bg: #2d2d2d;
+    --allocation-log-border: #444444;
+    --allocation-log-text: #e0e0e0;
+    --table-striped-bg: rgba(255, 255, 255, 0.05);
+    --border-color-light: #444444;
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+  }
+
+  // Links - using green theme for dark mode
+  a {
+    color: #5a8a37; // Lighter green for dark mode visibility (matching style.css)
+    text-decoration: underline;
+    text-decoration-color: rgba(90, 138, 55, 0.4);
+    text-underline-offset: 2px;
+    transition:
+      color 0.2s ease,
+      text-decoration-color 0.2s ease;
+
+    &:hover {
+      color: #6ba045; // Even lighter green on hover
+      text-decoration-color: rgba(107, 160, 69, 0.6);
+    }
+
+    &:visited {
+      color: #6ba045; // Slightly lighter green for visited links
+      text-decoration-color: rgba(107, 160, 69, 0.4);
+    }
+
+    &:focus {
+      outline: 2px solid #5a8a37;
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
+    // Links in cards
+    .card & {
+      color: #5a8a37;
+    }
+
+    // Links in alerts
+    .alert & {
+      font-weight: 500;
+    }
+
+    // Button links should not be underlined
+    &.btn,
+    &.btn-link {
+      text-decoration: none;
+    }
+  }
+
+  // Bootstrap component overrides
+  .card {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    color: var(--text-color);
+  }
+
+  .card-header {
+    background-color: var(--card-bg);
+    border-bottom-color: var(--card-border);
+  }
+
+  .card-footer {
+    background-color: var(--card-bg);
+    border-top-color: var(--card-border);
+  }
+
+  .bg-light {
+    background-color: var(--footer-bg) !important;
+    color: var(--footer-text);
+  }
+
+  .text-muted {
+    color: #999 !important;
+  }
+
+  .text-success {
+    color: #86efac !important; // Brighter green for dark mode visibility
+  }
+
+  .progress {
+    background-color: var(--progress-bg);
+  }
+
+  .table {
+    color: var(--text-color);
+    background-color: var(--card-bg);
+  }
+
+  .table-striped {
+    > tbody > tr {
+      background-color: var(--card-bg);
+      color: var(--text-color);
+
+      &:nth-of-type(odd) {
+        background-color: var(--table-striped-bg);
+        color: var(--text-color);
+      }
+    }
+
+    > thead > tr {
+      background-color: var(--card-bg);
+      color: var(--text-color);
+    }
+  }
+
+  .table th,
+  .table td {
+    border-color: var(--card-border);
+    color: var(--text-color);
+  }
+
+  .table thead th {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border-color: var(--card-border);
+  }
+
+  .alert {
+    border-color: var(--card-border);
+  }
+
+  .alert-info {
+    background-color: rgba(13, 202, 240, 0.1);
+    color: #7dd3fc;
+    border-color: rgba(13, 202, 240, 0.3);
+  }
+
+  .alert-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #fcd34d;
+    border-color: rgba(255, 193, 7, 0.3);
+  }
+
+  .alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #fca5a5;
+    border-color: rgba(220, 53, 69, 0.3);
+  }
+
+  .alert-success {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: #86efac;
+    border-color: rgba(25, 135, 84, 0.3);
+  }
+
+  .border {
+    border-color: var(--card-border) !important;
+  }
+
+  .border-success {
+    border-color: #437527 !important;
+  }
+
+  // Button styling for dark mode
+  .btn-light {
+    background-color: #ffffff;
+    border-color: #dee2e6;
+    color: #000000;
+
+    &:hover {
+      background-color: #f8f9fa;
+      border-color: #dee2e6;
+      color: #000000;
+    }
+
+    &:focus {
+      background-color: #f8f9fa;
+      border-color: #dee2e6;
+      color: #000000;
+      box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.25);
+    }
+  }
+
+  .btn-outline-secondary {
+    color: #6c757d;
+    border-color: #6c757d;
+
+    &:hover {
+      background-color: #6c757d;
+      border-color: #6c757d;
+      color: #ffffff;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.25);
+    }
+  }
+
+  // Form inputs
+  .form-control {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    color: var(--text-color);
+
+    &:focus {
+      background-color: var(--card-bg);
+      border-color: var(--card-border);
+      color: var(--text-color);
+    }
+
+    &::placeholder {
+      color: #999;
+    }
+  }
+
+  .form-check-input {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+
+    &:checked {
+      background-color: #437527;
+      border-color: #437527;
+    }
+  }
+
+  // Pagination
+  .page-link {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    color: var(--text-color);
+
+    &:hover {
+      background-color: var(--footer-bg);
+      border-color: var(--card-border);
+      color: var(--text-color);
+    }
+  }
+
+  .page-item.disabled .page-link {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    color: #666;
+  }
+
+  // Accordion
+  .accordion-item {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+  }
+
+  .accordion-button {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+
+    &:not(.collapsed) {
+      background-color: var(--card-bg);
+      color: var(--text-color);
+    }
+
+    &::after {
+      filter: invert(1);
+    }
+  }
+
+  .accordion-body {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+  }
+
+  // Allocation log styling
+  .allocation-log {
+    background-color: var(--allocation-log-bg);
+    border-color: var(--allocation-log-border);
+    color: var(--allocation-log-text);
+  }
+
+  // CVR matrix table dark mode
+  .cvr-matrix-table {
+    color: #e0e0e0;
+
+    thead {
+      background-color: #2d2d2d;
+
+      th:empty {
+        background-color: #2d2d2d;
+      }
+    }
+
+    .cvr-cols-label,
+    .cvr-col-label,
+    .cvr-row-label {
+      color: #e0e0e0;
+      background-color: #2d2d2d;
+    }
+
+    .cvr-cols-label {
+      border-bottom-color: #444;
+    }
+
+    th,
+    td {
+      border-color: #444;
+    }
+
+    th {
+      background-color: #2d2d2d;
+    }
+
+    .cvr-voter-count {
+      color: #999;
+    }
+
+    .cvr-entry {
+      color: #fff;
+      // Dark mode: 0% = dark background (15%), 100% = theme green (50%)
+      background: hsl(99, 41%, calc(15% + var(--percentage, 0) * 0.35%));
+    }
+
+    .cvr-entry[style*="--frac"] {
+      // Dark mode: 0% = dark background (15%), 100% = theme green (50%)
+      background: hsl(
+        99,
+        41%,
+        calc(15% + (var(--frac, 0) / var(--max-frac, 1)) * 35%)
+      );
+    }
+
+    .cvr-entry:empty {
+      background: #2d2d2d;
+    }
+
+    .cvr-overall-separator {
+      border-top-color: #666;
+      border-bottom-color: #666;
+
+      td {
+        border-top-color: #666;
+        border-bottom-color: #666;
+        background-color: #1a1a1a;
+      }
+
+      .cvr-row-label {
+        background-color: #1a1a1a;
+      }
+    }
+
+    tbody tr:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  .cvr-anyone-but-chart {
+    .cvr-exclusion-rate {
+      color: #b0b0b0;
+    }
+
+    .progress {
+      background-color: #2d2d2d;
+    }
+  }
+
+  .mt-5.mb-5 h2 {
+    border-bottom-color: #444;
+  }
 }

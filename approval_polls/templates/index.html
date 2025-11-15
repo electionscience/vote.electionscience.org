@@ -16,7 +16,7 @@
                             <div class="card-body">
                                 <h2 class="card-title h5 d-flex justify-content-between align-items-center">
                                     <a href="{% url 'detail' poll.id %}">{{ poll.question }}</a>
-                                    <a href="{% url 'results' poll.id %}" class="btn btn-sm btn-primary">Results</a>
+                                    <a href="{% url 'results' poll.id %}" class="btn btn-sm btn-light">Results</a>
                                 </h2>
                                 <p class="card-text">
                                     <span>Published on: {{ poll.pub_date|date:"Y-m-d" }}</span>

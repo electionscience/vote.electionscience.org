@@ -1,6 +1,7 @@
 import datetime
 import json
 import re
+from collections import Counter, defaultdict
 
 import structlog
 from django.contrib import messages
@@ -468,6 +469,171 @@ class ResultsView(generic.DetailView):
             reverse=True,  # Highest percentage first
         )
 
+        # Cast vote record analysis
+        total_ballots = poll.total_ballots()
+        num_choices = poll.choice_set.count()
+        co_approvals = []
+        approval_distribution = Counter()
+        candidate_approval_distributions = defaultdict(Counter)
+        anyone_but_analysis = Counter()
+
+        # Only calculate if we have enough data
+        if total_ballots >= 2 and num_choices >= 2:
+            # Build ballot approvals mapping
+            ballot_approvals = {}
+            for ballot in ballots:
+                approved_choice_ids = set(
+                    ballot.vote_set.all().values_list("choice_id", flat=True)
+                )
+                ballot_approvals[ballot.id] = approved_choice_ids
+                num_approved = len(approved_choice_ids)
+                approval_distribution[num_approved] += 1
+
+                # Per-candidate approval distributions
+                for choice_id in approved_choice_ids:
+                    candidate_approval_distributions[choice_id][num_approved] += 1
+
+            # Calculate co-approval matrix
+            choice_list = list(poll.choice_set.all())
+            for i, choice_a in enumerate(choice_list):
+                # Get ballots that approved choice_a
+                choice_a_ballots = [
+                    ballot_id
+                    for ballot_id, approved in ballot_approvals.items()
+                    if choice_a.id in approved
+                ]
+                choice_a_count = len(choice_a_ballots)
+
+                if choice_a_count == 0:
+                    continue
+
+                for j, choice_b in enumerate(choice_list):
+                    if i == j:
+                        continue
+
+                    # Count how many of choice_a's ballots also approved choice_b
+                    both_count = sum(
+                        1
+                        for ballot_id in choice_a_ballots
+                        if choice_b.id in ballot_approvals[ballot_id]
+                    )
+
+                    co_approval_rate = (both_count / choice_a_count) * 100
+
+                    co_approvals.append(
+                        {
+                            "candidateA": choice_a.choice_text,
+                            "candidateB": choice_b.choice_text,
+                            "coApprovalCount": both_count,
+                            "coApprovalRate": co_approval_rate,
+                        }
+                    )
+
+            # Calculate "Anyone But" analysis - ballots with exactly N-1 approvals
+            all_choice_ids = set(choice.id for choice in choice_list)
+            for ballot_id, approved_choice_ids in ballot_approvals.items():
+                if len(approved_choice_ids) == num_choices - 1:
+                    # Find the excluded choice
+                    excluded_choice_ids = all_choice_ids - approved_choice_ids
+                    if len(excluded_choice_ids) == 1:
+                        excluded_choice_id = list(excluded_choice_ids)[0]
+                        excluded_choice = next(
+                            c for c in choice_list if c.id == excluded_choice_id
+                        )
+                        anyone_but_analysis[excluded_choice.choice_text] += 1
+
+        # Convert Counter objects to regular dicts for template
+        approval_distribution_dict = dict(approval_distribution)
+        candidate_approval_distributions_dict = {
+            choice.choice_text: dict(candidate_approval_distributions[choice.id])
+            for choice in poll.choice_set.all()
+            if choice.id in candidate_approval_distributions
+        }
+        anyone_but_analysis_dict = dict(anyone_but_analysis)
+
+        # Sort choices by vote count for consistent ordering
+        # Use the annotated choices queryset which already has vote_count
+        sorted_choices = list(choices)
+        choices_list = [choice.choice_text for choice in sorted_choices]
+
+        # Pre-process approval distribution matrix data
+        max_approvals = (
+            max(approval_distribution_dict.keys()) if approval_distribution_dict else 0
+        )
+        approval_distribution_matrix = []
+
+        # Overall row
+        if approval_distribution_dict:
+            overall_row = {
+                "name": "All Candidates",
+                "is_overall": True,
+                "total_voters": total_ballots,
+                "distributions": [],
+            }
+            for num_approvals in range(1, max_approvals + 1):
+                count = approval_distribution_dict.get(num_approvals, 0)
+                percentage = (count / total_ballots * 100) if total_ballots > 0 else 0
+                overall_row["distributions"].append(
+                    {
+                        "num_approvals": num_approvals,
+                        "count": count,
+                        "percentage": percentage,
+                    }
+                )
+            approval_distribution_matrix.append(overall_row)
+
+        # Per-candidate rows
+        for choice in sorted_choices:
+            choice_name = choice.choice_text
+            if choice_name in candidate_approval_distributions_dict:
+                candidate_dist = candidate_approval_distributions_dict[choice_name]
+                total_voters = sum(candidate_dist.values())
+                candidate_row = {
+                    "name": choice_name,
+                    "is_overall": False,
+                    "total_voters": total_voters,
+                    "distributions": [],
+                }
+                for num_approvals in range(1, max_approvals + 1):
+                    count = candidate_dist.get(num_approvals, 0)
+                    percentage = (count / total_voters * 100) if total_voters > 0 else 0
+                    candidate_row["distributions"].append(
+                        {
+                            "num_approvals": num_approvals,
+                            "count": count,
+                            "percentage": percentage,
+                        }
+                    )
+                approval_distribution_matrix.append(candidate_row)
+
+        # Pre-process co-approval matrix data (nested dict for easier template access)
+        co_approval_matrix = {}
+        max_co_approval_rate = 0
+        for co_approval in co_approvals:
+            candidate_a = co_approval["candidateA"]
+            candidate_b = co_approval["candidateB"]
+            if candidate_a not in co_approval_matrix:
+                co_approval_matrix[candidate_a] = {}
+            co_approval_matrix[candidate_a][candidate_b] = co_approval
+            if co_approval["coApprovalRate"] > max_co_approval_rate:
+                max_co_approval_rate = co_approval["coApprovalRate"]
+        # Ensure max is at least 1 to avoid division by zero in CSS
+        if max_co_approval_rate == 0:
+            max_co_approval_rate = 1
+
+        # Pre-process anyone but analysis (sorted by count descending)
+        anyone_but_sorted = sorted(
+            anyone_but_analysis_dict.items(), key=lambda x: x[1], reverse=True
+        )
+        total_exclusions = sum(anyone_but_analysis_dict.values())
+
+        voting_patterns = {
+            "totalBallots": total_ballots,
+            "approvalDistribution": approval_distribution_dict,
+            "candidateApprovalDistributions": candidate_approval_distributions_dict,
+            "anyoneButAnalysis": anyone_but_analysis_dict,
+        }
+
         # Add data to context
         context.update(
             {
@@ -476,6 +642,17 @@ class ResultsView(generic.DetailView):
                 "max_votes": max_votes,
                 "proportional_results": proportional_results,  # Proportional results
                 "total_proportional_votes": total_proportional_votes,
+                "co_approvals": co_approvals,  # Cast vote record analysis
+                "voting_patterns": voting_patterns,
+                "choices_list": choices_list,
+                "approval_distribution_matrix": approval_distribution_matrix,
+                "max_approvals": max_approvals,
+                "co_approval_matrix": co_approval_matrix,
+                "max_co_approval_rate": (
+                    max_co_approval_rate if max_co_approval_rate > 0 else 1
+                ),
+                "anyone_but_sorted": anyone_but_sorted,
+                "total_exclusions": total_exclusions,
             }
         )
         return context

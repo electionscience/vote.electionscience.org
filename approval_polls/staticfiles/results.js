@@ -30,8 +30,62 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Build a debug table of ballots (optional)
   buildVotesTable(rawBallots, choices);
 
+  // Helper function to detect dark mode
+  function isDarkMode() {
+    return (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    );
+  }
+
+  // Get chart colors based on dark mode
+  function getChartColors() {
+    if (isDarkMode()) {
+      // Dark mode colors - brighter and more saturated
+      return {
+        backgroundColor: [
+          "rgba(75, 192, 192, 0.8)",
+          "rgba(255, 99, 132, 0.8)",
+          "rgba(255, 206, 86, 0.8)",
+          "rgba(54, 162, 235, 0.8)",
+          "rgba(153, 102, 255, 0.8)",
+          "rgba(255, 159, 64, 0.8)",
+        ],
+        borderColor: [
+          "rgba(75, 192, 192, 1)",
+          "rgba(255, 99, 132, 1)",
+          "rgba(255, 206, 86, 1)",
+          "rgba(54, 162, 235, 1)",
+          "rgba(153, 102, 255, 1)",
+          "rgba(255, 159, 64, 1)",
+        ],
+      };
+    } else {
+      // Light mode colors
+      return {
+        backgroundColor: [
+          "rgba(75, 192, 192, 0.6)",
+          "rgba(255, 99, 132, 0.6)",
+          "rgba(255, 206, 86, 0.6)",
+          "rgba(54, 162, 235, 0.6)",
+          "rgba(153, 102, 255, 0.6)",
+          "rgba(255, 159, 64, 0.6)",
+        ],
+        borderColor: [
+          "rgba(75, 192, 192, 1)",
+          "rgba(255, 99, 132, 1)",
+          "rgba(255, 206, 86, 1)",
+          "rgba(54, 162, 235, 1)",
+          "rgba(153, 102, 255, 1)",
+          "rgba(255, 159, 64, 1)",
+        ],
+      };
+    }
+  }
+
   // 2. Create Chart.js pie chart
   const ctx = document.getElementById("spavChart").getContext("2d");
+  const chartColors = getChartColors();
   const spavChart = new Chart(ctx, {
     type: "pie",
     data: {
@@ -39,22 +93,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       datasets: [
         {
           data: choices.map(() => 0),
-          backgroundColor: [
-            "rgba(75, 192, 192, 0.6)",
-            "rgba(255, 99, 132, 0.6)",
-            "rgba(255, 206, 86, 0.6)",
-            "rgba(54, 162, 235, 0.6)",
-            "rgba(153, 102, 255, 0.6)",
-            "rgba(255, 159, 64, 0.6)",
-          ],
-          borderColor: [
-            "rgba(75, 192, 192, 1)",
-            "rgba(255, 99, 132, 1)",
-            "rgba(255, 206, 86, 1)",
-            "rgba(54, 162, 235, 1)",
-            "rgba(153, 102, 255, 1)",
-            "rgba(255, 159, 64, 1)",
-          ],
+          backgroundColor: chartColors.backgroundColor,
+          borderColor: chartColors.borderColor,
           borderWidth: 1,
         },
       ],
@@ -64,10 +104,27 @@ document.addEventListener("DOMContentLoaded", async function () {
       plugins: {
         legend: {
           position: "bottom",
+          labels: {
+            color: isDarkMode() ? "#e0e0e0" : "#000000",
+          },
         },
       },
     },
   });
+
+  // Listen for dark mode changes and update chart colors
+  if (window.matchMedia) {
+    const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    darkModeQuery.addEventListener("change", (e) => {
+      const newColors = getChartColors();
+      spavChart.data.datasets[0].backgroundColor = newColors.backgroundColor;
+      spavChart.data.datasets[0].borderColor = newColors.borderColor;
+      spavChart.options.plugins.legend.labels.color = e.matches
+        ? "#e0e0e0"
+        : "#000000";
+      spavChart.update();
+    });
+  }
 
   // 3. SPAV allowing multiple seats, now with a debug log
   function spav(choices, ballots, seats) {
