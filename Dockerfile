@@ -1,4 +1,4 @@
-FROM python:3.13.2
+FROM python:3.14
 
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -12,11 +12,16 @@ WORKDIR /code
 # Install UV for dependency management
 RUN pip install uv --no-cache-dir
 
-# Copy all project files into the working directory
-COPY . /code/
+# Copy dependency files first for better caching
+# Include README.md since pyproject.toml references it
+COPY pyproject.toml uv.lock README.md ./
 
 # Install dependencies using UV with --system flag
+# Note: uv pip install uses pyproject.toml; uv.lock ensures local dev consistency
 RUN uv pip install --system -e .
+
+# Copy the rest of the project files
+COPY . /code/
 
 HEALTHCHECK CMD curl --fail http://localhost:8000/ || exit 1
 

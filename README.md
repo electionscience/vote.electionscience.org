@@ -1,98 +1,235 @@
-# About
+# Approval Voting Platform
 
-Lots of websites have polls, usually as a little side bar.
-But most of those polls are based on plurality voting 😡, an inferior voting method.
+A Django-based web application for creating and managing approval voting polls. This platform provides an alternative to traditional plurality voting polls, allowing voters to approve of multiple options rather than being limited to a single choice.
 
-[vote.electionscience.org](https://vote.electionscience.org) is a replacement for those polls, using approval voting,
-which is suitable for embedding in other webpages via an iframe tag.
-The project, taken as a whole, will serve these approval-based webpolls, or the approval_polls package contained within it can be added to other Django-based servers to be used locally.
+The application can be used as a standalone service at [vote.electionscience.org](https://vote.electionscience.org) or the `approval_polls` package can be integrated into other Django projects.
 
-## Development Setup
+## Features
 
-```sh
-cp .env.dist .env
-docker-compose up
-docker-compose exec web python manage.py migrate
-docker-compose exec web python manage.py test
-docker-compose exec web python manage.py collectstatic
-open http://localhost:8000
+- **Approval Voting**: Voters can approve of multiple options in a single poll
+- **Embeddable Polls**: Polls can be embedded in other websites via iframe
+- **Multiple Voting Types**: Public, authenticated, and invitation-only polls
+- **Real-time Results**: View approval counts and proportional vote calculations
+- **User Management**: User accounts with poll creation and management
+- **Tagging System**: Organize polls with tags
+- **Email Integration**: Optional email opt-in and invitation system
+
+## Prerequisites
+
+- Python 3.14.0 or higher
+- [UV](https://github.com/astral-sh/uv) package manager
+- Git
+
+## Local Development Setup
+
+### 1. Clone the Repository
+
+```bash
+git clone git@github.com:electionscience/vote.electionscience.org.git
+cd vote.electionscience.org
 ```
 
-## Local Steps (assumes a linux system)
+### 2. Configure Environment
 
-1. [Install git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git). If you're new to git then the [Pro Git](http://git-scm.com/book/en/v2) book is useful.
+Copy the example environment file and fill in the required values:
 
-2. Clone this repository. `git clone git@github.com:electionscience/vote.electionscience.org.git`.
+```bash
+cp .env.dist .env
+```
 
-   Configure your environment with .env file. You can copy the .env.dist file and fill in the required values.
+Edit `.env` with your configuration. At minimum, you'll need to set:
 
-   `cp .env.dist .env`
+- `DEBUG=True` for local development
+- `SECRET_KEY` (generate a random string)
+- `SENDGRID_API_KEY` (optional, for email functionality)
+- `GOOGLE_SECRET` (optional, for Google OAuth)
 
-3. Install dependencies
+### 3. Install Dependencies
 
-   ```shell
-   brew install pyenv uv
-   pyenv install 3.13.2
-   pyenv local 3.13.2
-   pyenv init
-   uv venv
-   source .venv/bin/activate
-   uv pip install -e .
-   ```
+UV manages both Python versions and dependencies. It will automatically detect the required Python version from `pyproject.toml` (requires `>=3.14.0`) and `.python-version` (specifies `3.14`).
 
-4. Before you run the Django server for the first time, you'll need to create the database tables:
+**Install UV:**
 
-   `python manage.py migrate`
+```bash
+# macOS/Linux
+brew install uv
 
-   This will ask you to create a superuser account, which is necessary if you want to use the Django admin interface.
-   But also, you'll need a user account in order to create polls in the system, and it's easiest to do that here.
-   (If you don't create an account here, you'll have to mess around copying urls from the server output to fake confirming an email address in order to create a user account later... so just do it now.)
+# Or use the official installer
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
 
-5. Start the Django server:
+**Install project dependencies:**
 
-   `python manage.py runserver`
+```bash
+uv sync
+source .venv/bin/activate
+```
 
-6. Change the domain name of the site `example.com` to `yourdomainname` in the admin panel (`https://localhost:8000/admin`) so that the activation emails have the correct url.
+The `uv sync` command will:
 
-7. Finally, see how it looks. In your favorite browser, go to the link:
+- Automatically install Python 3.14 if needed
+- Create a virtual environment (`.venv`)
+- Install all dependencies from `pyproject.toml`
+- Generate or update `uv.lock` for reproducible builds
 
-   `<your domain name>:<port>`
+**Adding dependencies:**
 
-   If you're running the server locally then this would be
+To add a new dependency, use:
 
-   `http://localhost:8000/`
+```bash
+uv add package-name
+```
 
-   There won't be any polls yet, but you can login with the superuser account you created, or register a new one.
-   Then you should be able to create polls, vote in them, and see the results.
+This will update `pyproject.toml` and `uv.lock` automatically.
+
+### 4. Initialize the Database
+
+Run migrations to create the database tables:
+
+```bash
+python manage.py migrate
+```
+
+During the first migration, you'll be prompted to create a superuser account. This is recommended for accessing the Django admin interface and creating polls.
+
+### 5. Collect Static Files
+
+Collect static files for the admin interface and other static assets:
+
+```bash
+python manage.py collectstatic --noinput
+```
+
+### 6. Configure Site Domain (Optional)
+
+If you need email functionality to work correctly, update the site domain in the Django admin:
+
+1. Start the server: `python manage.py runserver`
+2. Visit `http://localhost:8000/admin`
+3. Go to Sites → Sites
+4. Change the domain from `example.com` to `localhost:8000` (or your actual domain)
+
+### 7. Start the Development Server
+
+```bash
+python manage.py runserver
+```
+
+Visit `http://localhost:8000/` in your browser.
+
+You can now:
+
+- Log in with your superuser account
+- Create new polls
+- Vote in polls
+- View results
+
+## Testing
+
+Run the test suite:
+
+```bash
+python manage.py test
+```
+
+Or using pytest:
+
+```bash
+pytest
+```
+
+The project uses pytest with Django integration. Test files should be named `test_*.py` or `*_tests.py`.
+
+## Code Quality
+
+### Linting and Formatting
+
+We use [Trunk](https://trunk.io) to enforce consistent coding style:
+
+```bash
+npm install -g @trunk/cli
+trunk check
+```
+
+### Type Checking
+
+The project uses type hints. Run type checking with:
+
+```bash
+mypy approval_polls
+```
+
+## Project Structure
+
+```
+approval_polls/
+├── models.py          # Poll, Choice, Ballot, Vote models
+├── views.py            # View handlers for polls, voting, results
+├── urls.py             # URL routing
+├── settings.py         # Django configuration
+├── templates/          # HTML templates
+├── staticfiles/        # Static assets (CSS, JS, images)
+└── tests.py            # Test suite
+```
+
+## Deployment
+
+### Production Deployment on Fly.io
+
+This project is deployed to production on [fly.io](https://fly.io) from an account managed by [Felix Sargent](https://github.com/fsargent).
+
+**Deployment process:**
+
+1. Ensure you have the [flyctl CLI](https://fly.io/docs/getting-started/installing-flyctl/) installed
+2. Configure your fly.io app (see `fly.toml`)
+3. Deploy:
+
+```bash
+fly deploy
+```
+
+**Note:** Docker is only used for fly.io deployment via the `Dockerfile`. For local development, you run Django directly without Docker.
+
+The `Dockerfile` uses UV to install dependencies and runs the application with gunicorn.
+
+**Automatic deployments:** The project is configured to automatically deploy to production on push to the `main` branch.
 
 ## Contributing
 
-1. If you're new to Python, [Google's Python tutorial](https://developers.google.com/edu/python/) gives a basic introduction to the language.
-   There are several other tutorials available on the web.
-2. If you're new to Django, the [tutorial](https://docs.djangoproject.com/en/1.8/intro/tutorial01/) on Django's documentation page is very comprehensive.
-   In fact, through a happy coincidence, it uses a poll application as an example.
-   This project is heavily based on that tutorial.
-3. If you're new to git, as mentioned above, the [Pro Git](http://git-scm.com/book/en/v2) book is very useful.
-4. In order to contribute, please follow [the fork-and-pull-request model](https://help.github.com/articles/fork-a-repo/). Also, do check out the coding style guidelines outlined in the next section.
+We welcome contributions! Here are some resources to get started:
 
-All contributions are welcome.
+### Learning Resources
 
-## Coding Style
+- **Python**: [Google's Python tutorial](https://developers.google.com/edu/python/)
+- **Django**: [Django documentation](https://docs.djangoproject.com/) (start with the [tutorial](https://docs.djangoproject.com/en/stable/intro/tutorial01/))
+- **Git**: [Pro Git book](https://git-scm.com/book/en/v2)
 
-We use [Trunk](trunk.io) to enforce a consistent coding style. You can install it by running `npm install -g @trunk/cli` and then running `trunk check` in the root of the project.
+### Contribution Process
 
-## Testing the code
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests: `python manage.py test`
+5. Check code style: `trunk check`
+6. Submit a pull request
 
-1. Whenever new code is written and features are added, there is a possibility that existing functionality may break. So just to be on the safer side, it is good to make sure that all is well - by running:
+### Coding Standards
 
-   `python manage.py test`
+- Follow PEP 8 style guidelines
+- Use type hints where appropriate
+- Write tests for new features
+- Update documentation as needed
+- Run `trunk check` before submitting
 
-2. Apart from adding new test cases to cover new functionality, it is always a good practice to [keep a check of the code coverage](https://pypi.python.org/pypi/coverage) to make sure that the code is still [well tested](https://docs.djangoproject.com/en/1.8/topics/testing/advanced/#integration-with-coverage-py)!
+## License
 
-## Deploying in production
+See [LICENSE](LICENSE) file for details.
 
-This repo is deployed in production on `fly.io` from an account managed by [Felix Sargent](https://github.com/fsargent).
+## Support
 
-Deployment is as easy as running `fly deploy` from the root of the project, if you have it configured.
+For issues, questions, or contributions, please open an issue on [GitHub](https://github.com/electionscience/vote.electionscience.org).
 
-This automatically deploys to production on push to the Github `main` branch!
+## Related Resources
+
+- [Approval Voting](https://www.electionscience.org/approval-voting) - Learn more about approval voting
+- [The Center for Election Science](https://www.electionscience.org) - Organization behind this project

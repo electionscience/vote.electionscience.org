@@ -4,7 +4,7 @@ cli:
 plugins:
   sources:
     - id: trunk
-      ref: v1.7.1
+      ref: v1.7.4
       uri: https://github.com/trunk-io/plugins
 lint:
   ignore:
@@ -13,27 +13,27 @@ lint:
         - approval_polls/templates
   enabled:
     - prettier@3.6.2
-    - shellcheck@0.10.0
+    - shellcheck@0.11.0
     - shfmt@3.6.0
     - bandit@1.8.6
-    - checkov@3.2.461
-    - osv-scanner@2.0.3
+    - checkov@3.2.493
+    - osv-scanner@2.2.4
     - terrascan@1.19.1
-    - trivy@0.64.1
-    - trufflehog@3.90.5
+    - trivy@0.67.2
+    - trufflehog@3.90.13
     - djlint@1.36.4
     - dotenv-linter@3.3.0
-    - ruff@0.12.7
+    - ruff@0.14.5
     - yamllint@1.37.1
-    - taplo@0.9.3
-    - actionlint@1.7.7
+    - taplo@0.10.0
+    - actionlint@1.7.8
     - flake8@7.3.0
     - git-diff-check
-    - gitleaks@8.28.0
-    - isort@6.0.1
-    - black@25.1.0
+    - gitleaks@8.29.0
+    - isort@7.0.0
+    - black@25.11.0
     - oxipng@9.1.5
-    - hadolint@2.12.1-beta
+    - hadolint@2.14.0
     - markdownlint@0.45.0
 runtimes:
   enabled:

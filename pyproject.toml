@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = [{ name = "Felix Sargent", email = "felix@electionscience.org" }]
 readme = "README.md"
-requires-python = ">=3.13.1"
+requires-python = ">=3.14.0"
 dependencies = [
   "django~=5.0.0",
   "pytz>=2023.4",
