@@ -27,12 +27,8 @@
         <link type="text/css"
               rel="stylesheet"
               href="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials.css" />
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
-              rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
-              rel="stylesheet">
+        <link rel="preload" href="{% static 'fonts.css' %}" as="style" />
+        <link rel="stylesheet" href="{% static 'fonts.css' %}" />
         <script src="https://js.sentry-cdn.com/78856604267db99554868743d5eb61e5.min.js"
                 crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.7/jstz.min.js"
@@ -53,51 +49,7 @@
     <body>
         {% load tz %}
         {% get_current_timezone as TIME_ZONE %}
-        <header>
-            <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-                <div class="container">
-                    <a class="navbar-brand" href="{% url 'index' %}">
-                        <img src="{% static 'images/ces-logomark.png' %}"
-                             alt="Election Science"
-                             class="navbar-logo" />
-                        <span>Election Science</span>
-                    </a>
-                    <button class="navbar-toggler"
-                            type="button"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#navbarMain"
-                            aria-controls="navbarMain"
-                            aria-expanded="false"
-                            aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarMain">
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'create' %}">Create Election</a>
-                            </li>
-                        </ul>
-                        <ul class="navbar-nav">
-                            {% if user.is_authenticated %}
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'my_info' %}">My Elections</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link"
-                                       href="{% url 'account_logout' %}?next={% url 'index' %}">Logout</a>
-                                </li>
-                            {% else %}
-                                <li class="nav-item">
-                                    <a class="nav-link"
-                                       href="{% url 'account_login' %}{% if request.path != '/approval_polls/' %}?next={{ request.path }}{% endif %}">Login</a>
-                                </li>
-                            {% endif %}
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-        </header>
-        <main class="container my-5">
+        <main>
             {% if messages %}
                 <div class="messages">
                     {% for message in messages %}<div class="alert alert-{{ message.tags }}">{{ message }}</div>{% endfor %}
@@ -108,23 +60,31 @@
         </main>
         <footer class="bg-light py-4 mt-5">
             <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-md-8 text-center">
+                <div class="text-center">
+                    <p>
+                        This website demonstrates <a href="https://www.electionscience.org/approval-voting">approval voting</a>, instead of '<a href="https://en.wikipedia.org/wiki/First-past-the-post_voting">choose one</a>' voting.
+                        <br />
+                        <a href="https://www.electionscience.org/approval-voting">Learn why it's better</a> and
+                        <a href="{% url 'create' %}">create your own election</a>.
+                    </p>
+                    {% if user.is_authenticated %}
                         <p>
-                            This website demonstrates <a href="https://www.electionscience.org/approval-voting">approval voting</a>, instead of '<a href="https://en.wikipedia.org/wiki/First-past-the-post_voting">choose one</a>' voting.
-                            <br>
-                            <a href="https://www.electionscience.org/approval-voting">Learn why it's better</a> and
-                            <a href="{% url 'create' %}">create your own election</a>.
+                            <a href="{% url 'my_info' %}">My Elections</a> |
+                            <a href="{% url 'account_logout' %}?next={% url 'index' %}">Logout</a>
                         </p>
-                        <div class="text-center mb-4" id="share"></div>
-                        <a href="https://www.electionscience.org"
-                           target="_blank"
-                           rel="noopener noreferrer">
-                            <img src="{% static 'images/ces-horizontal-stack.png' %}"
-                                 class="img-fluid footer-logo"
-                                 alt="Election Science Logo" />
-                        </a>
-                    </div>
+                    {% else %}
+                        <p>
+                            <a href="{% url 'account_login' %}{% if request.path != '/approval_polls/' %}?next={{ request.path }}{% endif %}">Login</a>
+                        </p>
+                    {% endif %}
+                    <div id="share" class="mb-3"></div>
+                    <a href="https://www.electionscience.org"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        <img src="{% static 'images/ces-horizontal-stack.png' %}"
+                             class="img-fluid footer-logo"
+                             alt="Election Science Logo" />
+                    </a>
                 </div>
             </div>
         </footer>

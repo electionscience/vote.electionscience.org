@@ -23,15 +23,17 @@ logger = structlog.get_logger(__name__)
 
 
 def index(request):
-    poll_list = (
-        Poll.objects.filter(
-            pub_date__lte=timezone.now(),
-            is_private=False,
+    if request.user.is_authenticated:
+        poll_list = (
+            Poll.objects.filter(
+                user=request.user,
+            )
+            .select_related("user")
+            .prefetch_related("choice_set", "polltag_set", "ballot_set")
+            .order_by("-pub_date")
         )
-        .select_related("user")
-        .prefetch_related("choice_set", "polltag_set")
-        .order_by("-pub_date")[:100]
-    )
+    else:
+        poll_list = Poll.objects.none()
     return get_polls(request, poll_list, "index.html")
 
 
@@ -250,7 +252,7 @@ def poll_admin(request, poll_id):
             poll.save()
             visibility = "private" if poll.is_private else "public"
             messages.success(request, f"Poll visibility set to {visibility}.")
-        return redirect("poll_admin", poll_id=poll_id)
+        return redirect("detail", pk=poll_id)
 
     # Get ballots with related user data
     ballots = poll.ballot_set.select_related("user").order_by("-timestamp")
@@ -311,6 +313,15 @@ class DetailView(generic.DetailView):
             )
         )
 
+    def get(self, request, *args, **kwargs):
+        # Check if poll is private and user is not authenticated
+        self.object = self.get_object()
+        if self.object.is_private and not request.user.is_authenticated:
+            messages.error(request, "This poll is private. Please log in to access it.")
+            return redirect("account_login")
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
     def get_context_data(self, **kwargs):
         context = super(DetailView, self).get_context_data(**kwargs)
         poll = self.object
@@ -321,6 +332,39 @@ class DetailView(generic.DetailView):
         # Default to setting this if the poll has been configured for it. Thus
         # the user has to opt-out of email communication if required.
         permit_email = True if poll.show_email_opt_in else False
+
+        # Add admin data if user is the poll creator
+        if user.is_authenticated and poll.user == user:
+            ballots = poll.ballot_set.select_related("user").order_by("-timestamp")
+            voters = []
+            if poll.vtype == 1:
+                # Anonymous polls: show only timestamp
+                for ballot in ballots:
+                    voters.append(
+                        {
+                            "timestamp": ballot.timestamp,
+                            "username": None,
+                            "email": None,
+                        }
+                    )
+            else:
+                # Authenticated polls: show username, email (if available), and timestamp
+                for ballot in ballots:
+                    username = ballot.user.username if ballot.user else None
+                    email = (
+                        ballot.email
+                        if ballot.email
+                        else (ballot.user.email if ballot.user else None)
+                    )
+                    voters.append(
+                        {
+                            "timestamp": ballot.timestamp,
+                            "username": username,
+                            "email": email,
+                        }
+                    )
+            context["voters"] = voters
+            context["total_voters"] = len(voters)
 
         if poll.vtype == 1:
             context["already_voted"] = False
@@ -417,6 +461,15 @@ def delete_poll(request, poll_id):
 class ResultsView(generic.DetailView):
     model = Poll
     template_name = "results.html"
+
+    def get(self, request, *args, **kwargs):
+        # Check if poll is private and user is not authenticated
+        self.object = self.get_object()
+        if self.object.is_private and not request.user.is_authenticated:
+            messages.error(request, "This poll is private. Please log in to access it.")
+            return redirect("account_login")
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
     def get_queryset(self):
         return Poll.objects.filter(pub_date__lte=timezone.now())
@@ -974,4 +1027,4 @@ class CreateView(generic.View):
             if vtype == "3":
                 p.send_vote_invitations(request.POST["token-emails"])
 
-            return HttpResponseRedirect(reverse("embed_instructions", args=(p.id,)))
+            return HttpResponseRedirect(reverse("detail", args=(p.id,)))

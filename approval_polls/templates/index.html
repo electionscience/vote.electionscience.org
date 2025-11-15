@@ -1,71 +1,80 @@
 {% extends 'base.html' %}
 {% block content %}
-    <div class="container">
+    <div class="wide container">
         {% if latest_poll_list %}
-            <h1 class="mb-4">
-                {% if tag %}
-                    Tag: {{ tag.tag_text }}
-                {% else %}
-                    Latest Public Elections
-                {% endif %}
-            </h1>
-            <div class="row">
-                <div class="col-12">
+            <div class="two-col-row">
+                <div class="leftCol">
+                    <div class="description">
+                        <h1>vote.electionscience.org</h1>
+                    </div>
+                    <p>
+                        With <a href="https://www.electionscience.org/approval-voting">Approval Voting</a> voters can choose as many candidates
+                        as they like, and the one receiving the most votes wins.
+                    </p>
+                    <p>
+                        This site allows you to <a href="{% url 'create' %}">create your own approval voting election</a> and see how voters express their preferences when they can choose multiple candidates.
+                    </p>
+                    <p>
+                        <strong>vote.electionscience.org</strong> is a project of
+                        <a href="https://www.electionscience.org">The Center for Election Science</a>.
+                    </p>
+                    <p>
+                        For more information, see
+                        <a href="https://www.electionscience.org/approval-voting">approval voting</a> or
+                        <a href="{% url 'create' %}">create your own election</a>.
+                    </p>
+                </div>
+                <div class="rightCol">
+                    {% if tag %}
+                        <div class="electionHeader">
+                            <h2>Tag: {{ tag.tag_text }}</h2>
+                        </div>
+                    {% else %}
+                        <div class="electionHeader">
+                            <h2>My Elections</h2>
+                            <a href="{% url 'create' %}"
+                               class="create-election-btn"
+                               title="Create new election">+</a>
+                        </div>
+                    {% endif %}
                     {% for poll in latest_poll_list %}
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h2 class="card-title h5 d-flex justify-content-between align-items-center">
-                                    <a href="{% url 'detail' poll.id %}">{{ poll.question }}</a>
-                                    <a href="{% url 'results' poll.id %}" class="btn btn-sm btn-light">Results</a>
-                                </h2>
-                                <p class="card-text">
-                                    <span>Published on: {{ poll.pub_date|date:"Y-m-d" }}</span>
-                                    <br>
-                                    <span>Authored by: {% firstof poll.user.username poll.user.first_name %}</span>
-                                    <br>
-                                    <span>{{ poll.total_ballots }} ballots, {{ poll.total_votes }} votes</span>
-                                </p>
-                            </div>
+                        <div class="race">
+                            <a href="{% url 'detail' poll.id %}">
+                                <div class="race-content">
+                                    <div class="title">
+                                        <strong>{{ poll.question }}</strong>
+                                    </div>
+                                    <div class="meta">
+                                        <strong>{{ poll.total_ballots }}</strong> ballot{{ poll.total_ballots|pluralize }}
+                                    </div>
+                                </div>
+                            </a>
                         </div>
                     {% endfor %}
+                    {% if latest_poll_list.has_previous or latest_poll_list.has_next %}
+                        <div class="mt-4">
+                            {% if latest_poll_list.has_previous %}
+                                <a href="?page={{ latest_poll_list.previous_page_number }}">« Previous</a>
+                            {% endif %}
+                            {% if latest_poll_list.has_previous and latest_poll_list.has_next %}|{% endif %}
+                            {% if latest_poll_list.has_next %}<a href="?page={{ latest_poll_list.next_page_number }}">Next »</a>{% endif %}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
-            <nav aria-label="Election list pagination" class="my-4">
-                <ul class="pagination justify-content-center">
-                    {% if latest_poll_list.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link"
-                               href="?page={{ latest_poll_list.previous_page_number }}"
-                               aria-label="Previous">
-                                <span aria-hidden="true">«</span> Previous
-                            </a>
-                        </li>
-                    {% endif %}
-                    <li class="page-item disabled">
-                        <span class="page-link">Page {{ latest_poll_list.number }} of {{ latest_poll_list.paginator.num_pages }}</span>
-                    </li>
-                    {% if latest_poll_list.has_next %}
-                        <li class="page-item">
-                            <a class="page-link"
-                               href="?page={{ latest_poll_list.next_page_number }}"
-                               aria-label="Next">
-                                Next <span aria-hidden="true">»</span>
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
         {% else %}
-            <div class="alert alert-info" role="alert">No polls are available.</div>
+            <div class="container">
+                {% if user.is_authenticated %}
+                    <p>You haven't created any elections yet.</p>
+                    <p>
+                        <a href="{% url 'create' %}">Create your first election</a>.
+                    </p>
+                {% else %}
+                    <p>
+                        Please <a href="{% url 'account_login' %}">log in</a> to view your elections.
+                    </p>
+                {% endif %}
+            </div>
         {% endif %}
     </div>
 {% endblock content %}
-{% block footer %}
-    <div class="container">
-        <div class="row">
-            <div class="col-12 text-center">
-                <a href="{% url 'create' %}" class="btn btn-primary">Create a Election</a>
-            </div>
-        </div>
-    </div>
-{% endblock %}

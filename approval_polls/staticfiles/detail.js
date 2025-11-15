@@ -1,10 +1,43 @@
 $(function () {
-  // Social sharing
-  $("#share").jsSocials({
-    showLabel: false,
-    showCount: false,
-    shares: ["email", "twitter", "facebook", "linkedin", "pinterest"],
+  // Copy URL to clipboard
+  $("#copy-url-btn").on("click", function () {
+    const urlInput = document.getElementById("poll-url");
+    urlInput.select();
+    urlInput.setSelectionRange(0, 99999); // For mobile devices
+
+    try {
+      navigator.clipboard.writeText(urlInput.value).then(function () {
+        const btn = $("#copy-url-btn");
+        const originalText = btn.html();
+        btn.html('<i class="fa fa-check"></i> Copied!');
+        btn.removeClass("btn-outline-primary").addClass("btn-success");
+        setTimeout(function () {
+          btn.html(originalText);
+          btn.removeClass("btn-success").addClass("btn-outline-primary");
+        }, 2000);
+      });
+    } catch (err) {
+      // Fallback for older browsers
+      document.execCommand("copy");
+      const btn = $("#copy-url-btn");
+      const originalText = btn.html();
+      btn.html('<i class="fa fa-check"></i> Copied!');
+      btn.removeClass("btn-outline-primary").addClass("btn-success");
+      setTimeout(function () {
+        btn.html(originalText);
+        btn.removeClass("btn-success").addClass("btn-outline-primary");
+      }, 2000);
+    }
   });
+
+  // Social sharing for footer (if exists)
+  if ($("#share").length) {
+    $("#share").jsSocials({
+      showLabel: false,
+      showCount: false,
+      shares: ["email", "twitter", "facebook", "linkedin", "pinterest"],
+    });
+  }
 
   // Poll options
   const pollOptions = {

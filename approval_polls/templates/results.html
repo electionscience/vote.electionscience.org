@@ -2,37 +2,32 @@
 {% load static %}
 {% load filters %}
 {% block content %}
-    <div class="container">
-        <h1 class="mb-4">{{ poll.question }}</h1>
-        <div class="mb-4">
-            <h2 class="h4 text-muted">
-                {{ poll.total_ballots }} ballot{{ poll.total_ballots|pluralize }}
-                {% if poll.is_closed and poll.total_votes == 0 %}<small class="d-block mt-2">No votes in this poll</small>{% endif %}
-            </h2>
-        </div>
+    <div class="wide container">
+        <h2>{{ poll.question }}</h2>
+        <p class="meta">
+            {{ poll.total_ballots }} ballot{{ poll.total_ballots|pluralize }}
+            {% if poll.is_closed and poll.total_votes == 0 %}
+                <br>
+                No votes in this poll
+            {% endif %}
+        </p>
         <!-- Approval Voting Results Section -->
         <div class="mb-4">
             {% for choice in choices %}
-                <div class="mb-4 {% if choice in leading_choices %}border border-success rounded p-3{% endif %}">
-                    <h3 class="h5 {% if choice in leading_choices %}text-success font-weight-bold{% endif %}">
-                        {{ choice.choice_text }}
+                <div class="mb-4">
+                    <h3 {% if choice in leading_choices %}class="text-success"{% endif %}>
+                        <strong>{{ choice.choice_text }}</strong>
                         {% if choice in leading_choices %}
-                            <span class="badge bg-success ms-2">
-                                {% if poll.is_closed %}
-                                    Winner
-                                {% else %}
-                                    Leading
-                                {% endif %}
-                                <i class="bi bi-trophy-fill ms-1"></i>
-                            </span>
+                            {% if poll.is_closed %}
+                                (Winner)
+                            {% else %}
+                                (Leading)
+                            {% endif %}
                         {% endif %}
                     </h3>
-                    <p class="text-muted">
+                    <p class="meta">
                         {{ choice.vote_count }} vote{{ choice.vote_count|pluralize }}
                         ({{ choice.percentage|to_percent_str }})
-                        {% if choice in leading_choices %}
-                            <span class="text-success font-weight-bold"><i class="bi bi-arrow-up-circle-fill"></i></span>
-                        {% endif %}
                     </p>
                     <div class="progress progress-results">
                         <div class="progress-bar {% if choice in leading_choices %}bg-success{% endif %}"
@@ -41,7 +36,7 @@
                              aria-valuenow="{% widthratio choice.vote_count poll.total_ballots 100 %}"
                              aria-valuemin="0"
                              aria-valuemax="{{ poll.total_ballots }}">
-                            <span class="font-weight-bold">{% widthratio choice.vote_count poll.total_ballots 100 %}%</span>
+                            <span>{% widthratio choice.vote_count poll.total_ballots 100 %}%</span>
                         </div>
                     </div>
                 </div>
@@ -51,7 +46,7 @@
         {% if voting_patterns.totalBallots >= 2 and choices_list|length >= 2 %}
             <!-- Approval Distribution Section -->
             <div class="mt-5 mb-5">
-                <h2 class="h4 mb-3">Approval Distribution</h2>
+                <h2>Approval Distribution</h2>
                 {% if approval_distribution_matrix %}
                     <div class="table-responsive">
                         <table class="table table-sm cvr-matrix-table">
@@ -98,11 +93,9 @@
             </div>
             <!-- Co-Approval Matrix Section -->
             <div class="mt-5 mb-5">
-                <h2 class="h4 mb-3">Co-Approval Matrix</h2>
+                <h2>Co-Approval Matrix</h2>
                 {% if co_approval_matrix %}
-                    <p class="text-muted small mb-3">
-                        Percentage of voters who approved the row candidate also approved the column candidate
-                    </p>
+                    <p class="meta">Percentage of voters who approved the row candidate also approved the column candidate</p>
                     <div class="table-responsive">
                         <table class="table table-sm cvr-matrix-table">
                             <thead>
@@ -147,9 +140,9 @@
             </div>
             <!-- Anyone But Analysis Section -->
             <div class="mt-5 mb-5">
-                <h2 class="h4 mb-3">Anyone But Analysis</h2>
+                <h2>Anyone But Analysis</h2>
                 {% if anyone_but_sorted %}
-                    <p class="text-muted small mb-3">Candidates excluded by voters who approved all other candidates</p>
+                    <p class="meta">Candidates excluded by voters who approved all other candidates</p>
                     {% if total_exclusions > 0 %}
                         <div class="cvr-anyone-but-chart">
                             {% for choice_name, count in anyone_but_sorted %}
@@ -172,7 +165,7 @@
                                             <span class="small">{{ count }} exclusion{{ count|pluralize }}</span>
                                         </div>
                                     </div>
-                                    <div class="text-muted small mt-1">
+                                    <div class="meta" style="font-size: 0.875rem; margin-top: 0.25rem;">
                                         {% widthratio count voting_patterns.totalBallots 100 as overall_rate %}
                                         {{ overall_rate|floatformat:1 }}% of all ballots
                                     </div>
@@ -180,10 +173,10 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        <p class="text-muted">No "Anyone But" voting patterns detected (no ballots with exactly N-1 approvals)</p>
+                        <p class="meta">No "Anyone But" voting patterns detected (no ballots with exactly N-1 approvals)</p>
                     {% endif %}
                 {% else %}
-                    <p class="text-muted">No "Anyone But" voting patterns detected (no ballots with exactly N-1 approvals)</p>
+                    <p class="meta">No "Anyone But" voting patterns detected (no ballots with exactly N-1 approvals)</p>
                 {% endif %}
             </div>
         {% endif %}
@@ -206,10 +199,10 @@
                         <div class="accordion-body">
                             <p>
                                 When electing multiple candidates to a board or committee <a href="https://en.wikipedia.org/wiki/Sequential_proportional_approval_voting">Proportional Approval Voting</a>
-                                ensures that no single voting group dominates the outcome, promoting fair representation and reflecting the diverse preferences of all voters. In scenarios where there are more seats than choices available and where each choice represents a party—this method can allow a popular party to be allocated multiple seats proportionally, mirroring the party’s share of overall support.
+                                ensures that no single voting group dominates the outcome, promoting fair representation and reflecting the diverse preferences of all voters. In scenarios where there are more seats than choices available and where each choice represents a party—this method can allow a popular party to be allocated multiple seats proportionally, mirroring the party's share of overall support.
                             </p>
                             <!-- Slider to pick the number of seats -->
-                            <label for="seatsSlider" class="form-label mt-3">
+                            <label for="seatsSlider" class="mt-3">
                                 Number of seats: <span id="seatsValue">5</span>
                             </label>
                             <input type="range"

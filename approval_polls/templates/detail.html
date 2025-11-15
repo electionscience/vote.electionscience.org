@@ -6,110 +6,198 @@
 {% endblock extra_js %}
 {% block content %}
     <div class="container">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h3 class="card-title">{{ poll.question }}</h3>
-            </div>
-            <div class="card-body">
-                {% if error_message %}<div class="alert alert-danger">{{ error_message }}</div>{% endif %}
-                <form action='{% url 'vote' poll.id %}' method='post'>
-                    {% csrf_token %}
-                    <p class="text-muted">
-                        <em>Choose as many options as you wish</em>
-                    </p>
-                    {% for choice in poll.choice_set.all %}
-                        <div class="form-check mb-2">
-                            <input class="form-check-input"
-                                   type="checkbox"
-                                   name="choice{{ forloop.counter }}"
-                                   id="choice{{ forloop.counter }}"
-                                   {% if choice in checked_choices %}checked{% endif %}>
-                            <label class="form-check-label" for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label>
-                        </div>
-                    {% endfor %}
-                    {% if poll.show_write_in and not poll.is_closed %}
-                        <button type="button"
-                                class="btn btn-outline-primary btn-sm mt-3"
-                                id="add-option">
-                            <i class="bi bi-plus"></i> Add Option
-                        </button>
-                    {% endif %}
-                    {% if poll.vtype == 3 and not poll.is_closed %}
-                        {% if vote_invitation %}
-                            <input type="hidden" name="invitation_key" value="{{ vote_invitation.key }}">
-                            <input type="hidden"
-                                   name="invitation_email"
-                                   value="{{ vote_invitation.email }}">
-                        {% elif not vote_authorized %}
-                            <div class="alert alert-danger mt-3">Sorry! You are not authorized to vote in this poll.</div>
-                        {% else %}
-                            <input type="hidden"
-                                   name="invitation_email"
-                                   value="{{ request.user.email }}">
-                        {% endif %}
-                    {% endif %}
-                    {% if poll.is_closed %}<div class="alert alert-warning mt-3">Sorry! This poll is closed.</div>{% endif %}
-                    {% if poll.is_suspended %}
-                        <div class="alert alert-warning mt-3">Sorry! This poll has been temporarily suspended.</div>
-                    {% endif %}
-                    {% if poll.show_email_opt_in %}
-                        <div class="form-check mt-3">
-                            <input class="form-check-input"
-                                   type="checkbox"
-                                   name="email_opt_in"
-                                   id="email_opt_in"
-                                   {% if permit_email %}checked{% endif %}>
-                            <label class="form-check-label" for="email_opt_in">
-                                <small>Sign me up to receive email communication about efforts to create fairer, more representative elections through approval voting.</small>
-                            </label>
-                        </div>
-                    {% endif %}
-                    <div class="text-center mt-4">
-                        {% if poll.vtype == 2 and not user.is_authenticated %}
-                            <button class="btn btn-primary" type="submit">Login to Vote</button>
-                        {% else %}
-                            <button class="btn btn-success"
-                                    type="submit"
-                                    {% if poll.is_closed or poll.is_suspended %}disabled{% endif %}>
-                                {% if checked_choices %}
-                                    Update Vote
-                                {% else %}
-                                    Vote
-                                {% endif %}
-                            </button>
-                        {% endif %}
-                    </div>
-                </form>
-            </div>
-            <div class="card-footer">
-                {% if num_tags > 0 %}
-                    <p>
-                        Tags:
-                        {% for tag in tags %}
-                            <a href='{% url 'tagged_polls' tag %}'
-                               class="badge bg-primary text-decoration-none">{{ tag }}</a>
-                        {% endfor %}
-                    </p>
-                {% endif %}
-                {% if poll.show_close_date %}
-                    <p class="text-muted">Closing Date: {% localtime on %}{{ poll.close_date|date:"N j, Y, P" }}{% endlocaltime %}</p>
-                {% endif %}
-                {% if poll.show_countdown and time_difference %}
-                    <p id="timer" class="text-warning"></p>
-                    <input type="hidden" id="time_difference" value="{{ time_difference }}">
-                {% endif %}
-                <p class="text-muted">Creator: {{ poll.user.username }}</p>
-                <div class="text-center mt-4">
-                    <a href='{% url 'results' poll.id %}'
-                       class="btn btn-outline-primary text-decoration-none"
-                       role="button">See Results</a>
-                    {% if user == poll.user %}
-                        <a href='{% url 'poll_admin' poll.id %}'
-                           class="btn btn-outline-secondary text-decoration-none ms-2"
-                           role="button">Admin</a>
-                    {% endif %}
+        <h2>{{ poll.question }}</h2>
+        {% if error_message %}<div class="alert alert-danger">{{ error_message }}</div>{% endif %}
+        <form action='{% url 'vote' poll.id %}' method='post'>
+            {% csrf_token %}
+            <p>
+                <em>Choose as many options as you wish</em>
+            </p>
+            {% for choice in poll.choice_set.all %}
+                <div class="form-check mb-2">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           name="choice{{ forloop.counter }}"
+                           id="choice{{ forloop.counter }}"
+                           {% if choice in checked_choices %}checked{% endif %}>
+                    <label class="form-check-label" for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label>
                 </div>
+            {% endfor %}
+            {% if poll.show_write_in and not poll.is_closed %}
+                <button type="button"
+                        class="btn btn-outline-primary btn-sm mt-3"
+                        id="add-option">
+                    <i class="bi bi-plus"></i> Add Option
+                </button>
+            {% endif %}
+            {% if poll.vtype == 3 and not poll.is_closed %}
+                {% if vote_invitation %}
+                    <input type="hidden" name="invitation_key" value="{{ vote_invitation.key }}">
+                    <input type="hidden"
+                           name="invitation_email"
+                           value="{{ vote_invitation.email }}">
+                {% elif not vote_authorized %}
+                    <div class="alert alert-danger mt-3">Sorry! You are not authorized to vote in this poll.</div>
+                {% else %}
+                    <input type="hidden"
+                           name="invitation_email"
+                           value="{{ request.user.email }}">
+                {% endif %}
+            {% endif %}
+            {% if poll.is_closed %}<div class="alert alert-warning mt-3">This poll is closed.</div>{% endif %}
+            {% if poll.is_suspended %}<div class="alert alert-warning mt-3">This poll is closed.</div>{% endif %}
+            {% if poll.show_email_opt_in %}
+                <div class="form-check mt-3">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           name="email_opt_in"
+                           id="email_opt_in"
+                           {% if permit_email %}checked{% endif %}>
+                    <label class="form-check-label" for="email_opt_in">
+                        <small>Sign me up to receive email communication about efforts to create fairer, more representative elections through approval voting.</small>
+                    </label>
+                </div>
+            {% endif %}
+            <div class="mt-4">
+                {% if poll.vtype == 2 and not user.is_authenticated %}
+                    <button class="btn btn-primary" type="submit">Login to Vote</button>
+                {% else %}
+                    <button class="btn btn-success"
+                            type="submit"
+                            {% if poll.is_closed or poll.is_suspended %}disabled{% endif %}>
+                        {% if checked_choices %}
+                            Update Vote
+                        {% else %}
+                            Vote
+                        {% endif %}
+                    </button>
+                {% endif %}
+            </div>
+        </form>
+        {% if num_tags > 0 %}
+            <p class="mt-4">
+                Tags:
+                {% for tag in tags %}
+                    <a href='{% url 'tagged_polls' tag %}'>{{ tag }}</a>
+                    {% if not forloop.last %},{% endif %}
+                {% endfor %}
+            </p>
+        {% endif %}
+        {% if poll.show_close_date %}
+            <p class="meta">Closing Date: {% localtime on %}{{ poll.close_date|date:"N j, Y, P" }}{% endlocaltime %}</p>
+        {% endif %}
+        {% if poll.show_countdown and time_difference %}
+            <p id="timer" class="text-warning"></p>
+            <input type="hidden" id="time_difference" value="{{ time_difference }}">
+        {% endif %}
+        <p class="meta">Creator: {{ poll.user.username }}</p>
+        <div class="mt-4">
+            <a href='{% url 'results' poll.id %}'>See Results</a>
+        </div>
+        <div class="mt-3">
+            <label for="poll-url" class="form-label">Share this poll:</label>
+            <div class="input-group">
+                <input type="text"
+                       class="form-control"
+                       id="poll-url"
+                       value="{{ request.scheme }}://{{ request.get_host }}{% url 'detail' poll.id %}"
+                       readonly>
+                <button class="btn btn-outline-primary" type="button" id="copy-url-btn">
+                    <i class="fa fa-clipboard"></i> Copy
+                </button>
             </div>
         </div>
+        {% if user == poll.user %}
+            <div class="mt-5">
+                <h3>Election Administration</h3>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <p class="meta">
+                                <strong>Published:</strong> {% localtime on %}{{ poll.pub_date|date:"N j, Y, P" }}{% endlocaltime %}
+                                <br>
+                                <strong>Total Voters:</strong> {{ total_voters }}
+                                <br>
+                                <strong>Status:</strong>
+                                {% if poll.is_suspended %}
+                                    <span class="badge bg-danger">Closed</span>
+                                {% else %}
+                                    <span class="badge bg-success">Open</span>
+                                {% endif %}
+                                <br>
+                                <strong>Visibility:</strong>
+                                {% if poll.is_private %}
+                                    <span class="badge bg-dark">Private</span>
+                                {% else %}
+                                    <span class="badge bg-primary">Public</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="mb-4">
+                            <h4 class="h5">Poll Controls</h4>
+                            <div class="d-flex gap-2">
+                                <form method="post"
+                                      action="{% url 'poll_admin' poll.id %}"
+                                      class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                            name="toggle_suspended"
+                                            class="btn {% if poll.is_suspended %}btn-success{% else %}btn-danger{% endif %}">
+                                        {% if poll.is_suspended %}
+                                            Open Poll
+                                        {% else %}
+                                            Close Poll
+                                        {% endif %}
+                                    </button>
+                                </form>
+                                <form method="post"
+                                      action="{% url 'poll_admin' poll.id %}"
+                                      class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" name="toggle_visibility" class="btn btn-primary">
+                                        {% if poll.is_private %}
+                                            Make Public
+                                        {% else %}
+                                            Make Private
+                                        {% endif %}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <h4 class="h5">Voters</h4>
+                            {% if voters %}
+                                <div class="voters-table-container">
+                                    <table class="voters-table">
+                                        <thead>
+                                            <tr>
+                                                {% if poll.vtype != 1 %}
+                                                    <th>Username</th>
+                                                    <th>Email</th>
+                                                {% endif %}
+                                                <th>Voted At</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for voter in voters %}
+                                                <tr>
+                                                    {% if poll.vtype != 1 %}
+                                                        <td>{{ voter.username|default:"—" }}</td>
+                                                        <td>{{ voter.email|default:"—" }}</td>
+                                                    {% endif %}
+                                                    <td>{% localtime on %}{{ voter.timestamp|date:"N j, Y, P" }}{% endlocaltime %}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="meta">No votes have been cast yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     </div>
 {% endblock content %}

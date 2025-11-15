@@ -16,20 +16,29 @@
             {% csrf_token %}
             <div class="card mb-4">
                 <div class="card-body">
-                    <h2 class="card-title h5 mb-3">Election Question</h2>
+                    <h2 class="card-title h5 mb-3">Election Details</h2>
                     <div class="mb-3">
-                        <label for="question" class="form-label">Enter your question:</label>
+                        <label for="question" class="form-label">Office name:</label>
                         <input type="text"
                                class="form-control {% if question_error %}is-invalid{% endif %}"
                                id="question"
                                name="question"
                                value="{{ question }}"
-                               placeholder="Who do you approve of?">
+                               placeholder="Mayor">
                         {% if question_error %}<div class="invalid-feedback">{{ question_error }}</div>{% endif %}
                     </div>
-                    <h2 class="card-title h5 mb-3">Options</h2>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   id="showWriteIn"
+                                   name="show-write-in">
+                            <label class="form-check-label" for="showWriteIn">Allow Write-Ins</label>
+                        </div>
+                    </div>
+                    <h2 class="card-title h5 mb-3">Candidates</h2>
                     <div id="poll-options">
-                        {% for i in 2|get_range %}
+                        {% for i in 4|get_range %}
                             <div class="mb-3 poll-option d-flex align-items-start gap-2">
                                 <label for="choice{{ i }}" class="form-label poll-option-number">{{ i }}.</label>
                                 <div class="flex-grow-1">
@@ -39,10 +48,10 @@
                                                id="choice{{ i }}"
                                                name="choice{{ i }}"
                                                maxlength="100"
-                                               placeholder="Write or paste options">
+                                               placeholder="Candidate name">
                                         <button class="btn btn-outline-primary remove-choice"
                                                 type="button"
-                                                title="Remove Choice">
+                                                title="Remove Candidate">
                                             <i class="fa fa-times"></i>
                                         </button>
                                     </div>
@@ -52,7 +61,7 @@
                         {% endfor %}
                     </div>
                     <button type="button" class="btn btn-outline-primary" id="add-choice">
-                        <i class="fa fa-plus"></i> Add Option
+                        <i class="fa fa-plus"></i> Add Candidate
                     </button>
                 </div>
             </div>
@@ -67,54 +76,22 @@
                             <input class="form-check-input"
                                    type="radio"
                                    name="radio-poll-type"
-                                   id="anyoneVote"
-                                   value="1"
+                                   id="registeredVote"
+                                   value="2"
                                    checked>
-                            <label class="form-check-label" for="anyoneVote">Anyone (No restriction on the number of ballots per user)</label>
+                            <label class="form-check-label" for="registeredVote">
+                                <strong>Only registered users</strong> - Requires registration. One ballot per user.
+                            </label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input"
                                    type="radio"
                                    name="radio-poll-type"
-                                   id="registeredVote"
-                                   value="2">
-                            <label class="form-check-label" for="registeredVote">
-                                Only registered users (One ballot per user, requires login)
+                                   id="anyoneVote"
+                                   value="1">
+                            <label class="form-check-label" for="anyoneVote">
+                                <strong>Anyone</strong> - This isn't secure and should be for demonstration purposes only. Anonymous visitors can vote. The same person could submit multiple ballots.
                             </label>
-                        </div>
-                    </div>
-                    <h3 class="h6 mb-3">Visibility</h3>
-                    <div class="form-check mb-3">
-                        <input class="form-check-input"
-                               type="checkbox"
-                               id="pollVisibility"
-                               name="public-poll-visibility"
-                               checked>
-                        <label class="form-check-label" for="pollVisibility">List this poll on the home page</label>
-                    </div>
-                    <h3 class="h6 mb-3">Customize</h3>
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input"
-                                   type="checkbox"
-                                   id="showWriteIn"
-                                   name="show-write-in">
-                            <label class="form-check-label" for="showWriteIn">Permit Write-in option</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input"
-                                   type="checkbox"
-                                   id="showLeadColor"
-                                   name="show-lead-color"
-                                   checked>
-                            <label class="form-check-label" for="showLeadColor">Show Leading option in different color</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input"
-                                   type="checkbox"
-                                   id="showEmailOptIn"
-                                   name="show-email-opt-in">
-                            <label class="form-check-label" for="showEmailOptIn">Display option to opt-in for email communication</label>
                         </div>
                     </div>
                     {% comment %} <h3 class="h6 mb-3">Tags</h3>

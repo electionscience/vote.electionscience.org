@@ -8,10 +8,10 @@ $danger: #aa4a44;
 $light: #ffffff;
 $dark: #000000;
 
-$body-color: #000000;
+$body-color: #555;
 $body-bg: #ffffff;
 
-$link-color: #437527; // Green theme color for light mode
+$link-color: #437527; // Green theme color matching approval.vote
 $link-hover-color: #365a1f; // Darker green on hover
 
 $border-color: #000000;
@@ -22,46 +22,27 @@ $border-color: #000000;
 // Custom styles
 
 body {
+  margin: 0;
+  padding: 0;
+  border-top: 0.5rem solid #437527;
   font-family:
-    Roboto,
-    Inter,
+    "Source Sans Pro",
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
+    Roboto,
+    Oxygen-Sans,
+    Ubuntu,
+    Cantarell,
+    "Helvetica Neue",
     sans-serif;
+  color: #555;
 }
 
-// Link styling for light mode - using green theme
+// Link styling matching approval.vote
 a {
-  color: $link-color;
+  color: #437527;
   text-decoration: underline;
-  text-decoration-color: rgba(67, 117, 39, 0.3);
-  text-underline-offset: 2px;
-  transition:
-    color 0.2s ease,
-    text-decoration-color 0.2s ease;
-
-  &:hover {
-    color: $link-hover-color;
-    text-decoration-color: rgba(54, 90, 31, 0.5);
-  }
-
-  &:visited {
-    color: #000; // Lighter green for visited links
-    text-decoration-color: rgba(90, 138, 55, 0.3);
-  }
-
-  &:focus {
-    outline: 2px solid $link-color;
-    outline-offset: 2px;
-    border-radius: 2px;
-  }
-
-  // Button links should not be underlined
-  &.btn,
-  &.btn-link {
-    text-decoration: none;
-  }
 }
 
 // Button styling - ensure outline-secondary is visible in light mode
@@ -80,26 +61,21 @@ a {
   }
 }
 
-// Navbar brand styling with logo
-.navbar-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-weight: 500;
-  font-size: 1.25rem;
-  letter-spacing: -0.03em;
-  color: #ffffff !important;
-  text-decoration: none;
+// Container styling matching approval.vote
+.container {
+  margin: 1.25rem auto;
+  max-width: 37.5rem; // 600px
+  padding: 0 0.75rem; // 12px
+}
 
-  &:hover {
-    color: #ffffff !important;
-    text-decoration: none;
-  }
+.container.wide {
+  max-width: 62.5rem; // 1000px
+}
 
-  .navbar-logo {
-    height: 32px;
-    width: auto;
-    flex-shrink: 0;
+@media (min-width: 68.75rem) {
+  // 1100px
+  .container.wide {
+    max-width: 62.5rem; // 1000px
   }
 }
 
@@ -143,12 +119,212 @@ a {
   overflow-y: scroll;
 }
 
-// Nav link styling
-.nav-link {
-  color: rgba(255, 255, 255, 0.9) !important;
+// Typography matching approval.vote
+h1 {
+  font-size: 2rem;
+  color: black;
+}
 
-  &:hover {
-    color: #ffffff !important;
+h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  color: #555555;
+}
+
+h3 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: normal;
+  color: #555555;
+}
+
+h3 a {
+  font-weight: bold;
+  color: black;
+}
+
+h3 strong {
+  color: #437527;
+}
+
+p {
+  margin: 1rem 0;
+  line-height: 1.4;
+}
+
+.meta {
+  color: #555555;
+}
+
+.description {
+  font-size: 2rem;
+  color: black;
+}
+
+.description h1 {
+  display: inline;
+  font-size: 2rem;
+}
+
+// Two-column layout matching approval.vote
+.two-col-row {
+  margin-bottom: 2rem;
+}
+
+.two-col-row:last-child {
+  margin-bottom: 0;
+}
+
+@media (min-width: 68.75rem) {
+  // 1100px
+  .two-col-row {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .two-col-row .leftCol {
+    width: 21.875rem; // 350px
+    flex-shrink: 0;
+  }
+
+  .two-col-row .leftCol p {
+    text-align: justify;
+  }
+
+  .two-col-row .rightCol {
+    width: 40.625rem; // 650px
+    margin-left: 2.5rem; // 40px
+    flex: 1;
+  }
+}
+
+.two-col-row .rightCol :first-child,
+.two-col-row .leftCol :first-child {
+  margin-top: 0;
+}
+
+// Race/election listing styles matching approval.vote
+.race a {
+  display: block;
+  color: #555555;
+  text-decoration: none;
+  padding: 0.3125rem; // 5px
+  margin: 0 -0.3125rem; // 5px
+}
+
+.race a:hover {
+  background: #eee;
+}
+
+.race-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.title {
+  flex: 1;
+  margin-right: 1rem;
+}
+
+.title strong {
+  display: block;
+}
+
+@media (min-width: 68.75rem) {
+  .title strong {
+    display: inline;
+  }
+}
+
+.race a .meta {
+  text-align: right;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.race a .title strong {
+  color: black;
+}
+
+hr {
+  border: none;
+  border-bottom: 1px dotted #ddd;
+}
+
+// Year section styling
+.yearSection {
+  display: flex;
+  margin-top: 1.375rem; // 22px
+}
+
+.yearSection:first-child {
+  margin-top: 0;
+}
+
+.yearSection h2 {
+  padding-right: 1.25rem; // 20px
+}
+
+@media (min-width: 68.75rem) {
+  .yearSection h2 {
+    padding-left: 1.875rem; // 30px
+  }
+}
+
+.electionSection {
+  flex: 1;
+}
+
+.electionHeader {
+  margin-bottom: 0.625rem; // 10px
+  margin-top: 1.375rem; // 22px
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.electionHeader:first-child {
+  margin-top: 0;
+}
+
+.electionHeader h2 {
+  margin: 0;
+}
+
+.create-election-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #437527;
+  text-decoration: none;
+  border: 1px solid #437527;
+  border-radius: 4px;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.create-election-btn:hover {
+  background-color: #437527;
+  color: #fff;
+  text-decoration: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  .create-election-btn {
+    color: #5a8a37;
+    border-color: #5a8a37;
+  }
+
+  .create-election-btn:hover {
+    background-color: #5a8a37;
+    color: #1a1a1a;
   }
 }
 
@@ -355,6 +531,74 @@ a {
   width: 100%;
 }
 
+// Voters table custom styling
+.voters-table-container {
+  overflow-x: auto;
+}
+
+.voters-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+.voters-table thead {
+  background-color: #f8f9fa;
+}
+
+.voters-table th {
+  text-align: left;
+  padding: 0.75rem;
+  font-weight: 600;
+  color: #555;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.voters-table tbody tr {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.voters-table tbody tr:nth-child(odd) {
+  background-color: #f8f9fa;
+}
+
+.voters-table tbody tr:nth-child(even) {
+  background-color: #ffffff;
+}
+
+.voters-table td {
+  padding: 0.75rem;
+  color: #555;
+}
+
+@media (prefers-color-scheme: dark) {
+  .voters-table thead {
+    background-color: #2d2d2d;
+  }
+
+  .voters-table th {
+    color: #e0e0e0;
+    border-bottom-color: #444444;
+    background-color: #2d2d2d;
+  }
+
+  .voters-table tbody tr {
+    border-bottom-color: #444444;
+  }
+
+  .voters-table tbody tr:nth-child(odd) {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .voters-table tbody tr:nth-child(even) {
+    background-color: #2d2d2d;
+  }
+
+  .voters-table td {
+    color: #b0b0b0;
+  }
+}
+
 // Alert margin utility
 .alert-margin-top {
   margin-top: 10px;
@@ -363,7 +607,7 @@ a {
 // CSS Variables for dark mode support
 :root {
   --bg-color: #ffffff;
-  --text-color: #000000;
+  --text-color: #555;
   --card-bg: #ffffff;
   --card-border: #dee2e6;
   --footer-bg: #f8f9fa;
@@ -376,7 +620,7 @@ a {
   --border-color-light: #dee2e6;
 }
 
-// Dark mode support
+// Dark mode support matching approval.vote
 @media (prefers-color-scheme: dark) {
   :root {
     --bg-color: #1a1a1a;
@@ -394,51 +638,68 @@ a {
   }
 
   body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+    border-top-color: #5a8a37;
   }
 
-  // Links - using green theme for dark mode
+  // Links matching approval.vote dark mode
   a {
-    color: #5a8a37; // Lighter green for dark mode visibility (matching style.css)
+    color: #5a8a37;
     text-decoration: underline;
-    text-decoration-color: rgba(90, 138, 55, 0.4);
-    text-underline-offset: 2px;
-    transition:
-      color 0.2s ease,
-      text-decoration-color 0.2s ease;
+  }
 
-    &:hover {
-      color: #6ba045; // Even lighter green on hover
-      text-decoration-color: rgba(107, 160, 69, 0.6);
-    }
+  h1 {
+    color: #e0e0e0;
+  }
 
-    &:visited {
-      color: #6ba045; // Slightly lighter green for visited links
-      text-decoration-color: rgba(107, 160, 69, 0.4);
-    }
+  h2 {
+    color: #b0b0b0;
+  }
 
-    &:focus {
-      outline: 2px solid #5a8a37;
-      outline-offset: 2px;
-      border-radius: 2px;
-    }
+  h3 {
+    color: #b0b0b0;
+  }
 
-    // Links in cards
-    .card & {
-      color: #5a8a37;
-    }
+  h3 a {
+    color: #e0e0e0;
+  }
 
-    // Links in alerts
-    .alert & {
-      font-weight: 500;
-    }
+  h3 strong {
+    color: #5a8a37;
+  }
 
-    // Button links should not be underlined
-    &.btn,
-    &.btn-link {
-      text-decoration: none;
-    }
+  .meta {
+    color: #b0b0b0;
+  }
+
+  .description {
+    color: #e0e0e0;
+  }
+
+  .description h1 {
+    color: #e0e0e0;
+  }
+
+  label,
+  .form-label {
+    color: #e0e0e0;
+  }
+
+  .race a {
+    color: #b0b0b0;
+  }
+
+  .race a:hover {
+    background: #333;
+  }
+
+  .race a .title strong {
+    color: #e0e0e0;
+  }
+
+  hr {
+    border-bottom-color: #555;
   }
 
   // Bootstrap component overrides
@@ -476,37 +737,47 @@ a {
   }
 
   .table {
-    color: var(--text-color);
+    color: #e0e0e0;
     background-color: var(--card-bg);
   }
 
   .table-striped {
     > tbody > tr {
       background-color: var(--card-bg);
-      color: var(--text-color);
+      color: #e0e0e0;
 
       &:nth-of-type(odd) {
-        background-color: var(--table-striped-bg);
-        color: var(--text-color);
+        background-color: rgba(255, 255, 255, 0.05);
+        color: #e0e0e0;
+      }
+
+      &:nth-of-type(even) {
+        background-color: var(--card-bg);
+        color: #e0e0e0;
       }
     }
 
     > thead > tr {
-      background-color: var(--card-bg);
-      color: var(--text-color);
+      background-color: #2d2d2d;
+      color: #e0e0e0;
     }
   }
 
   .table th,
   .table td {
-    border-color: var(--card-border);
-    color: var(--text-color);
+    border-color: #444444;
+    color: #e0e0e0;
   }
 
   .table thead th {
-    background-color: var(--card-bg);
-    color: var(--text-color);
-    border-color: var(--card-border);
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+    border-color: #444444;
+    font-weight: 600;
+  }
+
+  .table tbody td {
+    color: #b0b0b0;
   }
 
   .alert {
@@ -623,6 +894,17 @@ a {
     &::placeholder {
       color: #999;
     }
+  }
+
+  label,
+  .form-label {
+    color: #e0e0e0;
+  }
+
+  .card-title,
+  .h5,
+  .h6 {
+    color: #e0e0e0;
   }
 
   .form-check-input {

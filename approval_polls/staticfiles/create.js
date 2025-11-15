@@ -76,7 +76,7 @@ $(function () {
                    maxlength="100"
                    placeholder=""
                    value="${value}">
-            <button class="btn btn-outline-primary remove-choice" type="button" title="Remove Choice">
+            <button class="btn btn-outline-primary remove-choice" type="button" title="Remove Candidate">
               <i class="fa fa-times"></i>
             </button>
           </div>
