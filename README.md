@@ -62,7 +62,6 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ```bash
 uv sync
-source .venv/bin/activate
 ```
 
 The `uv sync` command will:
@@ -71,6 +70,33 @@ The `uv sync` command will:
 - Create a virtual environment (`.venv`)
 - Install all dependencies from `pyproject.toml`
 - Generate or update `uv.lock` for reproducible builds
+
+**Note:** `uv` commands (like `uv sync`, `uv run`, `uv pip install`) automatically detect and use the `.venv` directory, so manual activation isn't required for uv commands. However, if you want to run `python` directly or use other tools like `pytest` or `mypy`, you'll need to activate the virtualenv:
+
+```bash
+source .venv/bin/activate
+```
+
+**Optional: Auto-activate virtualenv with direnv**
+
+For convenience, you can use [direnv](https://direnv.net/) to automatically activate the virtualenv when entering this directory:
+
+```bash
+# Install direnv
+brew install direnv
+
+# Add to your shell (add this to ~/.zshrc)
+eval "$(direnv hook zsh)"
+
+# Create .envrc file in the project directory
+echo 'export VIRTUAL_ENV="$PWD/.venv"' > .envrc
+echo 'export PATH="$VIRTUAL_ENV/bin:$PATH"' >> .envrc
+
+# Allow direnv in this directory (only needed once)
+direnv allow
+```
+
+This will automatically activate `.venv` when you `cd` into the project directory and deactivate it when you leave.
 
 **Adding dependencies:**
 

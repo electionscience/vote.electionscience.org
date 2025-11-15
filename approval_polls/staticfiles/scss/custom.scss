@@ -47,7 +47,7 @@ a {
   }
 
   &:visited {
-    color: #5a8a37; // Lighter green for visited links
+    color: #000; // Lighter green for visited links
     text-decoration-color: rgba(90, 138, 55, 0.3);
   }
 
@@ -468,7 +468,7 @@ a {
   }
 
   .text-success {
-    color: #86efac !important; // Brighter green for dark mode visibility
+    color: #fff !important; // Brighter green for dark mode visibility
   }
 
   .progress {
@@ -547,21 +547,49 @@ a {
 
   // Button styling for dark mode
   .btn-light {
-    background-color: #ffffff;
-    border-color: #dee2e6;
-    color: #000000;
+    background-color: transparent;
+    border-color: #000000;
+    color: #e0e0e0 !important;
 
     &:hover {
-      background-color: #f8f9fa;
-      border-color: #dee2e6;
-      color: #000000;
+      background-color: transparent;
+      border-color: #000000;
+      color: #e0e0e0 !important;
     }
 
     &:focus {
-      background-color: #f8f9fa;
-      border-color: #dee2e6;
-      color: #000000;
+      background-color: transparent;
+      border-color: #000000;
+      color: #e0e0e0 !important;
       box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.25);
+    }
+
+    // Override green link color for button links
+    &.btn {
+      color: #e0e0e0 !important;
+      text-decoration: none;
+
+      &:hover {
+        color: #e0e0e0 !important;
+      }
+
+      &:visited {
+        color: #e0e0e0 !important;
+      }
+    }
+  }
+
+  // Override green link color for anchor buttons
+  a.btn-light {
+    color: #e0e0e0 !important;
+    text-decoration: none;
+
+    &:hover {
+      color: #e0e0e0 !important;
+    }
+
+    &:visited {
+      color: #e0e0e0 !important;
     }
   }
 
