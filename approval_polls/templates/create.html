@@ -30,22 +30,24 @@
                     <h2 class="card-title h5 mb-3">Options</h2>
                     <div id="poll-options">
                         {% for i in 2|get_range %}
-                            <div class="mb-3 poll-option">
-                                <label for="choice{{ i }}" class="form-label">{{ i }}.</label>
-                                <div class="input-group">
-                                    <input type="text"
-                                           class="form-control {% if i == 1 and choice_error %}is-invalid{% endif %}"
-                                           id="choice{{ i }}"
-                                           name="choice{{ i }}"
-                                           maxlength="100"
-                                           placeholder="Write or paste options">
-                                    <button class="btn btn-outline-primary remove-choice"
-                                            type="button"
-                                            title="Remove Choice">
-                                        <i class="fa fa-times"></i>
-                                    </button>
+                            <div class="mb-3 poll-option d-flex align-items-start gap-2">
+                                <label for="choice{{ i }}" class="form-label poll-option-number">{{ i }}.</label>
+                                <div class="flex-grow-1">
+                                    <div class="input-group">
+                                        <input type="text"
+                                               class="form-control {% if i == 1 and choice_error %}is-invalid{% endif %}"
+                                               id="choice{{ i }}"
+                                               name="choice{{ i }}"
+                                               maxlength="100"
+                                               placeholder="Write or paste options">
+                                        <button class="btn btn-outline-primary remove-choice"
+                                                type="button"
+                                                title="Remove Choice">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </div>
+                                    {% if i == 1 and choice_error %}<div class="invalid-feedback">{{ choice_error }}</div>{% endif %}
                                 </div>
-                                {% if i == 1 and choice_error %}<div class="invalid-feedback">{{ choice_error }}</div>{% endif %}
                             </div>
                         {% endfor %}
                     </div>

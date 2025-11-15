@@ -65,19 +65,21 @@ $(function () {
   const addChoiceField = (value = "") => {
     lastId++;
     const newOption = `
-      <div class="mb-3 poll-option">
-        <label for="choice${lastId}" class="form-label">${lastId}.</label>
-        <div class="input-group">
-          <input type="text"
-                 class="form-control"
-                 id="choice${lastId}"
-                 name="choice${lastId}"
-                 maxlength="100"
-                 placeholder=""
-                 value="${value}">
-          <button class="btn btn-outline-primary remove-choice" type="button" title="Remove Choice">
-            <i class="fa fa-times"></i>
-          </button>
+      <div class="mb-3 poll-option d-flex align-items-start gap-2">
+        <label for="choice${lastId}" class="form-label poll-option-number">${lastId}.</label>
+        <div class="flex-grow-1">
+          <div class="input-group">
+            <input type="text"
+                   class="form-control"
+                   id="choice${lastId}"
+                   name="choice${lastId}"
+                   maxlength="100"
+                   placeholder=""
+                   value="${value}">
+            <button class="btn btn-outline-primary remove-choice" type="button" title="Remove Choice">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -87,7 +89,7 @@ $(function () {
   const updateOptionNumbers = () => {
     pollOptions.container.children(".poll-option").each(function (index) {
       const newIndex = index + 1;
-      $(this).find("label").text(`Option ${newIndex}`);
+      $(this).find("label").text(`${newIndex}.`);
       $(this)
         .find("input")
         .attr("id", `choice${newIndex}`)
