@@ -63,12 +63,13 @@ class PollAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {"fields": ["question"]}),
         ("Date information", {"fields": ["pub_date"], "classes": ["collapse"]}),
+        ("Visibility", {"fields": ["is_private"]}),
     ]
     inlines = [ChoiceInline]
-    list_display = ("id", "question", "pub_date")
-    list_filter = ["pub_date"]
+    list_display = ("id", "question", "pub_date", "is_private")
+    list_filter = ["pub_date", "is_private"]
     search_fields = ["question"]
-    actions = ["export_voters_as_csv"]
+    actions = ["export_voters_as_csv", "make_private", "make_public"]
 
     @admin.display(description="Export poll with opt-in voter emails.")
     def export_voters_as_csv(self, queryset):
@@ -106,6 +107,22 @@ class PollAdmin(admin.ModelAdmin):
                         writer.writerow(["", "", "", ballot.email])
 
         return response
+
+    @admin.action(description="Mark selected polls as private (hide from front page)")
+    def make_private(self, request, queryset):
+        updated = queryset.update(is_private=True)
+        self.message_user(
+            request,
+            f"{updated} poll(s) marked as private and hidden from front page.",
+        )
+
+    @admin.action(description="Mark selected polls as public (show on front page)")
+    def make_public(self, request, queryset):
+        updated = queryset.update(is_private=False)
+        self.message_user(
+            request,
+            f"{updated} poll(s) marked as public and shown on front page.",
+        )
 
 
 admin.site.register(Ballot)
