@@ -42,6 +42,31 @@ if DEBUG:
 if not DEBUG:
     COMPRESS_OFFLINE = True
     LIBSASS_OUTPUT_STYLE = "compressed"
+
+    def filter_invalid_host_errors(event, hint):
+        """Filter out invalid HTTP_HOST header errors from Sentry."""
+        # Check exception type in hint
+        if "exc_info" in hint:
+            exc_type, exc_value, tb = hint["exc_info"]
+            if exc_type.__name__ == "DisallowedHost":
+                return None
+        # Check log record message
+        if "log_record" in hint:
+            msg = str(hint.get("log_record", {}).get("msg", ""))
+            if "Invalid HTTP_HOST header" in msg:
+                return None
+        # Check event exception data directly
+        if event.get("exception"):
+            for exc in event["exception"].get("values", []):
+                exc_type = exc.get("type", "")
+                exc_value = exc.get("value", "")
+                if (
+                    exc_type == "DisallowedHost"
+                    or "Invalid HTTP_HOST header" in exc_value
+                ):
+                    return None
+        return event
+
     sentry_sdk.init(
         dsn="https://78856604267db99554868743d5eb61e5@o4506681396625408.ingest.sentry.io/4506681396756480",
         # Set traces_sample_rate to 1.0 to capture 100%
@@ -51,6 +76,7 @@ if not DEBUG:
         # of sampled transactions.
         # We recommend adjusting this value in production.
         profiles_sample_rate=1.0,
+        before_send=filter_invalid_host_errors,
     )
     CSRF_TRUSTED_ORIGINS = [
         "https://vote.electionscience.org",
