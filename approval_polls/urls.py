@@ -10,6 +10,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("<int:pk>/", views.DetailView.as_view(), name="detail"),
     path("<int:poll_id>/delete/", views.delete_poll, name="delete_poll"),
+    path("<int:poll_id>/admin/", views.poll_admin, name="poll_admin"),
     path("<int:pk>/results/", views.ResultsView.as_view(), name="results"),
     path(
         "<int:poll_id>/embed_instructions/",

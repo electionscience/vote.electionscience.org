@@ -44,13 +44,80 @@ def tag_cloud(request):
 
 @login_required
 def my_polls(request):
+    # Handle POST requests for toggling settings
+    if request.method == "POST":
+        poll_id = request.POST.get("poll_id")
+        if poll_id:
+            poll = get_object_or_404(Poll, id=poll_id, user=request.user)
+            if "toggle_suspended" in request.POST:
+                poll.is_suspended = not poll.is_suspended
+                poll.save()
+                status = "closed" if poll.is_suspended else "opened"
+                messages.success(request, f"Poll has been {status}.")
+            elif "toggle_visibility" in request.POST:
+                poll.is_private = not poll.is_private
+                poll.save()
+                visibility = "private" if poll.is_private else "public"
+                messages.success(request, f"Poll visibility set to {visibility}.")
+            return redirect("my_polls")
+
     poll_list = (
         Poll.objects.filter(pub_date__lte=timezone.now(), user_id=request.user)
         .select_related("user")
-        .prefetch_related("choice_set", "polltag_set")
+        .prefetch_related("choice_set", "polltag_set", "ballot_set__user")
         .order_by("-pub_date")
     )
-    return get_polls(request, poll_list, "my_polls.html")
+
+    # Prepare voter information for each poll
+    polls_with_voters = []
+    for poll in poll_list:
+        ballots = poll.ballot_set.select_related("user").order_by("-timestamp")
+        voters = []
+        if poll.vtype == 1:
+            # Anonymous polls: show only timestamp
+            for ballot in ballots:
+                voters.append(
+                    {
+                        "timestamp": ballot.timestamp,
+                        "username": None,
+                        "email": None,
+                    }
+                )
+        else:
+            # Authenticated polls: show username, email (if available), and timestamp
+            for ballot in ballots:
+                username = ballot.user.username if ballot.user else None
+                email = (
+                    ballot.email
+                    if ballot.email
+                    else (ballot.user.email if ballot.user else None)
+                )
+                voters.append(
+                    {
+                        "timestamp": ballot.timestamp,
+                        "username": username,
+                        "email": email,
+                    }
+                )
+
+        polls_with_voters.append(
+            {
+                "poll": poll,
+                "voters": voters,
+                "total_voters": len(voters),
+            }
+        )
+
+    paginator = Paginator(polls_with_voters, 5)
+    page = request.GET.get("page")
+    try:
+        polls = paginator.page(page)
+    except PageNotAnInteger:
+        polls = paginator.page(1)
+    except EmptyPage:
+        polls = paginator.page(paginator.num_pages)
+
+    return render(request, "my_polls.html", {"latest_poll_list": polls})
 
 
 def tagged_polls(request, tag):
@@ -66,10 +133,71 @@ def tagged_polls(request, tag):
 
 @login_required
 def my_info(request):
-    poll_list = Poll.objects.filter(
-        pub_date__lte=timezone.now(), user_id=request.user
-    ).order_by("-pub_date")
-    paginator = Paginator(poll_list, 5)
+    # Handle POST requests for toggling settings
+    if request.method == "POST":
+        poll_id = request.POST.get("poll_id")
+        if poll_id:
+            poll = get_object_or_404(Poll, id=poll_id, user=request.user)
+            if "toggle_suspended" in request.POST:
+                poll.is_suspended = not poll.is_suspended
+                poll.save()
+                status = "closed" if poll.is_suspended else "opened"
+                messages.success(request, f"Poll has been {status}.")
+            elif "toggle_visibility" in request.POST:
+                poll.is_private = not poll.is_private
+                poll.save()
+                visibility = "private" if poll.is_private else "public"
+                messages.success(request, f"Poll visibility set to {visibility}.")
+            return redirect("my_info")
+
+    poll_list = (
+        Poll.objects.filter(pub_date__lte=timezone.now(), user_id=request.user)
+        .select_related("user")
+        .prefetch_related("ballot_set__user")
+        .order_by("-pub_date")
+    )
+
+    # Prepare voter information for each poll
+    polls_with_voters = []
+    for poll in poll_list:
+        ballots = poll.ballot_set.select_related("user").order_by("-timestamp")
+        voters = []
+        if poll.vtype == 1:
+            # Anonymous polls: show only timestamp
+            for ballot in ballots:
+                voters.append(
+                    {
+                        "timestamp": ballot.timestamp,
+                        "username": None,
+                        "email": None,
+                    }
+                )
+        else:
+            # Authenticated polls: show username, email (if available), and timestamp
+            for ballot in ballots:
+                username = ballot.user.username if ballot.user else None
+                email = (
+                    ballot.email
+                    if ballot.email
+                    else (ballot.user.email if ballot.user else None)
+                )
+                voters.append(
+                    {
+                        "timestamp": ballot.timestamp,
+                        "username": username,
+                        "email": email,
+                    }
+                )
+
+        polls_with_voters.append(
+            {
+                "poll": poll,
+                "voters": voters,
+                "total_voters": len(voters),
+            }
+        )
+
+    paginator = Paginator(polls_with_voters, 5)
     page = request.GET.get("page", 1)
     try:
         polls = paginator.page(page)
@@ -98,6 +226,70 @@ def change_suspension(request, poll_id):
     p = Poll.objects.get(id=poll_id)
     p.is_suspended = not p.is_suspended
     p.save()
+
+
+@login_required
+def poll_admin(request, poll_id):
+    poll = get_object_or_404(Poll, id=poll_id)
+
+    # Verify user is the poll creator
+    if poll.user != request.user:
+        messages.error(request, "You are not authorized to access this page.")
+        return redirect("detail", pk=poll_id)
+
+    # Handle POST requests for toggling settings
+    if request.method == "POST":
+        if "toggle_suspended" in request.POST:
+            poll.is_suspended = not poll.is_suspended
+            poll.save()
+            status = "closed" if poll.is_suspended else "opened"
+            messages.success(request, f"Poll has been {status}.")
+        elif "toggle_visibility" in request.POST:
+            poll.is_private = not poll.is_private
+            poll.save()
+            visibility = "private" if poll.is_private else "public"
+            messages.success(request, f"Poll visibility set to {visibility}.")
+        return redirect("poll_admin", poll_id=poll_id)
+
+    # Get ballots with related user data
+    ballots = poll.ballot_set.select_related("user").order_by("-timestamp")
+
+    # Prepare voter information based on poll type
+    voters = []
+    if poll.vtype == 1:
+        # Anonymous polls: show only timestamp
+        for ballot in ballots:
+            voters.append(
+                {
+                    "timestamp": ballot.timestamp,
+                    "username": None,
+                    "email": None,
+                }
+            )
+    else:
+        # Authenticated polls: show username, email (if available), and timestamp
+        for ballot in ballots:
+            username = ballot.user.username if ballot.user else None
+            email = (
+                ballot.email
+                if ballot.email
+                else (ballot.user.email if ballot.user else None)
+            )
+            voters.append(
+                {
+                    "timestamp": ballot.timestamp,
+                    "username": username,
+                    "email": email,
+                }
+            )
+
+    context = {
+        "poll": poll,
+        "voters": voters,
+        "total_voters": len(voters),
+    }
+
+    return render(request, "poll_admin.html", context)
 
 
 def all_tags(request):

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load tz %}
 {% block extra_js %}
     <script src='{% static 'detail.js' %}'></script>
 {% endblock extra_js %}
@@ -91,7 +92,7 @@
                     </p>
                 {% endif %}
                 {% if poll.show_close_date %}
-                    <p class="text-muted">Closing Date: {{ poll.close_date|date:"N j, Y, P e" }}</p>
+                    <p class="text-muted">Closing Date: {% localtime on %}{{ poll.close_date|date:"N j, Y, P" }}{% endlocaltime %}</p>
                 {% endif %}
                 {% if poll.show_countdown and time_difference %}
                     <p id="timer" class="text-warning"></p>
@@ -102,6 +103,11 @@
                     <a href='{% url 'results' poll.id %}'
                        class="btn btn-outline-primary text-decoration-none"
                        role="button">See Results</a>
+                    {% if user == poll.user %}
+                        <a href='{% url 'poll_admin' poll.id %}'
+                           class="btn btn-outline-secondary text-decoration-none ms-2"
+                           role="button">Admin</a>
+                    {% endif %}
                 </div>
             </div>
         </div>

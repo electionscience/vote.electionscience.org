@@ -1,8 +1,47 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load tz %}
 {% block extra_css %}<!-- Add any additional CSS here -->{% endblock %}
 {% block extra_js %}
     <script src="{% static 'my_polls.js' %}"></script>
+    <script>
+        function copyPollUrl(pollId) {
+            const url = window.location.origin + '/' + pollId + '/';
+            const button = event.target;
+            const originalText = button.textContent;
+
+            const copyToClipboard = () => {
+                navigator.clipboard.writeText(url).then(function() {
+                    button.textContent = 'Copied!';
+                    button.classList.add('btn-success');
+                    button.classList.remove('btn-outline-primary');
+                    setTimeout(function() {
+                        button.textContent = originalText;
+                        button.classList.remove('btn-success');
+                        button.classList.add('btn-outline-primary');
+                    }, 2000);
+                }, function() {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = url;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    button.textContent = 'Copied!';
+                    button.classList.add('btn-success');
+                    button.classList.remove('btn-outline-primary');
+                    setTimeout(function() {
+                        button.textContent = originalText;
+                        button.classList.remove('btn-success');
+                        button.classList.add('btn-outline-primary');
+                    }, 2000);
+                });
+            };
+
+            copyToClipboard();
+        }
+    </script>
 {% endblock %}
 {% block content %}
     <div class="container">
@@ -43,24 +82,89 @@
         </div>
         <h2 class="mb-3">My Elections</h2>
         {% if latest_poll_list %}
-            {% for poll in latest_poll_list %}
-                <div class="card mb-3" id="poll-{{ poll.id }}">
-                    <div class="card-body">
-                        <h3 class="card-title h5">
-                            <a href="{% url 'detail' poll.id %}">{{ poll.question }}</a>
-                        </h3>
-                        <p class="card-text">Published on {{ poll.pub_date|date:"N j, Y, P e" }}</p>
-                        <div class="d-flex justify-content-end">
-                            {% comment %} <a href="{% url 'edit' poll.id %}" class="btn btn-primary btn-sm me-2">Edit</a> {% endcomment %}
-                            <form action="{% url 'delete_poll' poll.id %}"
-                                  method="post"
-                                  onsubmit="return confirm('Are you sure you want to delete this poll?');">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                            </form>
+            {% for poll_data in latest_poll_list %}
+                {% with poll=poll_data.poll %}
+                    <div class="card mb-3" id="poll-{{ poll.id }}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="flex-grow-1">
+                                    <h3 class="card-title h5 mb-2">
+                                        <a href="{% url 'detail' poll.id %}">{{ poll.question }}</a>
+                                    </h3>
+                                    <div class="row g-2 text-muted small">
+                                        <div class="col-auto">
+                                            <strong>Published:</strong> {% localtime on %}{{ poll.pub_date|date:"N j, Y, P" }}{% endlocaltime %}
+                                        </div>
+                                        <div class="col-auto">
+                                            <strong>Voters:</strong> {{ poll_data.total_voters }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    {% if poll.is_suspended %}
+                                        <span class="badge bg-danger">Closed</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Open</span>
+                                    {% endif %}
+                                    {% if poll.is_private %}
+                                        <span class="badge bg-dark">Private</span>
+                                    {% else %}
+                                        <span class="badge bg-primary">Public</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="border-top pt-3">
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <h6 class="h6 mb-2">Settings</h6>
+                                        <div class="d-flex gap-2 flex-wrap">
+                                            <form method="post" class="d-inline">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="poll_id" value="{{ poll.id }}">
+                                                <button type="submit"
+                                                        name="toggle_suspended"
+                                                        class="btn btn-sm {% if poll.is_suspended %}btn-success{% else %}btn-danger{% endif %}">
+                                                    {% if poll.is_suspended %}
+                                                        Open Poll
+                                                    {% else %}
+                                                        Close Poll
+                                                    {% endif %}
+                                                </button>
+                                            </form>
+                                            <form action="{% url 'delete_poll' poll.id %}"
+                                                  method="post"
+                                                  onsubmit="return confirm('Are you sure you want to delete this poll?');"
+                                                  class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                            </form>
+                                            <form method="post" class="d-inline">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="poll_id" value="{{ poll.id }}">
+                                                <button type="submit" name="toggle_visibility" class="btn btn-sm btn-primary">
+                                                    {% if poll.is_private %}
+                                                        Make Public
+                                                    {% else %}
+                                                        Make Private
+                                                    {% endif %}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="h6 mb-2">Actions</h6>
+                                        <div class="d-flex gap-2 flex-wrap">
+                                            <a href="{% url 'results' poll.id %}"
+                                               class="btn btn-sm btn-outline-primary">See Results</a>
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                    onclick="copyPollUrl({{ poll.id }})">Copy URL</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                {% endwith %}
             {% endfor %}
             <nav aria-label="Election list pagination" class="mt-4">
                 <ul class="pagination justify-content-center">

@@ -6,7 +6,7 @@ authors = [{ name = "Felix Sargent", email = "felix@electionscience.org" }]
 readme = "README.md"
 requires-python = ">=3.14.0"
 dependencies = [
-  "django~=5.0.0",
+  "django~=5.2.0",
   "pytz>=2023.4",
   "django-extensions>=3.2.3",
   "djangoajax>=3.3",
