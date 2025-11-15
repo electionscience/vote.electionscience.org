@@ -21,6 +21,23 @@ var words = []
 {% for k, v in topTags.items %}
   words.push({text: '{{ k }}', weight: {{ v }}, link: '/approval_polls/tag/{{k}}'})
 {% endfor %}
-$('#tagcloud').jQCloud(words);
+// Ensure jQuery is loaded before using it
+if (typeof jQuery !== 'undefined' && typeof jQuery.fn.jQCloud !== 'undefined') {
+    jQuery('#tagcloud').jQCloud(words);
+} else {
+    // Wait for jQuery and jQCloud to load
+    function initializeTagCloud() {
+        if (typeof jQuery !== 'undefined' && typeof jQuery.fn.jQCloud !== 'undefined') {
+            jQuery('#tagcloud').jQCloud(words);
+        } else {
+            setTimeout(initializeTagCloud, 100);
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeTagCloud);
+    } else {
+        initializeTagCloud();
+    }
+}
     </script>
 {% endblock %}
