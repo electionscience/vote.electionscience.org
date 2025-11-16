@@ -26,4 +26,4 @@ python manage.py compress --force
 
 # Start Gunicorn server
 echo "Starting Gunicorn server..."
-exec gunicorn "approval_polls.wsgi:application" "-b 0.0.0.0:8000"
+exec gunicorn -b 0.0.0.0:8000 approval_polls.wsgi:application

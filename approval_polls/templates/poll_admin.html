@@ -1,6 +1,24 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load tz %}
+{% block extra_js %}
+    <script>
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            element.select();
+            element.setSelectionRange(0, 99999); // For mobile devices
+            navigator.clipboard.writeText(element.value).then(function() {
+                // Show feedback (optional)
+                const button = element.nextElementSibling;
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fa fa-check"></i> Copied!';
+                setTimeout(function() {
+                    button.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+    </script>
+{% endblock %}
 {% block content %}
     <div class="container">
         <div class="card mb-4">
@@ -87,6 +105,65 @@
                         <p class="text-muted">No votes have been cast yet.</p>
                     {% endif %}
                 </div>
+                {% if poll.vtype == 3 %}
+                    <div class="mb-4">
+                        <h4 class="h5">Invitations</h4>
+                        {% if invitations %}
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Email</th>
+                                            <th>Invitation URL</th>
+                                            <th>Status</th>
+                                            <th>Sent Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for invitation in invitations %}
+                                            <tr>
+                                                <td>{{ invitation.email }}</td>
+                                                <td>
+                                                    <div class="input-group">
+                                                        <input type="text"
+                                                               class="form-control form-control-sm"
+                                                               value="{{ invitation.invitation_url }}"
+                                                               readonly
+                                                               id="invitation-url-{{ invitation.id }}">
+                                                        <button class="btn btn-outline-secondary btn-sm"
+                                                                type="button"
+                                                                onclick="copyToClipboard('invitation-url-{{ invitation.id }}')">
+                                                            <i class="fa fa-copy"></i> Copy
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    {% if invitation.ballot %}
+                                                        <span class="badge bg-success">Voted</span>
+                                                    {% else %}
+                                                        <span class="badge bg-warning">Pending</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if invitation.sent_date %}
+                                                        {% localtime on %}{{ invitation.sent_date|date:"N j, Y, P" }}{% endlocaltime %}
+                                                    {% else %}
+                                                        —
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No invitations have been created yet.</p>
+                        {% endif %}
+                        <p class="text-muted small mt-2">
+                            Share these invitation URLs with voters. Each invitation is unique and can only be used once.
+                        </p>
+                    </div>
+                {% endif %}
                 <div class="mt-4">
                     <a href="{% url 'detail' poll.id %}" class="btn btn-outline-primary">View Poll</a>
                     <a href="{% url 'results' poll.id %}" class="btn btn-outline-primary">View Results</a>

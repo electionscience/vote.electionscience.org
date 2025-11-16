@@ -7,7 +7,7 @@ from django.test.client import Client
 from django.urls import reverse
 from django.utils import timezone
 
-from approval_polls.models import Ballot, Choice, Poll, Vote
+from approval_polls.models import Ballot, Choice, Poll, Vote, VoteInvitation
 
 logger = structlog.get_logger(__name__)
 
@@ -638,3 +638,202 @@ class TagCloudTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "<a href='/tag/new%20york/'")
         self.assertNotContains(response, "new york")
+
+
+class VoteInvitationTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            "poll_creator", "creator@example.com", "password123"
+        )
+        self.voter_email = "voter@example.com"
+        self.poll = create_poll(
+            question="Invitation Test Poll",
+            username="poll_creator",
+            email="creator@example.com",
+            days=-5,
+            vtype=3,
+        )
+        self.choice1 = self.poll.choice_set.create(choice_text="Choice 1")
+        self.choice2 = self.poll.choice_set.create(choice_text="Choice 2")
+
+    def test_create_invitation(self):
+        """Test creating a vote invitation"""
+        invitation = create_vote_invitation(self.poll, self.voter_email)
+        self.assertEqual(invitation.email, self.voter_email)
+        self.assertEqual(invitation.poll, self.poll)
+        self.assertIsNotNone(invitation.key)
+
+    def test_send_vote_invitations(self):
+        """Test Poll.send_vote_invitations creates invitations"""
+        emails = "voter1@example.com, voter2@example.com, voter3@example.com"
+        invitations = self.poll.send_vote_invitations(emails)
+        self.assertEqual(len(invitations), 3)
+        self.assertEqual(
+            set(inv.email for inv in invitations),
+            {"voter1@example.com", "voter2@example.com", "voter3@example.com"},
+        )
+
+    def test_send_vote_invitations_filters_invalid_emails(self):
+        """Test that invalid emails are filtered out"""
+        emails = "valid@example.com, invalid-email, another@example.com, not-an-email"
+        invitations = self.poll.send_vote_invitations(emails)
+        self.assertEqual(len(invitations), 2)
+        emails_list = [inv.email for inv in invitations]
+        self.assertIn("valid@example.com", emails_list)
+        self.assertIn("another@example.com", emails_list)
+        self.assertNotIn("invalid-email", emails_list)
+
+    def test_invited_emails(self):
+        """Test Poll.invited_emails returns correct list"""
+        create_vote_invitation(self.poll, "voter1@example.com")
+        create_vote_invitation(self.poll, "voter2@example.com")
+        invited = self.poll.invited_emails()
+        self.assertEqual(len(invited), 2)
+        self.assertIn("voter1@example.com", invited)
+        self.assertIn("voter2@example.com", invited)
+
+    def test_get_invitation_url(self):
+        """Test VoteInvitation.get_invitation_url generates correct URL"""
+        invitation = create_vote_invitation(self.poll, self.voter_email)
+        # Generate a proper key
+        invitation.key = VoteInvitation.generate_key()
+        invitation.save()
+
+        url = invitation.get_invitation_url()
+        self.assertIn(str(self.poll.id), url)
+        self.assertIn(invitation.key, url)
+        self.assertIn(self.voter_email, url)
+
+    def test_vote_with_invitation_link(self):
+        """Test voting via invitation link creates and links ballot"""
+        invitation = create_vote_invitation(self.poll, self.voter_email)
+        invitation.key = VoteInvitation.generate_key()
+        invitation.save()
+
+        # Vote via invitation link
+        response = self.client.post(
+            reverse("vote", args=(self.poll.id,)),
+            {
+                "invitation_key": invitation.key,
+                "invitation_email": self.voter_email,
+                "choice1": "",
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+
+        # Check ballot was created and linked
+        invitation.refresh_from_db()
+        self.assertIsNotNone(invitation.ballot)
+        self.assertEqual(invitation.ballot.email, self.voter_email)
+
+    def test_vote_with_invitation_updates_existing_ballot(self):
+        """Test that voting again with same invitation updates existing ballot"""
+        invitation = create_vote_invitation(self.poll, self.voter_email)
+        invitation.key = VoteInvitation.generate_key()
+        invitation.save()
+
+        # First vote
+        self.client.post(
+            reverse("vote", args=(self.poll.id,)),
+            {
+                "invitation_key": invitation.key,
+                "invitation_email": self.voter_email,
+                "choice1": "",
+            },
+        )
+
+        # Second vote with different choice
+        response = self.client.post(
+            reverse("vote", args=(self.poll.id,)),
+            {
+                "invitation_key": invitation.key,
+                "invitation_email": self.voter_email,
+                "choice2": "",
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+
+        # Check same ballot was used
+        invitation.refresh_from_db()
+        ballot_id = invitation.ballot.id
+        invitation.refresh_from_db()
+        self.assertEqual(invitation.ballot.id, ballot_id)
+
+    def test_vote_without_invitation_fails(self):
+        """Test that voting without valid invitation fails for vtype=3"""
+        response = self.client.post(
+            reverse("vote", args=(self.poll.id,)),
+            {"choice1": ""},
+            follow=True,
+        )
+        # Should redirect back to detail page with error
+        self.assertEqual(response.status_code, 200)
+
+    def test_detail_view_with_invitation_link(self):
+        """Test detail view shows voting form when accessed via invitation link"""
+        invitation = create_vote_invitation(self.poll, self.voter_email)
+        invitation.key = VoteInvitation.generate_key()
+        invitation.save()
+
+        url = reverse("invitation", args=(self.poll.id,))
+        url += f"?key={invitation.key}&email={self.voter_email}"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["vote_authorized"])
+        self.assertEqual(response.context["vote_invitation"], invitation)
+
+    def test_detail_view_without_invitation_unauthorized(self):
+        """Test detail view shows unauthorized message for vtype=3 without invitation"""
+        response = self.client.get(reverse("detail", args=(self.poll.id,)))
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context.get("vote_authorized", False))
+
+    def test_authenticated_user_with_invited_email_can_vote(self):
+        """Test authenticated user with invited email can vote"""
+        invited_user = User.objects.create_user(
+            "invited_user", self.voter_email, "password123"
+        )
+        create_vote_invitation(self.poll, self.voter_email)
+
+        self.client.login(username="invited_user", password="password123")
+        response = self.client.post(
+            reverse("vote", args=(self.poll.id,)),
+            {"invitation_email": self.voter_email, "choice1": ""},
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+
+        # Check ballot was created and linked to invitation
+        invitation = VoteInvitation.objects.get(email=self.voter_email, poll=self.poll)
+        self.assertIsNotNone(invitation.ballot)
+        self.assertEqual(invitation.ballot.user, invited_user)
+
+    def test_authenticated_user_not_invited_cannot_vote(self):
+        """Test authenticated user without invitation cannot vote"""
+        User.objects.create_user("non_invited", "notinvited@example.com", "password123")
+        self.client.login(username="non_invited", password="password123")
+
+        response = self.client.post(
+            reverse("vote", args=(self.poll.id,)),
+            {"invitation_email": "notinvited@example.com", "choice1": ""},
+            follow=True,
+        )
+        # Should redirect with error message
+        self.assertEqual(response.status_code, 200)
+        messages = list(response.context["messages"])
+        self.assertTrue(any("not invited" in str(m).lower() for m in messages))
+
+    def test_poll_admin_shows_invitations(self):
+        """Test poll admin page shows invitations for vtype=3 polls"""
+        create_vote_invitation(self.poll, "voter1@example.com")
+        create_vote_invitation(self.poll, "voter2@example.com")
+
+        self.client.login(username="poll_creator", password="password123")
+        response = self.client.get(reverse("poll_admin", args=(self.poll.id,)))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["invitations"]), 2)
+        self.assertContains(response, "voter1@example.com")
+        self.assertContains(response, "voter2@example.com")

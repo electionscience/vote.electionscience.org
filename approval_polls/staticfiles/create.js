@@ -103,11 +103,22 @@ $(function () {
 
     // Only initialize email validation if the token-emails field exists
     if (emailValidation.tokenField.length) {
+      // Get the value from the input field (for repopulation after errors)
+      const emailValue = emailValidation.tokenField.val();
+
       emailValidation.tokenField
         .on("tokenfield:createtoken", tokenize)
         .on("tokenfield:createdtoken", validateEmailToken)
         .on("tokenfield:removedtoken", validateTokenField)
         .tokenfield();
+
+      // Restore email tokens if there's a value (from form repopulation)
+      if (emailValue) {
+        emailValidation.tokenField.tokenfield(
+          "setTokens",
+          emailValue.split(",").map((e) => e.trim()),
+        );
+      }
     }
 
     // Only initialize tag field if it exists
@@ -150,16 +161,21 @@ $(function () {
   };
 
   const initializeEmailPollDisplay = () => {
-    if ($("#poll-vtype").val() == 3) {
+    const vtype = $("#poll-vtype").val();
+    if (vtype == 3 || vtype == "3") {
       emailPollDisplay();
     }
 
     $("input[name=radio-poll-type]:radio").on("click", function () {
-      if ($(this).val() == 3) {
+      const vtype = $(this).val();
+      $("#poll-vtype").val(vtype);
+      if (vtype == 3) {
         emailPollDisplay();
       } else {
         $("#email-input, #existing-emails").hide();
-        $("#poll-visibility").prop("checked", true);
+        if ($("#poll-visibility").length) {
+          $("#poll-visibility").prop("checked", true);
+        }
       }
     });
   };
@@ -170,6 +186,29 @@ $(function () {
       $("#poll-visibility").prop("checked", false);
     }
   };
+
+  // Handle form submission to extract tokenfield values
+  $("#create-poll-form").on("submit", function (e) {
+    // Extract tokens from tokenfield before submission
+    if (emailValidation.tokenField.length) {
+      const tokens = emailValidation.tokenField.tokenfield("getTokens");
+      if (tokens && tokens.length > 0) {
+        const emailValues = tokens.map((token) => token.value).join(",");
+        // Create a hidden input with the actual values
+        const hiddenInput = $("<input>").attr({
+          type: "hidden",
+          name: "token-emails",
+          value: emailValues,
+        });
+        // Remove any existing hidden input
+        $('input[name="token-emails"][type="hidden"]').remove();
+        // Add the new hidden input
+        $(this).append(hiddenInput);
+        // Clear the tokenfield so it doesn't submit its own format
+        emailValidation.tokenField.val("");
+      }
+    }
+  });
 
   // Initialize everything
   initializePollOptions();

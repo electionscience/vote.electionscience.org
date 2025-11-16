@@ -252,6 +252,35 @@ def poll_admin(request, poll_id):
             poll.save()
             visibility = "private" if poll.is_private else "public"
             messages.success(request, f"Poll visibility set to {visibility}.")
+        elif "add_invitations" in request.POST or "invite-emails" in request.POST:
+            # Add new invitations
+            emails = request.POST.get("invite-emails", "")
+            logger.info(
+                f"Adding invitations for poll {poll.id}. Received emails: {emails}"
+            )
+            if emails and emails.strip():
+                created = poll.send_vote_invitations(emails, request=request)
+                logger.info(f"Created {len(created)} invitations")
+                if created:
+                    messages.success(request, f"Created {len(created)} invitation(s).")
+                else:
+                    logger.warning(f"No invitations created from emails: {emails}")
+                    messages.error(request, "No valid email addresses were provided.")
+            else:
+                logger.warning(
+                    f"No emails provided in request. invite-emails value: {repr(emails)}"
+                )
+                messages.error(request, "Please enter at least one email address.")
+        elif "change_to_invitation_only" in request.POST:
+            # Change poll type to invitation-only
+            if poll.total_ballots() == 0:
+                poll.vtype = 3
+                poll.save()
+                messages.success(request, "Poll changed to invitation-only.")
+            else:
+                messages.error(
+                    request, "Cannot change poll type after votes have been cast."
+                )
         return redirect("detail", pk=poll_id)
 
     # Get ballots with related user data
@@ -286,10 +315,18 @@ def poll_admin(request, poll_id):
                 }
             )
 
+    # Get invitations for invitation-only polls
+    invitations = []
+    if poll.vtype == 3:
+        invitations = VoteInvitation.objects.filter(poll=poll).order_by("-sent_date")
+        for invitation in invitations:
+            invitation.invitation_url = invitation.get_invitation_url(request)
+
     context = {
         "poll": poll,
         "voters": voters,
         "total_voters": len(voters),
+        "invitations": invitations,
     }
 
     return render(request, "poll_admin.html", context)
@@ -316,7 +353,22 @@ class DetailView(generic.DetailView):
     def get(self, request, *args, **kwargs):
         # Check if poll is private and user is not authenticated
         self.object = self.get_object()
-        if self.object.is_private and not request.user.is_authenticated:
+        # Allow access if user has a valid invitation link, even if poll is private
+        has_valid_invitation = False
+        if "key" in request.GET and "email" in request.GET:
+            invitations = VoteInvitation.objects.filter(
+                key=request.GET["key"],
+                email=request.GET["email"],
+                poll_id=self.object.id,
+            )
+            if invitations.exists():
+                has_valid_invitation = True
+
+        if (
+            self.object.is_private
+            and not request.user.is_authenticated
+            and not has_valid_invitation
+        ):
             messages.error(request, "This poll is private. Please log in to access it.")
             return redirect("account_login")
         context = self.get_context_data(object=self.object)
@@ -365,6 +417,15 @@ class DetailView(generic.DetailView):
                     )
             context["voters"] = voters
             context["total_voters"] = len(voters)
+
+        # Add invitations for invitation-only polls (for admin section)
+        if poll.vtype == 3 and user == poll.user:
+            invitations = VoteInvitation.objects.filter(poll=poll).order_by(
+                "-sent_date"
+            )
+            for invitation in invitations:
+                invitation.invitation_url = invitation.get_invitation_url(self.request)
+            context["invitations"] = invitations
 
         if poll.vtype == 1:
             context["already_voted"] = False
@@ -465,7 +526,22 @@ class ResultsView(generic.DetailView):
     def get(self, request, *args, **kwargs):
         # Check if poll is private and user is not authenticated
         self.object = self.get_object()
-        if self.object.is_private and not request.user.is_authenticated:
+        # Allow access if user has a valid invitation link, even if poll is private
+        has_valid_invitation = False
+        if "key" in request.GET and "email" in request.GET:
+            invitations = VoteInvitation.objects.filter(
+                key=request.GET["key"],
+                email=request.GET["email"],
+                poll_id=self.object.id,
+            )
+            if invitations.exists():
+                has_valid_invitation = True
+
+        if (
+            self.object.is_private
+            and not request.user.is_authenticated
+            and not has_valid_invitation
+        ):
             messages.error(request, "This poll is private. Please log in to access it.")
             return redirect("account_login")
         context = self.get_context_data(object=self.object)
@@ -772,6 +848,18 @@ def handle_email_opt_in(request):
     return "email_opt_in" in request.POST
 
 
+def build_url_with_invitation(url_name, poll_id, request):
+    """Build a URL with invitation parameters if they exist in the request."""
+    from django.urls import reverse
+
+    url = reverse(url_name, args=(poll_id,))
+    invitation_key = request.POST.get("invitation_key")
+    invitation_email = request.POST.get("invitation_email")
+    if invitation_key and invitation_email:
+        url += f"?key={invitation_key}&email={invitation_email}"
+    return url
+
+
 @require_http_methods(["POST"])
 def vote(request, poll_id):
     try:
@@ -781,12 +869,16 @@ def vote(request, poll_id):
             # Check if poll is closed
             if poll.is_closed():
                 messages.error(request, "This poll is closed.")
-                return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
+                return HttpResponseRedirect(
+                    build_url_with_invitation("detail", poll.id, request)
+                )
 
             # Check if poll is suspended
             if poll.is_suspended:
                 messages.error(request, "This poll is currently suspended.")
-                return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
+                return HttpResponseRedirect(
+                    build_url_with_invitation("detail", poll.id, request)
+                )
 
             poll_vtype = poll.vtype
             user = request.user if request.user.is_authenticated else None
@@ -817,38 +909,67 @@ def vote(request, poll_id):
                 invitation_key = request.POST.get("invitation_key")
                 invitation_email = request.POST.get("invitation_email")
 
-                if not invitation_key or not invitation_email:
-                    messages.error(request, "Invalid invitation details provided.")
-                    return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
-
-                invitations = VoteInvitation.objects.filter(
-                    key=invitation_key, email=invitation_email, poll_id=poll.id
-                )
-                if invitations.exists():
-                    ballot = invitations.first().ballot
+                if invitation_key and invitation_email:
+                    invitations = VoteInvitation.objects.filter(
+                        key=invitation_key, email=invitation_email, poll_id=poll.id
+                    )
+                    if invitations.exists():
+                        invitation = invitations.first()
+                        # Create ballot if it doesn't exist, or use existing one
+                        if invitation.ballot:
+                            ballot = invitation.ballot
+                        else:
+                            ballot = Ballot.objects.create(
+                                poll=poll,
+                                permit_email=handle_email_opt_in(request),
+                                email=invitation_email,
+                            )
+                            invitation.ballot = ballot
+                            invitation.save()
                 elif user:
                     if user.email not in poll.invited_emails():
                         messages.error(
                             request, "You are not invited to vote in this poll."
                         )
-                        return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
+                        return HttpResponseRedirect(
+                            build_url_with_invitation("detail", poll.id, request)
+                        )
                     ballot, created = poll.ballot_set.get_or_create(
                         user=user,
                         defaults={"permit_email": handle_email_opt_in(request)},
+                    )
+                    # Link ballot to invitation if one exists
+                    if created:
+                        invitation = VoteInvitation.objects.filter(
+                            email=user.email, poll_id=poll.id
+                        ).first()
+                        if invitation and not invitation.ballot:
+                            invitation.ballot = ballot
+                            invitation.save()
+                else:
+                    messages.error(request, "Invalid invitation details provided.")
+                    return HttpResponseRedirect(
+                        build_url_with_invitation("detail", poll.id, request)
                     )
 
             if ballot:
                 update_ballot_votes(ballot, poll, request)
                 messages.success(request, "Your vote has been recorded successfully.")
-                return HttpResponseRedirect(reverse("results", args=(poll.id,)))
+                return HttpResponseRedirect(
+                    build_url_with_invitation("results", poll.id, request)
+                )
             else:
                 messages.error(request, "Unable to record your vote. Please try again.")
-                return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
+                return HttpResponseRedirect(
+                    build_url_with_invitation("detail", poll.id, request)
+                )
 
     except Exception as e:
         logger.error(f"Error processing vote: {str(e)}")
         messages.error(request, "An error occurred while processing your vote.")
-        return HttpResponseRedirect(reverse("detail", args=(poll.id,)))
+        return HttpResponseRedirect(
+            build_url_with_invitation("detail", poll.id, request)
+        )
 
     return HttpResponseRedirect(
         reverse("account_login") + "?next=" + reverse("detail", args=(poll.id,))
@@ -904,11 +1025,36 @@ class CreateView(generic.View):
     def post(self, request, *args, **kwargs):
         choices = []
 
+        # Collect all form data for repopulation on errors
+        form_data = {
+            "question": request.POST.get("question", ""),
+            "vtype": request.POST.get("radio-poll-type", "2"),
+            "token_emails": request.POST.get("token-emails", ""),
+            "show_write_in": "show-write-in" in request.POST,
+        }
+
+        # Collect choices data as sorted list of tuples for template iteration
+        choices_data = []
+        for key in request.POST:
+            m = re.match(r"choice(\d+)", key)
+            if m:
+                text = request.POST[key].strip()
+                if text:
+                    c = int(m.group(1))
+                    linkname = f"linkurl-choice{c}"
+                    linktext = request.POST.get(linkname, "").strip() or None
+                    choices_data.append((c, {"text": text, "link": linktext}))
+        choices_data.sort(key=lambda x: x[0])  # Sort by choice number
+
         if "question" not in request.POST:
             return render(
                 request,
                 "create.html",
-                {"question_error": "The question is missing"},
+                {
+                    "question_error": "The question is missing",
+                    **form_data,
+                    "choices_data": choices_data,
+                },
             )
         else:
             question = request.POST["question"].strip()
@@ -917,7 +1063,11 @@ class CreateView(generic.View):
                 return render(
                     request,
                     "create.html",
-                    {"question_error": "The question is missing"},
+                    {
+                        "question_error": "The question is missing",
+                        **form_data,
+                        "choices_data": choices_data,
+                    },
                 )
 
             for key in request.POST:
@@ -946,12 +1096,13 @@ class CreateView(generic.View):
                     "create.html",
                     {
                         "choice_error": "At least one choice is required",
-                        "question": question,
+                        **form_data,
+                        "choices_data": choices_data,
                     },
                 )
 
             # The voting type to be used by the poll
-            vtype = request.POST["radio-poll-type"]
+            vtype = int(request.POST["radio-poll-type"])
 
             if "close-datetime" in request.POST:
                 closedatetime = request.POST["close-datetime"]
@@ -1024,7 +1175,14 @@ class CreateView(generic.View):
 
             if "token-tags" in request.POST and len(str(request.POST["token-tags"])):
                 p.add_tags(request.POST["token-tags"].split(","))
-            if vtype == "3":
-                p.send_vote_invitations(request.POST["token-emails"])
+            if vtype == 3:
+                # Tokenfield stores values as comma-separated tokens
+                # Get the raw value and process it
+                emails_raw = request.POST.get("token-emails", "")
+                if emails_raw:
+                    # Tokenfield may store as tokens, extract actual email values
+                    # Split by comma and clean up
+                    emails = emails_raw
+                    p.send_vote_invitations(emails, request=request)
 
             return HttpResponseRedirect(reverse("detail", args=(p.id,)))

@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
-from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.crypto import get_random_string
@@ -64,13 +63,23 @@ class Poll(models.Model):
     def delete_choices(self, ids):
         Choice.objects.filter(id__in=ids, poll=self).delete()
 
-    def send_vote_invitations(self, emails):
+    def send_vote_invitations(self, emails, request=None):
+        import structlog
+
+        logger = structlog.get_logger(__name__)
+        logger.info(f"send_vote_invitations called with emails: {repr(emails)}")
+
         # Get unique valid email addresses
         email_list = {
             email.strip()
             for email in emails.split(",")
             if re.match(r"([^@|\s]+@[^@]+\.[^@|\s]+)", email.strip())
         }
+        logger.info(f"Parsed email_list: {email_list}")
+
+        if not email_list:
+            logger.warning(f"No valid emails found in: {emails}")
+            return []
 
         # Create all invitations at once
         now = timezone.now()
@@ -80,11 +89,34 @@ class Poll(models.Model):
             )
             for email in email_list
         ]
+        logger.info(f"Creating {len(invitations)} invitations")
         created_invitations = VoteInvitation.objects.bulk_create(invitations)
+        logger.info(f"Successfully created {len(created_invitations)} invitations")
 
-        # Send emails after creation
+        # Try to send emails, but don't fail if email sending is not configured
         for invitation in created_invitations:
-            invitation.send_email()
+            try:
+                invitation.send_email(request)
+                logger.info(f"Sent email to {invitation.email}")
+            except Exception as e:
+                # Email sending failed, but we still created the invitation
+                # Admin can manually share the URL
+                import traceback
+
+                error_details = traceback.format_exc()
+                logger.warning(
+                    f"Failed to send email to {invitation.email}",
+                    exc_info=True,
+                    extra={
+                        "exception_type": type(e).__name__,
+                        "exception_message": str(e),
+                        "traceback": error_details,
+                    },
+                )
+                pass
+
+        # Return list of created invitations
+        return list(created_invitations)
 
     def invited_emails(self):
         return list(self.voteinvitation_set.values_list("email", flat=True))
@@ -195,45 +227,71 @@ class VoteInvitation(models.Model):
     def send_email(self, request=None):
         """
         Send the invitation email to the voter.
-
+        If email sending fails (e.g., not configured), the invitation is still
+        created and can be shared manually via the invitation URL.
         """
-        email_subject = getattr(
-            settings,
-            "INVITATION_EMAIL_SUBJECT",
-            "approval_polls/invitation_email_subject.txt",
-        )
-        email_body_html = getattr(
-            settings,
-            "INVITATION_EMAIL_HTML",
-            "approval_polls/invitation_email_body.html",
-        )
+        try:
+            email_subject = getattr(
+                settings,
+                "INVITATION_EMAIL_SUBJECT",
+                "approval_polls/invitation_email_subject.txt",
+            )
+            email_body_html = getattr(
+                settings,
+                "INVITATION_EMAIL_HTML",
+                "approval_polls/invitation_email_body.html",
+            )
 
-        ctx_dict = {}
-        if request is not None:
-            ctx_dict = RequestContext(request, ctx_dict)
+            current_site = Site.objects.get_current()
+            invitation_url = self.get_invitation_url(request)
+            param_string = "?key=" + self.key + "&email=" + self.email
 
-        current_site = Site.objects.get_current()
-        param_string = "?key=" + self.key + "&email=" + self.email
-        ctx_dict.update(
-            {
+            # Build context dict for template rendering
+            ctx_dict = {
                 "param_string": param_string,
+                "invitation_url": invitation_url,
                 "poll": self.poll,
                 "site": current_site,
             }
-        )
+            # Add request to context if available (for request-dependent template features)
+            if request is not None:
+                ctx_dict["request"] = request
 
-        subject = render_to_string(email_subject, ctx_dict)
-        message_html = render_to_string(email_body_html, ctx_dict)
-        from_email = settings.DEFAULT_FROM_EMAIL
-        email_message = EmailMultiAlternatives(
-            subject,
-            "",
-            from_email,
-            [self.email],
-        )
-        email_message.attach_alternative(message_html, "text/html")
+            subject = render_to_string(email_subject, ctx_dict, request=request)
+            message_html = render_to_string(email_body_html, ctx_dict, request=request)
+            from_email = settings.DEFAULT_FROM_EMAIL
+            email_message = EmailMultiAlternatives(
+                subject,
+                "",
+                from_email,
+                [self.email],
+            )
+            email_message.attach_alternative(message_html, "text/html")
 
-        email_message.send()
+            email_message.send()
+        except Exception:
+            # Email sending failed - invitation still created, can be shared manually
+            raise
+
+    def get_invitation_url(self, request=None):
+        """
+        Generate the invitation URL for this VoteInvitation.
+        """
+        from django.urls import reverse
+
+        if request:
+            base_url = request.build_absolute_uri(
+                reverse("invitation", args=[self.poll.id])
+            )
+        else:
+            # Fallback if no request available
+            from django.contrib.sites.models import Site
+
+            current_site = Site.objects.get_current()
+            base_url = f"https://{current_site.domain}{reverse('invitation', args=[self.poll.id])}"
+
+        param_string = f"?key={self.key}&email={self.email}"
+        return f"{base_url}{param_string}"
 
     def __unicode__(self):
         return str(self.email) + " for Poll:" + str(self.poll.id)

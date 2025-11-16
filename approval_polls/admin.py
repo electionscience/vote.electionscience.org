@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
-from approval_polls.models import Ballot, Choice, Poll
+from approval_polls.models import Ballot, Choice, Poll, VoteInvitation
 
 # Define a resource class for the User model
 
@@ -53,6 +53,18 @@ class ChoiceInline(admin.TabularInline):
     extra = 3
 
 
+class VoteInvitationInline(admin.TabularInline):
+    """
+    Defines the layout of 'VoteInvitation's in the
+    admin panel.
+    """
+
+    model = VoteInvitation
+    extra = 0
+    readonly_fields = ("key", "sent_date", "ballot")
+    fields = ("email", "key", "sent_date", "ballot")
+
+
 @admin.register(Poll)
 class PollAdmin(admin.ModelAdmin):
     """
@@ -65,7 +77,7 @@ class PollAdmin(admin.ModelAdmin):
         ("Date information", {"fields": ["pub_date"], "classes": ["collapse"]}),
         ("Visibility", {"fields": ["is_private"]}),
     ]
-    inlines = [ChoiceInline]
+    inlines = [ChoiceInline, VoteInvitationInline]
     list_display = ("id", "question", "pub_date", "is_private")
     list_filter = ["pub_date", "is_private"]
     search_fields = ["question"]
@@ -126,3 +138,21 @@ class PollAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Ballot)
+
+
+@admin.register(VoteInvitation)
+class VoteInvitationAdmin(admin.ModelAdmin):
+    """
+    Defines the layout of a 'VoteInvitation' in the admin panel.
+    """
+
+    list_display = ("email", "poll", "sent_date", "has_ballot")
+    list_filter = ["sent_date", "poll"]
+    search_fields = ["email", "poll__question"]
+    readonly_fields = ("key",)
+
+    def has_ballot(self, obj):
+        return obj.ballot is not None
+
+    has_ballot.boolean = True
+    has_ballot.short_description = "Voted"

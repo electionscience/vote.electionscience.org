@@ -12,7 +12,7 @@
 {% block content %}
     <div class="container">
         <h1 class="mb-4">Create an Election</h1>
-        <form action="{% url 'create' %}" method="post">
+        <form action="{% url 'create' %}" method="post" id="create-poll-form">
             {% csrf_token %}
             <div class="card mb-4">
                 <div class="card-body">
@@ -23,7 +23,7 @@
                                class="form-control {% if question_error %}is-invalid{% endif %}"
                                id="question"
                                name="question"
-                               value="{{ question }}"
+                               value="{{ question|default:'' }}"
                                placeholder="Mayor">
                         {% if question_error %}<div class="invalid-feedback">{{ question_error }}</div>{% endif %}
                     </div>
@@ -32,33 +32,59 @@
                             <input class="form-check-input"
                                    type="checkbox"
                                    id="showWriteIn"
-                                   name="show-write-in">
+                                   name="show-write-in"
+                                   {% if show_write_in %}checked{% endif %}>
                             <label class="form-check-label" for="showWriteIn">Allow Write-Ins</label>
                         </div>
                     </div>
                     <h2 class="card-title h5 mb-3">Candidates</h2>
                     <div id="poll-options">
-                        {% for i in 4|get_range %}
-                            <div class="mb-3 poll-option d-flex align-items-start gap-2">
-                                <label for="choice{{ i }}" class="form-label poll-option-number">{{ i }}.</label>
-                                <div class="flex-grow-1">
-                                    <div class="input-group">
-                                        <input type="text"
-                                               class="form-control {% if i == 1 and choice_error %}is-invalid{% endif %}"
-                                               id="choice{{ i }}"
-                                               name="choice{{ i }}"
-                                               maxlength="100"
-                                               placeholder="Candidate name">
-                                        <button class="btn btn-outline-primary remove-choice"
-                                                type="button"
-                                                title="Remove Candidate">
-                                            <i class="fa fa-times"></i>
-                                        </button>
+                        {% if choices_data %}
+                            {% for choice_num, choice in choices_data %}
+                                <div class="mb-3 poll-option d-flex align-items-start gap-2">
+                                    <label for="choice{{ choice_num }}" class="form-label poll-option-number">{{ choice_num }}.</label>
+                                    <div class="flex-grow-1">
+                                        <div class="input-group">
+                                            <input type="text"
+                                                   class="form-control {% if choice_num == 1 and choice_error %}is-invalid{% endif %}"
+                                                   id="choice{{ choice_num }}"
+                                                   name="choice{{ choice_num }}"
+                                                   value="{{ choice.text }}"
+                                                   maxlength="100"
+                                                   placeholder="Candidate name">
+                                            <button class="btn btn-outline-primary remove-choice"
+                                                    type="button"
+                                                    title="Remove Candidate">
+                                                <i class="fa fa-times"></i>
+                                            </button>
+                                        </div>
+                                        {% if choice_num == 1 and choice_error %}<div class="invalid-feedback">{{ choice_error }}</div>{% endif %}
                                     </div>
-                                    {% if i == 1 and choice_error %}<div class="invalid-feedback">{{ choice_error }}</div>{% endif %}
                                 </div>
-                            </div>
-                        {% endfor %}
+                            {% endfor %}
+                        {% else %}
+                            {% for i in 4|get_range %}
+                                <div class="mb-3 poll-option d-flex align-items-start gap-2">
+                                    <label for="choice{{ i }}" class="form-label poll-option-number">{{ i }}.</label>
+                                    <div class="flex-grow-1">
+                                        <div class="input-group">
+                                            <input type="text"
+                                                   class="form-control {% if i == 1 and choice_error %}is-invalid{% endif %}"
+                                                   id="choice{{ i }}"
+                                                   name="choice{{ i }}"
+                                                   maxlength="100"
+                                                   placeholder="Candidate name">
+                                            <button class="btn btn-outline-primary remove-choice"
+                                                    type="button"
+                                                    title="Remove Candidate">
+                                                <i class="fa fa-times"></i>
+                                            </button>
+                                        </div>
+                                        {% if i == 1 and choice_error %}<div class="invalid-feedback">{{ choice_error }}</div>{% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
                     </div>
                     <button type="button" class="btn btn-outline-primary" id="add-choice">
                         <i class="fa fa-plus"></i> Add Candidate
@@ -78,7 +104,7 @@
                                    name="radio-poll-type"
                                    id="registeredVote"
                                    value="2"
-                                   checked>
+                                   {% if vtype == '2' or not vtype %}checked{% endif %}>
                             <label class="form-check-label" for="registeredVote">
                                 <strong>Only registered users</strong> - Requires registration. One ballot per user.
                             </label>
@@ -88,11 +114,40 @@
                                    type="radio"
                                    name="radio-poll-type"
                                    id="anyoneVote"
-                                   value="1">
+                                   value="1"
+                                   {% if vtype == '1' %}checked{% endif %}>
                             <label class="form-check-label" for="anyoneVote">
                                 <strong>Anyone</strong> - This isn't secure and should be for demonstration purposes only. Anonymous visitors can vote. The same person could submit multiple ballots.
                             </label>
                         </div>
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="radio"
+                                   name="radio-poll-type"
+                                   id="invitationVote"
+                                   value="3"
+                                   {% if vtype == '3' %}checked{% endif %}>
+                            <label class="form-check-label" for="invitationVote">
+                                <strong>Invitation only</strong> - Only invited voters can participate. You'll receive invitation links to share.
+                            </label>
+                        </div>
+                    </div>
+                    <input type="hidden"
+                           id="poll-vtype"
+                           name="vtype"
+                           value="{{ vtype|default:'2' }}">
+                    <div id="email-input" style="display: none;" class="mb-3">
+                        <label for="token-emails" class="form-label">Invitee Email Addresses:</label>
+                        <input type="text"
+                               class="form-control"
+                               id="token-emails"
+                               name="token-emails"
+                               value="{{ token_emails|default:'' }}"
+                               placeholder="Enter email addresses (comma-separated)">
+                        <div id="email-error" class="text-danger mt-2" style="display: none;">Please enter valid email addresses.</div>
+                    </div>
+                    <div id="existing-emails" style="display: none;" class="mb-3">
+                        <p class="text-muted small">You can add more invitations after creating the poll.</p>
                     </div>
                     {% comment %} <h3 class="h6 mb-3">Tags</h3>
                     <div class="mb-3">

@@ -3,6 +3,7 @@ import sys
 
 import environ
 import sentry_sdk
+import structlog
 
 env = environ.Env(
     # set casting, default value
@@ -107,10 +108,14 @@ DATABASES = {
 
 # The following settings are required for the activation emails in the
 # registration module to work.
-SENDGRID_API_KEY = env("SENDGRID_API_KEY", str, default="")
-if SENDGRID_API_KEY != "":
-    EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
-    SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+MAILGUN_API_KEY = env("MAILGUN_API_KEY", str, default="")
+MAILGUN_DOMAIN = env(
+    "MAILGUN_DOMAIN", str, default="sandbox6fd6a89cd7964a43823dad8cc15226b1.mailgun.org"
+)
+
+if MAILGUN_API_KEY != "":
+    # Use Mailgun API backend
+    EMAIL_BACKEND = "approval_polls.mailgun_backend.MailgunBackend"
 else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DEFAULT_FROM_EMAIL = "vote@electionscience.org"
@@ -191,6 +196,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE = (
+    "django_structlog.middlewares.RequestMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -248,17 +254,37 @@ INSTALLED_APPS = (
 
 ACCOUNT_ACTIVATION_DAYS = 7
 
-# A sample logging configuration. The only tangible logging
-# performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error when DEBUG=False.
-# See http://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
+# Structlog configuration for structured logging
+structlog.configure(
+    processors=[
+        structlog.contextvars.merge_contextvars,
+        structlog.processors.add_log_level,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
+    ],
+    context_class=dict,
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    wrapper_class=structlog.stdlib.BoundLogger,
+    cache_logger_on_first_use=True,
+)
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "json_formatter": {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processor": structlog.processors.JSONRenderer(),
+        },
+        "plain_console": {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processor": structlog.dev.ConsoleRenderer(),
+        },
+    },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
+            "formatter": "plain_console",
         },
     },
     "root": {
@@ -269,6 +295,11 @@ LOGGING = {
         "django": {
             "handlers": ["console"],
             "level": "INFO",
+            "propagate": False,
+        },
+        "approval_polls": {
+            "handlers": ["console"],
+            "level": "DEBUG",
             "propagate": False,
         },
     },
