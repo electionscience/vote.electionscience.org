@@ -237,6 +237,8 @@
         </div>
     </div>
     <!-- Load Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"
+            onerror="console.error('Failed to load Chart.js from CDN');"
+            onload="window.chartJsLoaded = true;"></script>
     <script src="{% static 'results.js' %}" defer data-poll-id="{{ poll.id }}"></script>
 {% endblock %}

@@ -2,6 +2,28 @@ const data = document.currentScript.dataset;
 const pollId = parseInt(data.pollId, 10);
 
 document.addEventListener("DOMContentLoaded", async function () {
+  // Wait for Chart.js to be available (with timeout)
+  let chartLoadAttempts = 0;
+  const maxAttempts = 50; // 5 seconds max wait (50 * 100ms)
+
+  while (typeof Chart === "undefined" && chartLoadAttempts < maxAttempts) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    chartLoadAttempts++;
+  }
+
+  // Ensure Chart.js is loaded before proceeding
+  if (typeof Chart === "undefined") {
+    console.error(
+      "Chart.js is not loaded. Please check your internet connection and try refreshing the page.",
+    );
+    const allocationLogDiv = document.getElementById("allocationLog");
+    if (allocationLogDiv) {
+      allocationLogDiv.textContent =
+        "Error: Chart.js library failed to load. Please check your internet connection and refresh the page.";
+    }
+    return;
+  }
+
   const seatsSlider = document.getElementById("seatsSlider");
   const seatsValue = document.getElementById("seatsValue");
   const winnersList = document.getElementById("winnersList");
@@ -25,6 +47,18 @@ document.addEventListener("DOMContentLoaded", async function () {
     allocationLogDiv.textContent =
       "Error loading ballot data. Please try refreshing the page.";
     return;
+  }
+
+  // Helper function to escape HTML entities to prevent XSS
+  function escapeHtml(text) {
+    const map = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;",
+    };
+    return String(text).replace(/[&<>"']/g, (m) => map[m]);
   }
 
   // Build a debug table of ballots (optional)
@@ -246,14 +280,21 @@ document.addEventListener("DOMContentLoaded", async function () {
     spavChart.data.datasets[0].data = results.map((a) => a.seatCount);
     spavChart.update();
 
-    // Update winners list
+    // Update winners list using DOM manipulation to prevent XSS
     const winners = results.filter((a) => a.seatCount > 0);
-    let html = "<h4>Winners</h4><ul>";
+    winnersList.innerHTML = "";
+
+    const h4 = document.createElement("h4");
+    h4.textContent = "Winners";
+    winnersList.appendChild(h4);
+
+    const ul = document.createElement("ul");
     winners.forEach((w) => {
-      html += `<li>${w.text} (Seats: ${w.seatCount})</li>`;
+      const li = document.createElement("li");
+      li.textContent = `${w.text} (Seats: ${w.seatCount})`;
+      ul.appendChild(li);
     });
-    html += "</ul>";
-    winnersList.innerHTML = html;
+    winnersList.appendChild(ul);
 
     // Display debug log in the page
     allocationLogDiv.textContent = debugLines.join("\n");
@@ -265,26 +306,47 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Initial run
   updateAllocation();
 
-  // (Optional) Build a table for debugging the raw ballots
+  // (Optional) Build a table for debugging the raw ballots using DOM manipulation to prevent XSS
   function buildVotesTable(ballots, allChoices) {
-    let html = '<table class="table table-striped">';
-    html +=
-      "<thead><tr><th>Ballot #</th><th>Approved IDs</th><th>Approved Text</th></tr></thead>";
-    html += "<tbody>";
+    votesTableDiv.innerHTML = "";
 
+    const table = document.createElement("table");
+    table.className = "table table-striped";
+
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+    ["Ballot #", "Approved IDs", "Approved Text"].forEach((headerText) => {
+      const th = document.createElement("th");
+      th.textContent = headerText;
+      headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
     ballots.forEach((approvedChoices, index) => {
+      const tr = document.createElement("tr");
+
+      const tdIndex = document.createElement("td");
+      tdIndex.textContent = String(index + 1);
+      tr.appendChild(tdIndex);
+
+      const tdIds = document.createElement("td");
+      tdIds.textContent = approvedChoices.join(", ");
+      tr.appendChild(tdIds);
+
+      const tdTexts = document.createElement("td");
       const approvedTexts = approvedChoices.map((cid) => {
         const c = allChoices.find((ch) => ch.id === cid);
         return c ? c.choice_text : `Unknown(${cid})`;
       });
-      html += `<tr>
-        <td>${index + 1}</td>
-        <td>${approvedChoices.join(", ")}</td>
-        <td>${approvedTexts.join(", ")}</td>
-      </tr>`;
-    });
+      tdTexts.textContent = approvedTexts.join(", ");
+      tr.appendChild(tdTexts);
 
-    html += "</tbody></table>";
-    votesTableDiv.innerHTML = html;
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+
+    votesTableDiv.appendChild(table);
   }
 });
