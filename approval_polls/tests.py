@@ -277,13 +277,11 @@ class MyPollTests(TestCase):
         # Get the queryset of polls created by 'user1'
         user_polls = Poll.objects.filter(user__username="user1").order_by("id")
 
-        # Use `transform=str` to compare the string representation of each Poll object
-        self.assertQuerySetEqual(
-            response.context["latest_poll_list"],
-            map(
-                repr, user_polls
-            ),  # Use `map(repr, queryset)` to get the expected format
-            transform=repr,  # Ensure the actual queryset is transformed to its string representation for comparison
+        actual_polls = [
+            poll_data["poll"] for poll_data in response.context["latest_poll_list"]
+        ]
+        self.assertListEqual(
+            [repr(poll) for poll in actual_polls], [repr(poll) for poll in user_polls]
         )
 
 
@@ -515,9 +513,11 @@ class DeletePollTests(TestCase):
         response = self.client.get(reverse("my_polls"))
         self.assertEqual(response.status_code, 200)
 
-        # Assuming 'latest_poll_list' is a Page object from pagination
-        # Extract the list of Poll objects from the Page object
-        actual_polls = list(response.context["latest_poll_list"].object_list)
+        # `my_polls` returns poll metadata dicts; extract the poll objects.
+        actual_polls = [
+            poll_data["poll"]
+            for poll_data in response.context["latest_poll_list"].object_list
+        ]
 
         # Create a list of the expected Poll objects' string representations
         expected_polls = Poll.objects.filter(question="question2")
@@ -585,10 +585,11 @@ class PollVisibilityTests(TestCase):
         self.client.login(username="user2", email="user2@example.com", password="test")
         response = self.client.get(reverse("my_polls"))
         self.assertEqual(response.status_code, 200)
-        self.assertQuerySetEqual(
-            response.context["latest_poll_list"],
-            [repr(self.private_poll)],
-            transform=repr,
+        actual_polls = [
+            poll_data["poll"] for poll_data in response.context["latest_poll_list"]
+        ]
+        self.assertListEqual(
+            [repr(poll) for poll in actual_polls], [repr(self.private_poll)]
         )
 
     def test_private_poll_different_user(self):
@@ -599,10 +600,11 @@ class PollVisibilityTests(TestCase):
         self.client.login(username="user1", password="test")
         response = self.client.get(reverse("my_polls"))
         self.assertEqual(response.status_code, 200)
-        self.assertQuerySetEqual(
-            response.context["latest_poll_list"],
-            [repr(self.public_poll)],
-            transform=repr,
+        actual_polls = [
+            poll_data["poll"] for poll_data in response.context["latest_poll_list"]
+        ]
+        self.assertListEqual(
+            [repr(poll) for poll in actual_polls], [repr(self.public_poll)]
         )
 
 

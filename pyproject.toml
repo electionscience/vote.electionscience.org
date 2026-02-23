@@ -37,6 +37,10 @@ packages = ["approval_polls"]
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "approval_polls.settings"
 python_files = "tests.py test_*.py *_tests.py"
+filterwarnings = [
+  "ignore::DeprecationWarning:compressor\\.base",
+  "ignore::DeprecationWarning:widget_tweaks\\.templatetags\\.widget_tweaks",
+]
 
 [tool.bandit]
 exclude_dirs = ['*_test.py', '*/test_*.py', '*/tests.py']
