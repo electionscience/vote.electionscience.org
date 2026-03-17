@@ -628,11 +628,15 @@ class TagCloudTests(TestCase):
         self.assertContains(response, "new york")
 
     def test_poll_tags_index(self):
-        # print [pt.tag_text for pt in self.poll.polltag_set.all()]
         response = self.client.get(reverse("tagged_polls", args=("New York",)))
         self.assertEqual(response.status_code, 200)
-        print(response.content)
+        self.assertContains(response, "Tag: new york")
         self.assertContains(response, '<a href="/1/">Create Sample Poll.</a>')
+
+    def test_tag_cloud_links_use_tag_route(self):
+        response = self.client.get(reverse("tag_cloud"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, reverse("tagged_polls", args=("new york",)))
 
     def test_poll_delete(self):
         self.poll.polltag_set.clear()
