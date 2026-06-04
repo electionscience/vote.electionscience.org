@@ -16,6 +16,9 @@ env:
 jobs:
   review_app:
     runs-on: ubuntu-latest
+    # Dependabot PRs run with a separate secrets store and cannot read
+    # FLY_API_TOKEN, so the review-app deploy fails. Skip them.
+    if: github.actor != 'dependabot[bot]'
     outputs:
       url: ${{ steps.deploy.outputs.url }}
     # Only run one deployment at a time per PR.
