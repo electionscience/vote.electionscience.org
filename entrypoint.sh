@@ -16,14 +16,6 @@ fi
 echo "Running migrations..."
 python manage.py migrate --noinput
 
-# Collect static files
-echo "Collecting static files..."
-python manage.py collectstatic --noinput
-
-# Compress static files
-echo "Compressing static files..."
-python manage.py compress --force
-
 # Start Gunicorn server
 echo "Starting Gunicorn server..."
 exec gunicorn "approval_polls.wsgi:application" "-b 0.0.0.0:8000"

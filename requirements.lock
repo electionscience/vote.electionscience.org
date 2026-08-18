@@ -130,9 +130,7 @@ python-http-client==3.3.7
 python-ipware==3.0.0
     # via django-ipware
 pytz==2025.2
-    # via
-    #   approval-frame (pyproject.toml)
-    #   pandas
+    # via pandas
 pyyaml==6.0.2
     # via
     #   djlint
@@ -171,8 +169,10 @@ tokenize-rt==6.2.0
     # via django-upgrade
 tqdm==4.67.1
     # via djlint
-tzdata==2025.2
-    # via pandas
+tzdata==2026.3
+    # via
+    #   approval-frame (pyproject.toml)
+    #   pandas
 urllib3==2.4.0
     # via
     #   requests

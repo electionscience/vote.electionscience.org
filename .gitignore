@@ -10,5 +10,6 @@ approval_polls/local_settings.py
 env
 Thumbs.db
 approval_polls/static
+static/
 .DS_Store
 .env

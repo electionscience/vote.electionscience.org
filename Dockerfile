@@ -9,6 +9,9 @@ ENV PYTHONUNBUFFERED=1
 # Set the working directory in the container
 WORKDIR /code
 
+# Create the SQLite mount point before Fly attaches the production volume.
+RUN mkdir -p /data
+
 # Install UV for dependency management
 RUN pip install uv --no-cache-dir
 
@@ -23,7 +26,11 @@ RUN uv pip install --system -e .
 # Copy the rest of the project files
 COPY . /code/
 
-HEALTHCHECK CMD curl --fail http://localhost:8000/ || exit 1
+# Build static assets into the image before any application process starts.
+RUN FLY_APP_NAME=vote-electionscience-org python manage.py compress --force \
+    && FLY_APP_NAME=vote-electionscience-org python manage.py collectstatic --noinput
+
+HEALTHCHECK CMD python -c "import socket; socket.create_connection(('127.0.0.1', 8000), 2).close()"
 
 # Use a script as the entrypoint
 ENTRYPOINT ["/code/entrypoint.sh"]

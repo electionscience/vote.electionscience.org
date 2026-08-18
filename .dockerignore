@@ -1,0 +1,8 @@
+.git
+.env
+.venv
+*.pyc
+*.sqlite3
+__pycache__/
+approval_polls/static/
+static/
