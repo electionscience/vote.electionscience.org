@@ -1,6 +1,7 @@
 import datetime
 
 import structlog
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.client import Client
@@ -10,6 +11,12 @@ from django.utils import timezone
 from approval_polls.models import Ballot, Choice, Poll, Vote
 
 logger = structlog.get_logger(__name__)
+
+
+class MonitoringSettingsTests(TestCase):
+    def test_sentry_is_disabled_during_tests(self):
+        self.assertTrue(settings.IS_TESTING)
+        self.assertFalse(settings.SENTRY_ENABLED)
 
 
 def queryset_to_list_string(queryset):

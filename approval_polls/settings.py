@@ -13,6 +13,13 @@ env = environ.Env(
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 environ.Env.read_env(os.path.join(os.path.dirname(BASE_DIR), ".env"))
 DEBUG = env("DEBUG")
+IS_TESTING = (
+    "test" in sys.argv
+    or "pytest" in sys.modules
+    or any(os.path.basename(arg).startswith("pytest") for arg in sys.argv)
+)
+SENTRY_DSN = env("SENTRY_DSN", str, default="")
+SENTRY_ENABLED = bool(SENTRY_DSN) and not DEBUG and not IS_TESTING
 print("Debug?: ", DEBUG)
 
 # Quick-start development settings - unsuitable for production
@@ -67,17 +74,15 @@ if not DEBUG:
                     return None
         return event
 
-    sentry_sdk.init(
-        dsn="https://78856604267db99554868743d5eb61e5@o4506681396625408.ingest.sentry.io/4506681396756480",
-        # Set traces_sample_rate to 1.0 to capture 100%
-        # of transactions for performance monitoring.
-        traces_sample_rate=1.0,
-        # Set profiles_sample_rate to 1.0 to profile 100%
-        # of sampled transactions.
-        # We recommend adjusting this value in production.
-        profiles_sample_rate=1.0,
-        before_send=filter_invalid_host_errors,
-    )
+    if SENTRY_ENABLED:
+        sentry_sdk.init(
+            dsn=SENTRY_DSN,
+            environment=env("SENTRY_ENVIRONMENT", str, default="production"),
+            release=env("SENTRY_RELEASE", str, default=None),
+            traces_sample_rate=env("SENTRY_TRACES_SAMPLE_RATE", float, default=0.05),
+            profiles_sample_rate=env("SENTRY_PROFILES_SAMPLE_RATE", float, default=0.0),
+            before_send=filter_invalid_host_errors,
+        )
     CSRF_TRUSTED_ORIGINS = [
         "https://vote.electionscience.org",
         f"https://{APP_NAME}.fly.dev",
@@ -92,7 +97,7 @@ if not DEBUG:
     ]
 
 
-if "test" in sys.argv or "pytest" in sys.argv:
+if IS_TESTING:
     COMPRESS_OFFLINE = False
     COMPRESS_ENABLED = False
 
