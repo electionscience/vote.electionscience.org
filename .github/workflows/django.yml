@@ -19,7 +19,7 @@ jobs:
         python-version: [3.14]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install UV
         run: pipx install uv
       - name: Install dependencies
